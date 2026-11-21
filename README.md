@@ -85,8 +85,8 @@ Dane zostają na komputerze/serwerze urzędu: `wnioski.db` (SQLite), archiwum i 
 | POST | `/api/baza-wiedzy/wersje/{id}/wycofaj` | `{autor}` → wycofanie wersji (powrót do poprzedniej) |
 | POST | `/api/podobne` | `{tresc, pomin_id?, data_odniesienia?}` → podobne sprawy z archiwum i wnioski z ostatniego roku (bez AI) |
 | GET | `/api/jednostki` | wydziały i biura UMB (nazwy z BIP, zakres spraw) |
-| POST | `/api/wydzial/propozycja` | `{tresc, numer?, data_wplywu?}` → do 3 właściwych jednostek z uzasadnieniem, pytania do wydziału (AI; bez klucza – archiwum + zakresy) |
-| POST | `/api/wydzial/wiadomosc` | `{jednostka, pytania, numer?, data_wplywu?, termin?}` → treść prośby do wydziału (do skopiowania – program nic nie wysyła) |
+| POST | `/api/wydzial/propozycja` | `{tresc, numer?, data_wplywu?}` → do 3 właściwych jednostek z uzasadnieniem (AI; bez klucza – archiwum + zakresy) |
+| POST | `/api/wydzial/wiadomosc` | `{jednostka, numer?, data_wplywu?, termin?}` → treść prośby do wydziału (do skopiowania – program nic nie wysyła) |
 | POST | `/api/wnioski/{id}/odpowiedzi-wydzialow` | `{wydzial, nazwa_pliku, tresc}` → odpowiedź wydziału zapisana przy wniosku (podstawa projektu pisma) |
 | DELETE | `/api/wnioski/{id}/odpowiedzi-wydzialow/{id_odp}` | usunięcie odpowiedzi wydziału |
 | POST | `/api/anonimizacja/sugestie` | `{tekst, dodatkowe?}` → fragmenty z danymi osobowymi do ukrycia (lokalnie, bez AI) |
