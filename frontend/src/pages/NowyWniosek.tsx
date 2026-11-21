@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMagazyn } from '../magazyn';
 import StrefaPliku from '../components/StrefaPliku';
+import PropozycjaOdpowiedzi from '../components/PropozycjaOdpowiedzi';
 import { dzisIso, formatuj } from '../lib/daty';
 import { terminOdpowiedzi } from '../lib/terminy';
 import { czyOdczytWiarygodny, MAKS_STRON_OCR, wyciagnijMetadane, type WynikOdczytu } from '../lib/parsowanie';
@@ -135,13 +136,19 @@ export default function NowyWniosek() {
             </div>
           </div>
         </div>
-        <div className="karta">
-          <h2>Treść wniosku</h2>
-          {tresc ? (
-            <div className="pole-tekstu" style={{ maxHeight: 560 }}>{tresc}</div>
-          ) : (
-            <p className="maly">{nazwaPliku ? 'Nie udało się odczytać tekstu z pliku.' : 'Treść pojawi się po wgraniu pliku.'}</p>
-          )}
+        <div className="stos">
+          <div className="karta">
+            <h2>Treść wniosku</h2>
+            {tresc ? (
+              <div className="pole-tekstu" style={{ maxHeight: 420 }}>{tresc}</div>
+            ) : (
+              <p className="maly">{nazwaPliku ? 'Nie udało się odczytać tekstu z pliku.' : 'Treść pojawi się po wgraniu pliku.'}</p>
+            )}
+          </div>
+          <PropozycjaOdpowiedzi
+            key={nazwaPliku}
+            wniosek={{ tresc, temat: dane.temat, numer: dane.numer, data_wplywu: dane.dataWplywu, wnioskodawca: dane.wnioskodawca }}
+          />
         </div>
       </div>
     </>

@@ -3,3 +3,4 @@ dist/
 *.tsbuildinfo
 # pliki OCR kopiowane z node_modules (npm install)
 public/ocr/
+.vite/

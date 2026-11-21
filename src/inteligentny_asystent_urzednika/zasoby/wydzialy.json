@@ -1,0 +1,39 @@
+{
+  "zrodlo": [
+    "https://bip.um.bydgoszcz.pl/artykuly/198/wydzialy",
+    "https://bip.um.bydgoszcz.pl/artykuly/1158/biura"
+  ],
+  "pobrano": "2026-11-21",
+  "uwaga": "Nazwy i symbole pochodzą z BIP UMB. Pole 'zakres' to roboczy opis słów kluczowych dopisany przez zespół (BIP nie podaje zakresu na tych stronach) – do weryfikacji z mentorami UMB.",
+  "jednostki": [
+    {"symbol": "WAB", "rodzaj": "wydział", "nazwa": "Wydział Administracji Budowlanej", "zakres": "pozwolenia na budowę, zgłoszenia robót budowlanych, rozbiórki, decyzje budowlane"},
+    {"symbol": "WE", "rodzaj": "wydział", "nazwa": "Wydział Edukacji i Sportu", "zakres": "szkoły, przedszkola, oświata, nauczyciele, obiekty sportowe, kluby sportowe, stypendia"},
+    {"symbol": "WF", "rodzaj": "wydział", "nazwa": "Wydział Funduszy Europejskich", "zakres": "dotacje UE, projekty unijne, wnioski o dofinansowanie"},
+    {"symbol": "WGO", "rodzaj": "wydział", "nazwa": "Wydział Gospodarki Odpadami", "zakres": "odpady komunalne, wywóz śmieci, opłaty za odpady, segregacja, PSZOK"},
+    {"symbol": "WI", "rodzaj": "wydział", "nazwa": "Wydział Informatyki", "zakres": "systemy informatyczne urzędu, sprzęt komputerowy, oprogramowanie, licencje"},
+    {"symbol": "WIM", "rodzaj": "wydział", "nazwa": "Wydział Inwestycji Miasta", "zakres": "inwestycje miejskie, budowa i remonty dróg, budynków, koszty inwestycji, wykonawcy"},
+    {"symbol": "WK", "rodzaj": "wydział", "nazwa": "Wydział Księgowości", "zakres": "księgowość urzędu, płatności, faktury, wydatki"},
+    {"symbol": "WMG", "rodzaj": "wydział", "nazwa": "Wydział Mienia i Geodezji", "zakres": "nieruchomości miejskie, działki, sprzedaż i dzierżawa gruntów, geodezja, użytkowanie wieczyste"},
+    {"symbol": "WOŚ", "rodzaj": "wydział", "nazwa": "Wydział Ochrony Środowiska", "zakres": "ochrona środowiska, wycinka drzew, jakość powietrza, hałas, zwierzęta"},
+    {"symbol": "WOA", "rodzaj": "wydział", "nazwa": "Wydział Organizacyjno-Administracyjny", "zakres": "organizacja urzędu, kadry, zatrudnienie, wynagrodzenia, regulamin organizacyjny, samochody służbowe"},
+    {"symbol": "WPL", "rodzaj": "wydział", "nazwa": "Wydział Podatków i Opłat Lokalnych", "zakres": "podatek od nieruchomości, podatki lokalne, opłaty lokalne, ulgi i umorzenia podatkowe"},
+    {"symbol": "WSO", "rodzaj": "wydział", "nazwa": "Wydział Spraw Obywatelskich", "zakres": "dowody osobiste, meldunki, ewidencja ludności, działalność gospodarcza CEIDG, zgromadzenia"},
+    {"symbol": "WSR", "rodzaj": "wydział", "nazwa": "Wydział Świadczeń Rodzinnych", "zakres": "świadczenia rodzinne, zasiłki, fundusz alimentacyjny, karta dużej rodziny"},
+    {"symbol": "WUK", "rodzaj": "wydział", "nazwa": "Wydział Uprawnień Komunikacyjnych", "zakres": "prawa jazdy, rejestracja pojazdów, licencje taxi, transport"},
+    {"symbol": "WW", "rodzaj": "wydział", "nazwa": "Wydział Windykacji", "zakres": "zaległości wobec miasta, egzekucja należności, windykacja"},
+    {"symbol": "WZP", "rodzaj": "wydział", "nazwa": "Wydział Zamówień Publicznych", "zakres": "przetargi, zamówienia publiczne, umowy z wykonawcami, postępowania"},
+    {"symbol": "WZB", "rodzaj": "wydział", "nazwa": "Wydział Zarządzania Budżetem Miasta", "zakres": "budżet miasta, wydatki i dochody, zadłużenie, sprawozdania budżetowe"},
+    {"symbol": "WZK", "rodzaj": "wydział", "nazwa": "Wydział Zarządzania Kryzysowego i Ochrony Ludności", "zakres": "zarządzanie kryzysowe, schrony, obrona cywilna, powódź, bezpieczeństwo"},
+    {"symbol": "WGK", "rodzaj": "wydział", "nazwa": "Wydział Zieleni i Gospodarki Komunalnej", "zakres": "zieleń miejska, parki, nasadzenia, gospodarka komunalna, cmentarze, oświetlenie"},
+    {"symbol": "BAS", "rodzaj": "biuro", "nazwa": "Biuro Aktywności Społecznej", "zakres": "organizacje pozarządowe, budżet obywatelski, konsultacje społeczne, rady osiedli"},
+    {"symbol": "BCB", "rodzaj": "biuro", "nazwa": "Biuro Cyfryzacji i Bezpieczeństwa Informacji", "zakres": "cyfryzacja, ochrona danych osobowych, RODO, bezpieczeństwo informacji"},
+    {"symbol": "BZS", "rodzaj": "biuro", "nazwa": "Biuro ds. Zdrowia i Polityki Społecznej", "zakres": "zdrowie, programy zdrowotne, pomoc społeczna, seniorzy, osoby z niepełnosprawnościami"},
+    {"symbol": "BKS", "rodzaj": "biuro", "nazwa": "Biuro Komunikacji Społecznej", "zakres": "kontakt z mieszkańcami, wnioski o informację publiczną, skargi i wnioski"},
+    {"symbol": "BKZ", "rodzaj": "biuro", "nazwa": "Biuro Konserwatora Zabytków", "zakres": "zabytki, rejestr zabytków, prace konserwatorskie"},
+    {"symbol": "BKB", "rodzaj": "biuro", "nazwa": "Biuro Kultury Bydgoskiej", "zakres": "kultura, instytucje kultury, wydarzenia kulturalne, dotacje na kulturę"},
+    {"symbol": "BPR", "rodzaj": "biuro", "nazwa": "Biuro Prasowe", "zakres": "media, komunikaty prasowe, wydatki na media i reklamy"},
+    {"symbol": "BP", "rodzaj": "biuro", "nazwa": "Biuro Promocji Miasta i Współpracy z Zagranicą", "zakres": "promocja miasta, miasta partnerskie, wydarzenia promocyjne, kampanie"},
+    {"symbol": "BRM", "rodzaj": "biuro", "nazwa": "Biuro Rady Miasta", "zakres": "Rada Miasta, radni, sesje, uchwały, diety radnych, interpelacje"},
+    {"symbol": "BZIT", "rodzaj": "biuro", "nazwa": "Biuro ZIT", "zakres": "Zintegrowane Inwestycje Terytorialne, obszar metropolitalny"}
+  ]
+}

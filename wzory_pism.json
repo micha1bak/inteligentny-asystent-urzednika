@@ -1,0 +1,96 @@
+{
+  "metadane": {
+    "nazwa": "wzory_pism_odpowiedzi_dip",
+    "wersja": "1.0.0",
+    "powiazanie": ["ocena_prawna_wniosku_dip_kompletny.json", "werdykty_wniosek_odpowiedz_dip.json"],
+    "opis": "Wzory pism Biura Komunikacji Społecznej UMB w sprawach dostępu do informacji publicznej, opracowane na podstawie pism z katalogu „Przykładowe wnioski i odpowiedzi”. Pola «…» uzupełnia się danymi sprawy; czego nie wiadomo, oznacza się [[do uzupełnienia: …]].",
+    "zrodla": [
+      "Odpowiedź - BKS.IV.1431.15.2026", "Odpowiedź - BKS.IV.1431.16.2026", "Odpowiedź - BKS.IV.1431.17.2026",
+      "Odpowiedź - BKS.IV.1431.18.2026", "Odpowiedź - BKS.IV.1431.293.2025", "Odpowiedź - BKS.IV.1431.307.2025",
+      "Odpowiedź - BKS.IV.1431.543.2026", "Odpowiedź - BKS.IV.1431.590.2026",
+      "Doprecyzowanie - BKS.IV.1431.509.2026", "Kwerenda - BKS.IV.1431.543.2026"
+    ]
+  },
+  "naglowek": "URZĄD MIASTA BYDGOSZCZY\nBiuro Komunikacji Społecznej\n85-102 Bydgoszcz, ul. Jezuicka 1\ntel. (52) 58 58 365, fax. (52) 58 58 623\ne-mail: bks@um.bydgoszcz.pl, www.bydgoszcz.pl",
+  "podpis": "Łączę wyrazy szacunku,\nBiuro Komunikacji Społecznej\nUrząd Miasta Bydgoszczy",
+  "zasady_stylu": [
+    "Pismo zaczyna się nagłówkiem BKS, potem „Bydgoszcz, dnia «data» r.” i znak sprawy (numer wniosku), niżej adresat (jeśli znany).",
+    "Zwrot: „Szanowny Panie,” / „Szanowna Pani,” / „Szanowni Państwo,” – zgodnie z wnioskodawcą; dalej „przez Pana / Panią / Państwa”.",
+    "Pierwsze zdanie streszcza zakres wniosku („w zakresie …” / „dotyczący …”) i wskazuje komórkę merytoryczną: „na podstawie danych przygotowanych przez komórkę merytoryczną, tj. «nazwa jednostki» Urzędu Miasta Bydgoszczy”.",
+    "Pisze się w 1. osobie liczby pojedynczej („informuję”, „przekazuję”, „powiadamiam”).",
+    "Ustawę cytuje się: „ustawy z dnia 6 września 2001 r. o dostępie do informacji publicznej (t.j. Dz. U. z 2022 r. poz. 902, z 2025 r. poz. 1844)”.",
+    "Nie używa się „Dotyczy:” ani „Z poważaniem”; zakończenie: „Łączę wyrazy szacunku,” i podpis Biura Komunikacji Społecznej.",
+    "Załączniki wymienia się na końcu: „Załącznik: Informacja_«numer»” – tylko gdy rzeczywiście są."
+  ],
+  "wzory": [
+    {
+      "id": "udostepnienie_w_tresci",
+      "nazwa": "Udostępnienie informacji w treści pisma",
+      "kiedy": "Informację można udostępnić i jest krótka (jedna lub kilka danych).",
+      "werdykty": ["MOZNA_UDOSTEPNIC", "MOZNA_Z_ANONIMIZACJA"],
+      "wzorowane_na": ["BKS.IV.1431.18.2026", "BKS.IV.1431.590.2026"],
+      "tresc": "«zwrot grzecznościowy»\nw odpowiedzi na wystosowany przez «Pana/Panią/Państwa» wniosek o udostępnienie informacji publicznej w zakresie «zakres wniosku», na podstawie danych przygotowanych przez komórkę merytoryczną, tj. «komórka merytoryczna» Urzędu Miasta Bydgoszczy informuję, że «treść informacji».",
+      "uwagi": "Przy anonimizacji dane osób fizycznych pomija się w treści (np. „Pan … pełnił funkcję …”)."
+    },
+    {
+      "id": "udostepnienie_w_zalaczniku",
+      "nazwa": "Udostępnienie informacji w załączniku",
+      "kiedy": "Odpowiedź to zestawienie, tabela lub dokumenty przygotowane przez wydział.",
+      "werdykty": ["MOZNA_UDOSTEPNIC", "MOZNA_Z_ANONIMIZACJA"],
+      "wzorowane_na": ["BKS.IV.1431.307.2025"],
+      "tresc": "W odpowiedzi na wystosowany przez «Pana/Panią/Państwa» wniosek o udostępnienie informacji publicznej w zakresie «zakres wniosku», na podstawie materiału przygotowanego przez komórkę merytoryczną tj. «komórka merytoryczna» Urzędu Miasta Bydgoszczy przekazuję w załączeniu odpowiedź.\n\nZałącznik: Informacja_«numer sprawy»"
+    },
+    {
+      "id": "udostepnienie_punkt_po_punkcie",
+      "nazwa": "Udostępnienie informacji punkt po punkcie (Ad 1, Ad 2 …)",
+      "kiedy": "Wniosek zawiera kilka ponumerowanych pytań.",
+      "werdykty": ["MOZNA_UDOSTEPNIC", "MOZNA_Z_ANONIMIZACJA"],
+      "wzorowane_na": ["BKS.IV.1431.293.2025", "BKS.IV.1431.543.2026"],
+      "tresc": "W odpowiedzi na wystosowany przez «Pana/Panią/Państwa» wniosek o udostępnienie informacji publicznej w zakresie «zakres wniosku», na podstawie materiału przygotowanego przez «komórka merytoryczna / jednostki merytoryczne» Urzędu Miasta Bydgoszczy informuję, co następuje.\nAd 1\n«odpowiedź na pytanie 1»\nAd 2\n«odpowiedź na pytanie 2»\n…\n\nZałączniki:\n1. «nazwa załącznika» (jeśli są)",
+      "uwagi": "Gdy wcześniej wysłano pismo o kwerendzie, zaczyna się: „w nawiązaniu do wcześniejszej korespondencji dotyczącej wystosowanego przez Panią wniosku …”."
+    },
+    {
+      "id": "nieposiadanie_wskazanie_dysponenta",
+      "nazwa": "Pismo informacyjne: UMB nie jest dysponentem informacji (wskazanie właściwego podmiotu)",
+      "kiedy": "Informację posiada inny podmiot (np. jednostka miejska, konserwator zabytków).",
+      "werdykty": ["NIE_MOZNA_PISMO_INFORMACYJNE"],
+      "wzorowane_na": ["BKS.IV.1431.15.2026", "BKS.IV.1431.17.2026"],
+      "tresc": "«zwrot grzecznościowy»\nw odpowiedzi na wystosowany przez «Pana/Panią/Państwa» wniosek o udostępnienie informacji publicznej dotyczący «zakres wniosku», uprzejmie informuję iż Urząd Miasta Bydgoszczy nie jest dysponentem wnioskowanych danych.\nJednocześnie wskazuję, iż zgodnie z zasadą dostępu do informacji publicznej, wyrażoną w art. 4 ust. 3 ustawy z dnia 6 września 2001 r. o dostępie do informacji publicznej (t.j. Dz. U. z 2022 r. poz. 902) obowiązane do udostępnienia informacji publicznej są podmioty publiczne będące w posiadaniu tych informacji.\nW związku z powyższym Urząd Miasta Bydgoszczy uprzejmie informuje, iż Wnioskodawca w zakresie informacji dotyczących «zakres» winien się zwrócić do «właściwy podmiot» jako właściwego dysponenta danych.\nPoniżej zamieszczam dane do kontaktu:\n«nazwa, adres, telefon, e-mail podmiotu»",
+      "uwagi": "Danych kontaktowych podmiotu nie podawać z pamięci – jeśli ich nie ma w kontekście, wpisać [[do uzupełnienia: dane kontaktowe]]."
+    },
+    {
+      "id": "brak_danych",
+      "nazwa": "Pismo informacyjne: urząd nie prowadzi takich danych/statystyk",
+      "kiedy": "Wydział wskazał, że żądane dane nie istnieją (informacja nie jest wytwarzana ani gromadzona).",
+      "werdykty": ["NIE_MOZNA_PISMO_INFORMACYJNE"],
+      "wzorowane_na": ["BKS.IV.1431.16.2026"],
+      "tresc": "«zwrot grzecznościowy»\nw związku z wystosowanym przez «Pana/Panią/Państwa» zapytaniem w zakresie: «zakres wniosku» na podstawie informacji przygotowanych przez komórkę merytoryczną, tj. «komórka merytoryczna» Urzędu Miasta Bydgoszczy informuję, że Urząd Miasta Bydgoszczy nie prowadzi «statystyk/rejestru», które umożliwiłyby udzielenie odpowiedzi."
+    },
+    {
+      "id": "wezwanie_do_doprecyzowania",
+      "nazwa": "Wezwanie do doprecyzowania zakresu wniosku",
+      "kiedy": "Wniosek jest nieprecyzyjny (nie wiadomo, o jakie dokumenty/akta chodzi); ewentualnie z informacją o innej formie dostępu i nowym terminie.",
+      "werdykty": ["MOZNA_WARUNKOWO", "POZOSTAWIENIE_BEZ_ROZPOZNANIA"],
+      "wzorowane_na": ["BKS.IV.1431.509.2026"],
+      "tresc": "WEZWANIE DO DOPRECYZOWANIA\nZAKRESU OTRZYMANEGO WNIOSKU\n\n«zwrot grzecznościowy»\nw związku z wystosowanym przez «Pana/Panią/Państwa» wnioskiem o udostępnienie informacji publicznej dotyczącym «zakres wniosku», komórka merytoryczna, tj. «komórka merytoryczna» Urzędu Miasta Bydgoszczy wnosi o doprecyzowanie wniosku «czego dotyczy niejasność» i wskazanie przez Wnioskodawcę, «co należy wskazać».\nProszę o przesłanie doprecyzowania w terminie 7 dni od otrzymania niniejszego pisma. Po upływie tego terminu wniosek zostanie pozostawiony bez rozpoznania, o czym Wnioskodawca zostanie powiadomiony odrębnym pismem.\n[opcjonalnie] Jednocześnie stosownie do treści art. 13 ust. 2 ustawy z 06.09.2001 r. o dostępie do informacji publicznej (Dz. U. z 2022 r. poz. 902, z 2025 r. poz. 1844) powiadamiam, że wyznaczam nowy termin na rozpatrzenie wniosku, wskazując dzień «data».",
+      "uwagi": "Można dodać informację o formie dostępu (np. wgląd na miejscu, gdy dokumentów nie da się skopiować)."
+    },
+    {
+      "id": "przedluzenie_terminu_kwerenda",
+      "nazwa": "Powiadomienie o przedłużeniu terminu (kwerenda)",
+      "kiedy": "Informacji nie da się przygotować w 14 dni (art. 13 ust. 2 UDIP) – pismo wysyła się przed upływem terminu, odpowiedź merytoryczna idzie osobno.",
+      "werdykty": ["MOZNA_WARUNKOWO"],
+      "wzorowane_na": ["Kwerenda - BKS.IV.1431.543.2026"],
+      "tresc": "W odpowiedzi na wystosowany przez «Pana/Panią/Państwa» wniosek o udostępnienie informacji publicznej dotyczący «zakres wniosku», ze względu na konieczność przeprowadzenia całościowej kwerendy w zakresie wnioskowanych danych powiadamiam, że ostateczna odpowiedź nastąpi w terminie późniejszym wskazanym w art. 13 ust. 2 ustawy z dnia 6 września 2001 r. o dostępie do informacji publicznej – orientacyjny termin udzielenia odpowiedzi: «data, nie później niż 2 miesiące od wpływu»."
+    },
+    {
+      "id": "decyzja_odmowna_szkielet",
+      "nazwa": "Decyzja o odmowie udostępnienia informacji – szkielet",
+      "kiedy": "Ograniczenia z art. 5 UDIP (prywatność, tajemnice) albo niewykazanie szczególnie istotnego interesu publicznego przy informacji przetworzonej.",
+      "werdykty": ["NIE_MOZNA_DECYZJA_ODMOWNA", "NIE_MOZNA_UMORZENIE_DECYZJA"],
+      "wzorowane_na": [],
+      "tresc": "DECYZJA nr «numer»\n\nNa podstawie art. 16 ust. 1 w związku z «art. 5 ust. 1/ust. 2 albo art. 3 ust. 1 pkt 1» ustawy z dnia 6 września 2001 r. o dostępie do informacji publicznej (t.j. Dz. U. z 2022 r. poz. 902, z 2025 r. poz. 1844) oraz art. 104 i art. 107 ustawy z dnia 14 czerwca 1960 r. – Kodeks postępowania administracyjnego (t.j. Dz. U. z 2025 r. poz. 1691), po rozpatrzeniu wniosku «wnioskodawca – strona» z dnia «data wpływu» o udostępnienie informacji publicznej w zakresie «zakres wniosku»\n\nodmawiam udostępnienia «zakres odmowy».\n\nUZASADNIENIE\n«stan faktyczny: data wpływu, zakres wniosku, czynności organu»\n«uzasadnienie prawne: przesłanka odmowy i jej wykazanie; przy art. 5 ust. 2 – oznaczenie podmiotów, ze względu na których dobra wydano decyzję; imiona, nazwiska i funkcje osób, które zajęły stanowisko w toku postępowania (art. 16 ust. 2 pkt 2 UDIP)»\n\nPOUCZENIE\nOd niniejszej decyzji przysługuje odwołanie do Samorządowego Kolegium Odwoławczego w Bydgoszczy za pośrednictwem Prezydenta Miasta Bydgoszczy w terminie 14 dni od dnia jej doręczenia. W trakcie biegu terminu do wniesienia odwołania strona może zrzec się prawa do wniesienia odwołania (art. 127a KPA).\n\n«imię i nazwisko, stanowisko osoby upoważnionej przez Prezydenta Miasta Bydgoszczy»",
+      "uwagi": "Brak przykładu w archiwum UMB – szkielet z wymogów ETAP_11/ETAP_12 modelu oceny (art. 107 § 1 i 3 KPA, art. 16 ust. 2 UDIP). Decyzję podpisuje Prezydent lub osoba upoważniona (§ 12 ust. 1 Zarządzenia 535/2024), nie Biuro jako takie. Wymaga weryfikacji prawnika."
+    }
+  ]
+}
