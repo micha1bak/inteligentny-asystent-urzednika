@@ -9,3 +9,6 @@ wheels/
 .env.*
 # Virtual environments
 .venv
+
+# Wyniki konwersji (dane osobowe z wniosków)
+src/inteligentny_asystent_urzednika/konwersja/pliki_txt/
