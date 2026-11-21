@@ -31,6 +31,11 @@ Wsparcie obsługi wniosków o dostęp do informacji publicznej w Urzędzie Miast
 | GET | `/api/zdrowie` | stan backendu: czy jest klucz, model, liczba spraw i werdyktów |
 | POST | `/api/konwersja` | plik wniosku (multipart, pole `plik`: PDF, DOCX, PNG/JPG/TIFF, maks. 20 MB) → `{tekst, zrodlo, odreczny, strony_odreczne, stron, strony_z_modelu, komunikat}` |
 | POST | `/api/propozycja-odpowiedzi` | `{tresc, temat?, numer?, data_wplywu?, wnioskodawca?}` → propozycja |
+| GET | `/api/archiwum` | sprawy z archiwum (z historią zmian), słownik werdyktów i lista jednostek UMB |
+| POST | `/api/archiwum` | `{sprawa, autor}` → dodanie sprawy (409 – sygnatura już jest, 422 – nieznany werdykt lub dane osobowe) |
+| PUT | `/api/archiwum/{sygnatura}` | `{sprawa, autor}` → edycja, także `nieaktualna: true/false` |
+| DELETE | `/api/archiwum/{sygnatura}` | usunięcie sprawy |
+| POST | `/api/archiwum/propozycja` | `{wniosek, odpowiedz, sygnatura?}` (treść dokumentów) → zanonimizowana propozycja wpisu od modelu |
 
 `/api/konwersja` używa modułu `konwersja/ocr_llm.py` (ten sam co w CLI `python -m inteligentny_asystent_urzednika.konwersja.ocr_llm`):
 DOCX jest czytany lokalnie bez modelu; każda strona PDF/obrazu jest najpierw klasyfikowana przez model wizyjny Groq
@@ -56,6 +61,20 @@ Brakujące fakty model oznacza w piśmie jako `[[do uzupełnienia: …]]`.
 
 Konfiguracja (`.env`, opis w `.envexample`): `GROQ_MODEL` (domyślnie `openai/gpt-oss-120b`), `KONTEKST_PRAWNY=wybrany|pelny`,
 `GROQ_LIMIT_TPM` (domyślnie 8000), `GROQ_MAX_TOKENS` (domyślnie 2000), `GROQ_TIMEOUT_S`.
+
+### Archiwum odpowiedzi
+
+Urzędnik zarządza archiwum spraw w aplikacji (zakładka **Archiwum odpowiedzi**): wyszukuje, edytuje, oznacza sprawy jako
+nieaktualne (model ich wtedy nie używa) i usuwa. Nową sprawę dodaje ręcznie albo z pary dokumentów: wniosek + wysłana
+odpowiedź. Model proponuje wtedy wpis, a urzędnik go poprawia i zatwierdza. Przy wniosku ze statusem „Odpowiedź wysłana” w kalendarzu
+jest link „Dodaj do archiwum”, który przenosi treść wniosku, sygnaturę i datę odpowiedzi.
+
+- zmiany są zapisywane w `werdykty_wniosek_odpowiedz_dip.json` (zapis atomowy) razem z historią: kto, kiedy,
+  które pola (przed → po); plik nadal można edytować ręcznie, a backend wczytuje go ponownie po każdej zmianie,
+- przed zapisem backend sprawdza werdykt (musi być w słowniku) i blokuje dane osobowe o jednoznacznym formacie
+  (e-mail, telefon, PESEL, numer konta – `anonimizacja.py`); w propozycji modelu są one maskowane automatycznie,
+  a imiona i nazwiska model zastępuje opisem roli – urzędnik sprawdza wpis przed zatwierdzeniem,
+- pola techniczne (`historia`, `nieaktualna`) nie trafiają do modelu.
 
 **Uwaga:** treść wniosku jest wysyłana do zewnętrznego dostawcy (Groq) – na hackathonie tylko dane testowe.
 Docelowo ten sam interfejs `KlientLLM` (`groq_klient.py`) można podpiąć pod model lokalny (np. Ollama/vLLM z API zgodnym z OpenAI – wystarczy zmienić `GROQ_URL` i `GROQ_MODEL`).

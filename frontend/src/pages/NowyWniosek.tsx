@@ -6,14 +6,7 @@ import PropozycjaOdpowiedzi from '../components/PropozycjaOdpowiedzi';
 import { dzisIso, formatuj } from '../lib/daty';
 import { terminOdpowiedzi } from '../lib/terminy';
 import { wyciagnijMetadane, type WynikOdczytu } from '../lib/parsowanie';
-
-function zapamietaneInicjaly(): string {
-  try {
-    return localStorage.getItem('asystent.inicjaly') ?? '';
-  } catch {
-    return '';
-  }
-}
+import { zapamietaneInicjaly, zapamietajInicjaly } from '../lib/inicjaly';
 
 export default function NowyWniosek() {
   const { dodajWniosek, nastepnyNumer, wnioski } = useMagazyn();
@@ -54,11 +47,7 @@ export default function NowyWniosek() {
   const gotowe = nazwaPliku && dane.numer && dane.dataWplywu && dane.temat && !duplikat;
 
   function zatwierdz() {
-    try {
-      localStorage.setItem('asystent.inicjaly', dane.inicjaly);
-    } catch {
-      /* bez znaczenia */
-    }
+    zapamietajInicjaly(dane.inicjaly);
     dodajWniosek({
       ...dane,
       inicjaly: dane.inicjaly.toUpperCase(),
