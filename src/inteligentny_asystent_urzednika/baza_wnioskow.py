@@ -72,6 +72,22 @@ class ZatwierdzenieOdpowiedziWejscie(BaseModel):
     autor: str = Field(default="", max_length=40)
 
 
+class OdpowiedzWydzialu(BaseModel):
+    """Odpowiedź komórki merytorycznej wgrana przez urzędnika (treść odczytana z pliku PDF/Word)."""
+
+    id: str
+    wydzial: str
+    nazwa_pliku: str = ""
+    tresc: str
+    dodano: str
+
+
+class OdpowiedzWydzialuWejscie(BaseModel):
+    wydzial: str = Field(min_length=2, max_length=200)
+    nazwa_pliku: str = Field(default="", max_length=255)
+    tresc: str = Field(min_length=1, max_length=100_000)
+
+
 class WniosekZapisany(BaseModel):
     id: str
     numer: str
@@ -86,6 +102,7 @@ class WniosekZapisany(BaseModel):
     data_odpowiedzi: str | None = None
     nazwa_pliku: str | None = None
     zatwierdzona_odpowiedz: ZatwierdzonaOdpowiedz | None = None
+    odpowiedzi_wydzialow: list[OdpowiedzWydzialu] = []
     utworzono: str
     zaktualizowano: str
 
@@ -112,6 +129,7 @@ CREATE TABLE IF NOT EXISTS wnioski (
     odpowiedz_werdykt TEXT,
     odpowiedz_zatwierdzono TEXT,
     odpowiedz_json TEXT,
+    odpowiedzi_wydzialow TEXT,
     utworzono TEXT NOT NULL,
     zaktualizowano TEXT NOT NULL
 );
@@ -123,6 +141,7 @@ _NOWE_KOLUMNY = (
     ("odpowiedz_werdykt", "TEXT"),
     ("odpowiedz_zatwierdzono", "TEXT"),
     ("odpowiedz_json", "TEXT"),
+    ("odpowiedzi_wydzialow", "TEXT"),
 )
 
 
@@ -165,6 +184,16 @@ def _parsuj_odpowiedz(wiersz: sqlite3.Row) -> ZatwierdzonaOdpowiedz | None:
         return None
 
 
+def _parsuj_odpowiedzi_wydzialow(wiersz: sqlite3.Row) -> list[OdpowiedzWydzialu]:
+    surowy = wiersz["odpowiedzi_wydzialow"] if "odpowiedzi_wydzialow" in wiersz.keys() else None
+    if not surowy:
+        return []
+    try:
+        return [OdpowiedzWydzialu.model_validate(o) for o in json.loads(surowy)]
+    except Exception:
+        return []
+
+
 def _wiersz_na_model(wiersz: sqlite3.Row) -> WniosekZapisany:
     return WniosekZapisany(
         id=wiersz["id"],
@@ -180,6 +209,7 @@ def _wiersz_na_model(wiersz: sqlite3.Row) -> WniosekZapisany:
         data_odpowiedzi=wiersz["data_odpowiedzi"],
         nazwa_pliku=wiersz["nazwa_pliku"],
         zatwierdzona_odpowiedz=_parsuj_odpowiedz(wiersz),
+        odpowiedzi_wydzialow=_parsuj_odpowiedzi_wydzialow(wiersz),
         utworzono=wiersz["utworzono"],
         zaktualizowano=wiersz["zaktualizowano"],
     )
@@ -382,3 +412,35 @@ def zastap_wszystkie(sciezka: Path, pozycje: list[WniosekWejscie]) -> list[Wnios
     with _polaczenie(sciezka) as conn:
         conn.execute("DELETE FROM wnioski")
         return [_wstaw(conn, p, teraz) for p in pozycje]
+
+
+# ---------------------------------------------------------------- odpowiedzi wydziałów (krok 6 instrukcji UMB)
+def _zapisz_odpowiedzi(conn: sqlite3.Connection, id_wniosku: str, odpowiedzi: list[OdpowiedzWydzialu]) -> None:
+    conn.execute(
+        "UPDATE wnioski SET odpowiedzi_wydzialow = ?, zaktualizowano = ? WHERE id = ?",
+        (json.dumps([o.model_dump() for o in odpowiedzi], ensure_ascii=False), _teraz_iso(), id_wniosku),
+    )
+
+
+def dodaj_odpowiedz_wydzialu(sciezka: Path, id_wniosku: str, dane: OdpowiedzWydzialuWejscie) -> WniosekZapisany:
+    with _polaczenie(sciezka) as conn:
+        wiersz = conn.execute("SELECT * FROM wnioski WHERE id = ?", (id_wniosku,)).fetchone()
+        if wiersz is None:
+            raise BladBazy(404, "Nie znaleziono wniosku.")
+        odpowiedzi = _parsuj_odpowiedzi_wydzialow(wiersz)
+        odpowiedzi.append(OdpowiedzWydzialu(
+            id=uuid.uuid4().hex[:12], wydzial=dane.wydzial.strip(), nazwa_pliku=dane.nazwa_pliku.strip(),
+            tresc=dane.tresc.strip(), dodano=_teraz_iso(),
+        ))
+        _zapisz_odpowiedzi(conn, id_wniosku, odpowiedzi)
+        return _wiersz_na_model(conn.execute("SELECT * FROM wnioski WHERE id = ?", (id_wniosku,)).fetchone())
+
+
+def usun_odpowiedz_wydzialu(sciezka: Path, id_wniosku: str, id_odpowiedzi: str) -> WniosekZapisany:
+    with _polaczenie(sciezka) as conn:
+        wiersz = conn.execute("SELECT * FROM wnioski WHERE id = ?", (id_wniosku,)).fetchone()
+        if wiersz is None:
+            raise BladBazy(404, "Nie znaleziono wniosku.")
+        odpowiedzi = [o for o in _parsuj_odpowiedzi_wydzialow(wiersz) if o.id != id_odpowiedzi]
+        _zapisz_odpowiedzi(conn, id_wniosku, odpowiedzi)
+        return _wiersz_na_model(conn.execute("SELECT * FROM wnioski WHERE id = ?", (id_wniosku,)).fetchone())

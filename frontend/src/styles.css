@@ -347,3 +347,6 @@ pre.json, textarea.json { font-family: Consolas, monospace; font-size: 0.8rem; w
 .lista-ukryc { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; max-height: 40vh; overflow: auto; }
 .przycisk-ukrycia { border: 0; padding: 1px 6px; font: inherit; cursor: pointer; text-align: left; }
 .przycisk-ukrycia.anon-ukryte { color: #fff; }
+.lista-odpowiedzi { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.lista-odpowiedzi > li { border: 1px solid var(--linia); border-radius: 6px; padding: 8px 10px; }
+.pole-tekstu { white-space: pre-wrap; background: #f8f9fb; border: 1px solid var(--linia); border-radius: 6px; padding: 10px; font-size: 0.88rem; line-height: 1.5; max-height: 260px; overflow: auto; }

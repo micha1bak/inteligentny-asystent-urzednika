@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import PelnyPodgladPisma from '../components/PelnyPodgladPisma';
+import OdpowiedziWydzialow from '../components/OdpowiedziWydzialow';
 import PropozycjaOdpowiedzi from '../components/PropozycjaOdpowiedzi';
 import { Pozostalo, ZnaczekStatusu } from '../components/Znaczki';
 import {
@@ -20,7 +21,7 @@ import type { ZWniosku } from './NowaSprawaArchiwum';
 
 export default function SzczegolyWniosku() {
   const { id } = useParams<{ id: string }>();
-  const { wnioski, ladowanie, zmienWniosek, zatwierdzOdpowiedz, usunWniosek } = useMagazyn();
+  const { wnioski, ladowanie, zmienWniosek, zatwierdzOdpowiedz, usunWniosek, podmienWniosek } = useMagazyn();
   const zMagazynu = wnioski.find((w) => w.id === id);
   const [pobrany, setPobrany] = useState<Wniosek | null>(null);
   const [bladPobrania, setBladPobrania] = useState('');
@@ -84,6 +85,10 @@ export default function SzczegolyWniosku() {
         return rez;
       }}
       onUsun={() => usunWniosek(wniosek.id)}
+      onPodmien={(w) => {
+        podmienWniosek(w);
+        if (!zMagazynu) setPobrany(w);
+      }}
     />
   );
 }
@@ -94,12 +99,14 @@ function WidokSzczegolow({
   onZapisz,
   onZatwierdzOdpowiedz,
   onUsun,
+  onPodmien,
 }: {
   wniosek: Wniosek;
   wszystkieWnioski: Wniosek[];
   onZapisz: (dane: WniosekDoZapisu) => Promise<Wniosek>;
   onZatwierdzOdpowiedz: (dane: ZatwierdzenieOdpowiedziWejscie) => Promise<WynikZatwierdzenia>;
   onUsun: () => Promise<void>;
+  onPodmien: (w: Wniosek) => void;
 }) {
   const nav = useNavigate();
   const dzis = dzisIso();
@@ -326,6 +333,7 @@ function WidokSzczegolow({
               numer={dane.numer}
             />
           )}
+          <OdpowiedziWydzialow wniosekId={wniosek.id} odpowiedzi={wniosek.odpowiedziWydzialow ?? []} onZmiana={onPodmien} />
           <PropozycjaOdpowiedzi
             key={wniosek.id}
             wniosek={{
@@ -334,6 +342,7 @@ function WidokSzczegolow({
               numer: dane.numer,
               data_wplywu: dane.dataWplywu,
               wnioskodawca: dane.wnioskodawca,
+              odpowiedzi_wydzialow: (wniosek.odpowiedziWydzialow ?? []).map((o) => ({ wydzial: o.wydzial, tresc: o.tresc })),
             }}
             onZatwierdz={zatwierdz}
           />

@@ -160,3 +160,20 @@ def test_zatwierdzenie_odpowiedzi_zapisuje_w_bazie_i_aktualizuje_werdykty(api_ba
     werdykty2 = json.loads(plik_werdyktow.read_text(encoding="utf-8"))
     pasujace = [s for s in werdykty2["sprawy"] if s["sygnatura"] == w["numer"]]
     assert len(pasujace) == 1 and pasujace[0]["werdykt"] == "MOZNA_Z_ANONIMIZACJA"
+
+
+def test_odpowiedzi_wydzialow(api_bazy):
+    klient, _, _ = api_bazy
+    w = klient.post("/api/wnioski", json=PRZYKLAD).json()
+    assert w["odpowiedzi_wydzialow"] == []
+    odp = klient.post(f"/api/wnioski/{w['id']}/odpowiedzi-wydzialow", json={
+        "wydzial": "Wydział Inwestycji Miasta", "nazwa_pliku": "odp_WIM.docx", "tresc": "Koszt remontu: 1 250 000 zł brutto."})
+    assert odp.status_code == 201, odp.text
+    lista = odp.json()["odpowiedzi_wydzialow"]
+    assert len(lista) == 1 and lista[0]["wydzial"] == "Wydział Inwestycji Miasta" and lista[0]["id"]
+    # zapis zmian danych wniosku nie kasuje odpowiedzi wydziałów
+    klient.put(f"/api/wnioski/{w['id']}", json={**PRZYKLAD, "numer": w["numer"], "status": "zapytania_wyslane"})
+    assert len(klient.get(f"/api/wnioski/{w['id']}").json()["odpowiedzi_wydzialow"]) == 1
+    po = klient.delete(f"/api/wnioski/{w['id']}/odpowiedzi-wydzialow/{lista[0]['id']}").json()
+    assert po["odpowiedzi_wydzialow"] == []
+    assert klient.post("/api/wnioski/nie-ma/odpowiedzi-wydzialow", json={"wydzial": "WIM", "tresc": "x"}).status_code == 404

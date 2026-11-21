@@ -18,6 +18,7 @@ from .archiwum import BladArchiwum, Sprawa, SprawaZArchiwum, ZmianaSprawy
 from .baza_wiedzy import BladBazyWiedzy, Wersja, WersjaZeStatusem
 from .baza_wnioskow import (
     BladBazy,
+    OdpowiedzWydzialuWejscie,
     WniosekWejscie,
     WniosekWsad,
     WniosekZapisany,
@@ -234,6 +235,25 @@ def utworz_aplikacje() -> FastAPI:
         except BladBazy as e:
             raise HTTPException(e.status, e.komunikat) from e
 
+    @app.post("/api/wnioski/{id_wniosku}/odpowiedzi-wydzialow", response_model=WniosekZapisany, status_code=201)
+    def wnioski_dodaj_odpowiedz_wydzialu(
+        id_wniosku: str, dane: OdpowiedzWydzialuWejscie, u: Ustawienia = Depends(pobierz_ustawienia)
+    ) -> WniosekZapisany:
+        """Odpowiedź komórki merytorycznej (treść z wgranego pliku) – podstawa projektu pisma."""
+        try:
+            return baza_wnioskow.dodaj_odpowiedz_wydzialu(u.plik_bazy, id_wniosku, dane)
+        except BladBazy as e:
+            raise HTTPException(e.status, e.komunikat) from e
+
+    @app.delete("/api/wnioski/{id_wniosku}/odpowiedzi-wydzialow/{id_odpowiedzi}", response_model=WniosekZapisany)
+    def wnioski_usun_odpowiedz_wydzialu(
+        id_wniosku: str, id_odpowiedzi: str, u: Ustawienia = Depends(pobierz_ustawienia)
+    ) -> WniosekZapisany:
+        try:
+            return baza_wnioskow.usun_odpowiedz_wydzialu(u.plik_bazy, id_wniosku, id_odpowiedzi)
+        except BladBazy as e:
+            raise HTTPException(e.status, e.komunikat) from e
+
     @app.post("/api/wnioski/{id_wniosku}/zatwierdz-odpowiedz", response_model=WynikZatwierdzenia)
     def wnioski_zatwierdz_odpowiedz(
         id_wniosku: str,
@@ -318,6 +338,11 @@ def utworz_aplikacje() -> FastAPI:
     ) -> WynikWyszukiwaniaPrzepisow:
         """Deterministyczne wyszukiwanie ustępów, artykułów i paragrafów w folderze dokumentów (bez AI)."""
         return szukaj_przepisow(indeks, q, akt=akt, limit=limit)
+
+    @app.get("/api/jednostki")
+    def jednostki() -> list[dict]:
+        """Wydziały i biura UMB (nazwy i symbole z BIP, zakres spraw) – do wyboru jednostki przez urzędnika."""
+        return JEDNOSTKI_UMB
 
     @app.post("/api/propozycja-odpowiedzi", response_model=Propozycja)
     async def propozycja_odpowiedzi(

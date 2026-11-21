@@ -12,6 +12,8 @@ export interface ZapytanieOPropozycje {
   numer?: string;
   data_wplywu?: string;
   wnioskodawca?: string;
+  /** odpowiedzi wydziałów wgrane do sprawy – model opiera na nich treść pisma */
+  odpowiedzi_wydzialow?: { wydzial: string; tresc: string }[];
 }
 
 export interface Propozycja {
@@ -372,6 +374,7 @@ interface WniosekApi {
   data_odpowiedzi?: string | null;
   nazwa_pliku?: string | null;
   zatwierdzona_odpowiedz?: ZatwierdzonaOdpowiedzApi | null;
+  odpowiedzi_wydzialow?: { id: string; wydzial: string; nazwa_pliku: string; tresc: string; dodano: string }[];
 }
 
 export interface ZatwierdzenieOdpowiedziWejscie {
@@ -426,6 +429,9 @@ function zApi(w: WniosekApi): Wniosek {
     dataOdpowiedzi: w.data_odpowiedzi ?? undefined,
     nazwaPliku: w.nazwa_pliku ?? undefined,
     zatwierdzonaOdpowiedz: zApiOdpowiedz(w.zatwierdzona_odpowiedz),
+    odpowiedziWydzialow: (w.odpowiedzi_wydzialow ?? []).map((o) => ({
+      id: o.id, wydzial: o.wydzial, nazwaPliku: o.nazwa_pliku, tresc: o.tresc, dodano: o.dodano,
+    })),
   };
 }
 
@@ -543,4 +549,34 @@ export async function pobierzPlikPisma(pismo: StrukturaPisma, format: 'docx' | '
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// ---------------------------------------------------------------- odpowiedzi wydziałów i jednostki UMB
+
+export async function dodajOdpowiedzWydzialuApi(id: string, dane: { wydzial: string; nazwa_pliku: string; tresc: string }): Promise<Wniosek> {
+  const odp = await wyslij(`/api/wnioski/${encodeURIComponent(id)}/odpowiedzi-wydzialow`, {
+    method: 'POST',
+    headers: JSON_NAGLOWKI,
+    body: JSON.stringify(dane),
+  });
+  return zApi((await odp.json()) as WniosekApi);
+}
+
+export async function usunOdpowiedzWydzialuApi(id: string, idOdpowiedzi: string): Promise<Wniosek> {
+  const odp = await wyslij(
+    `/api/wnioski/${encodeURIComponent(id)}/odpowiedzi-wydzialow/${encodeURIComponent(idOdpowiedzi)}`,
+    { method: 'DELETE' },
+  );
+  return zApi((await odp.json()) as WniosekApi);
+}
+
+export interface JednostkaUmb {
+  symbol: string;
+  rodzaj: string;
+  nazwa: string;
+  zakres: string;
+}
+
+export async function pobierzJednostki(sygnal?: AbortSignal): Promise<JednostkaUmb[]> {
+  return (await wyslij('/api/jednostki', { signal: sygnal })).json();
 }

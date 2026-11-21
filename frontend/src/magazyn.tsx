@@ -25,6 +25,8 @@ interface Magazyn {
   zmienWniosek: (id: string, w: WniosekDoZapisu) => Promise<Wniosek>;
   zatwierdzOdpowiedz: (id: string, dane: ZatwierdzenieOdpowiedziWejscie) => Promise<WynikZatwierdzenia>;
   usunWniosek: (id: string) => Promise<void>;
+  /** podmienia wniosek w stanie po zmianie zapisanej osobnym wywołaniem API (np. odpowiedzi wydziałów) */
+  podmienWniosek: (w: Wniosek) => void;
   nastepnyNumer: (rok: string, przesuniecie?: number) => string;
   przywrocDaneTestowe: () => Promise<void>;
 }
@@ -107,6 +109,10 @@ export function DostawcaMagazynu({ children }: { children: ReactNode }) {
     return wynik;
   }, []);
 
+  const podmienWniosek = useCallback((w: Wniosek) => {
+    setWnioski((prev) => prev.map((x) => (x.id === w.id ? w : x)));
+  }, []);
+
   const usunWniosek = useCallback(async (id: string) => {
     await usunWniosekApi(id);
     setWnioski((prev) => prev.filter((x) => x.id !== id));
@@ -133,11 +139,12 @@ export function DostawcaMagazynu({ children }: { children: ReactNode }) {
       dodajWnioskiWsadowo,
       zmienWniosek,
       zatwierdzOdpowiedz,
+      podmienWniosek,
       usunWniosek,
       nastepnyNumer,
       przywrocDaneTestowe,
     }),
-    [wnioski, ladowanie, blad, odswiez, dodajWniosek, dodajWnioskiWsadowo, zmienWniosek, zatwierdzOdpowiedz, usunWniosek, nastepnyNumer, przywrocDaneTestowe],
+    [wnioski, ladowanie, blad, odswiez, dodajWniosek, dodajWnioskiWsadowo, zmienWniosek, zatwierdzOdpowiedz, podmienWniosek, usunWniosek, nastepnyNumer, przywrocDaneTestowe],
   );
 
   return <Kontekst.Provider value={wartosc}>{children}</Kontekst.Provider>;

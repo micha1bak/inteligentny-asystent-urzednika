@@ -460,3 +460,24 @@ def test_konwersja_pdf_wymaga_klucza():
         assert _wyslij("Wniosek - BKS.IV.1431.16.2026.pdf").status_code == 503
     finally:
         app.dependency_overrides.clear()
+
+
+def test_odpowiedzi_wydzialow_trafiaja_do_modelu_i_mieszcza_sie_w_limicie():
+    from inteligentny_asystent_urzednika.propozycja import OdpowiedzWydzialuDoPisma
+
+    budzet = 8000 - 2000 - ZAPAS_TOKENOW
+    w = Wniosek(
+        tresc=WNIOSEK.tresc, numer=WNIOSEK.numer,
+        odpowiedzi_wydzialow=[
+            OdpowiedzWydzialuDoPisma(wydzial="Wydział Zieleni i Gospodarki Komunalnej",
+                                     tresc="W 2026 r. schronisko przyjęło 894 psy i 607 kotów. " * 60),
+            OdpowiedzWydzialuDoPisma(wydzial="Wydział Księgowości", tresc="Koszt opieki: 3 143 761,14 zł."),
+        ],
+    )
+    wiadomosci, _ = zbuduj_wiadomosci(w, WIEDZA, "wybrany", budzet)
+    tresc = wiadomosci[1]["content"]
+    assert "ODPOWIEDZI WYDZIAŁÓW" in tresc and "3 143 761,14 zł" in tresc and "894 psy" in tresc
+    assert 'wydzial="Wydział Zieleni i Gospodarki Komunalnej"' in tresc
+    assert szacuj_tokeny(wiadomosci) <= budzet + 50
+    assert "ODPOWIEDZI WYDZIAŁÓW" in wiadomosci[0]["content"]  # reguła w poleceniu systemowym
+    assert "ODPOWIEDZI WYDZIAŁÓW" not in zbuduj_wiadomosci(WNIOSEK, WIEDZA, "wybrany", budzet)[0][1]["content"]

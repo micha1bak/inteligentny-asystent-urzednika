@@ -47,4 +47,14 @@ export interface Wniosek {
   dataOdpowiedzi?: string; // YYYY-MM-DD
   nazwaPliku?: string;
   zatwierdzonaOdpowiedz?: ZatwierdzonaOdpowiedz;
+  /** odpowiedzi komórek merytorycznych wgrane przez urzędnika (podstawa projektu pisma) */
+  odpowiedziWydzialow?: OdpowiedzWydzialu[];
+}
+
+export interface OdpowiedzWydzialu {
+  id: string;
+  wydzial: string;
+  nazwaPliku: string;
+  tresc: string;
+  dodano: string;
 }
