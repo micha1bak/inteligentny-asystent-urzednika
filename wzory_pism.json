@@ -246,9 +246,51 @@
       }
     },
     {
+      "id": "decyzja_administracyjna",
+      "nazwa": "Decyzja administracyjna (odmowa udostępnienia / umorzenie postępowania)",
+      "kiedy": "Gdy wniosek wymaga wydania decyzji administracyjnej z art. 16 ust. 1 UDIP: odmowa udostępnienia (art. 5 UDIP – prywatność, tajemnica przedsiębiorcy/ustawowa, lub art. 3 ust. 1 pkt 1 UDIP – niewykazanie szczególnie istotnego interesu publicznego) albo umorzenie postępowania (art. 14 ust. 2 UDIP).",
+      "werdykty": [
+        "NIE_MOZNA_DECYZJA_ODMOWNA",
+        "NIE_MOZNA_UMORZENIE_DECYZJA"
+      ],
+      "tytul": "DECYZJA",
+      "zwrot": false,
+      "podpis": "z up. Prezydenta Miasta Bydgoszczy\n[[do uzupełnienia: imię, nazwisko i stanowisko osoby upoważnionej]]",
+      "tresc": "Na podstawie art. 104 i art. 107 ustawy z dnia 14 czerwca 1960 r. – Kodeks postępowania administracyjnego (t.j. Dz. U. z 2025 r. poz. 1691) oraz art. 16 ust. 1 ustawy z dnia 6 września 2001 r. o dostępie do informacji publicznej (t.j. Dz. U. z 2022 r. poz. 902, z 2025 r. poz. 1844) w zw. z «podstawa_szczegolowa», po rozpatrzeniu wniosku«z_dnia» złożonego przez «wnioskodawca» o udostępnienie informacji publicznej w zakresie «zakres_wniosku»,\norzekam:\n«sentencja»\nUZASADNIENIE\nW dniu «data_wniosku» do Urzędu Miasta Bydgoszczy wpłynął wniosek o udostępnienie informacji publicznej dotyczącej «zakres_wniosku».\nPo przeprowadzeniu analizy sprawy we współpracy z komórką merytoryczną, tj. «komorka_merytoryczna» Urzędu Miasta Bydgoszczy, organ ustalił następujący stan faktyczny i prawny.\n«uzasadnienie_faktyczne_i_prawne»\n?osoby_stanowisko Stosownie do art. 16 ust. 2 pkt 2 ustawy o dostępie do informacji publicznej wskazuję, że stanowisko w toku postępowania zajęli: «osoby_stanowisko».\n?chronione_podmioty Oznaczenie podmiotów, ze względu na których dobra wydano niniejszą decyzję: «chronione_podmioty».\nMając na uwadze powyższe, należało orzec jak w sentencji.\nPOUCZENIE\nOd niniejszej decyzji służy stronie odwołanie do Samorządowego Kolegium Odwoławczego w Bydgoszczy za pośrednictwem Prezydenta Miasta Bydgoszczy w terminie 14 dni od dnia jej doręczenia (art. 127 § 1 i 2 oraz art. 129 § 1 i 2 KPA).\nPrzed upływem terminu do wniesienia odwołania strona może zrzec się prawa do wniesienia odwołania wobec organu administracji publicznej, który wydał decyzję (art. 127a § 1 KPA). Z dniem doręczenia organowi oświadczenia o zrzeczeniu się prawa do wniesienia odwołania przez ostatnią ze stron postępowania decyzja staje się ostateczna i prawomocna (art. 127a § 2 KPA).",
+      "pola": {
+        "podstawa_szczegolowa": {
+          "opis": "szczegółowe przepisy materialne uzasadniające decyzję (w narzędniku/mianowniku po „w zw. z”), np. „art. 5 ust. 2 ustawy o dostępie do informacji publicznej”",
+          "typ": "tekst"
+        },
+        "zakres_wniosku": {
+          "opis": "czego dotyczy wniosek – fraza w dopełniaczu, pasująca po „w zakresie” / „dotyczącej”",
+          "typ": "tekst"
+        },
+        "sentencja": {
+          "opis": "rozstrzygnięcie po „orzekam:”, np. „odmówić udostępnienia informacji publicznej w zakresie …” albo „umorzyć postępowanie w sprawie …”",
+          "typ": "tekst"
+        },
+        "uzasadnienie_faktyczne_i_prawne": {
+          "opis": "uzasadnienie faktyczne i prawne rozstrzygnięcia (wskazanie przesłanek ustawowych i oceny wniosku)",
+          "typ": "tekst"
+        },
+        "osoby_stanowisko": {
+          "opis": "imiona, nazwiska i funkcje osób zajmujących stanowisko w toku postępowania (art. 16 ust. 2 pkt 2 UDIP) – jeśli nieznane, [[do uzupełnienia: …]]",
+          "typ": "tekst",
+          "opcjonalne": true
+        },
+        "chronione_podmioty": {
+          "opis": "oznaczenie podmiotów, ze względu na których dobra z art. 5 ust. 2 UDIP wydano decyzję",
+          "typ": "tekst",
+          "opcjonalne": true
+        }
+      },
+      "uwagi": "Projekt decyzji wymaga weryfikacji radcy prawnego oraz podpisu Prezydenta Miasta Bydgoszczy lub osoby upoważnionej (§ 12 ust. 1 Zarządzenia Nr 535/2024)."
+    },
+    {
       "id": "odpowiedz_uniwersalna",
       "nazwa": "Uniwersalny wzór odpowiedzi",
-      "kiedy": "Gdy żaden ze szczegółowych wzorów nie pasuje dokładnie do sprawy lub rozstrzygnięcia (np. decyzja odmowna, umorzenie, nietypowe pismo informacyjne lub sprawa mieszana).",
+      "kiedy": "Gdy żaden ze szczegółowych wzorów nie pasuje dokładnie do sprawy lub rozstrzygnięcia (np. odesłanie do BIP, odrębny tryb ustawowy, informacja niepubliczna, wniosek złożony/mieszany lub pozostawienie bez rozpoznania).",
       "werdykty": [
         "MOZNA_UDOSTEPNIC",
         "MOZNA_Z_ANONIMIZACJA",
@@ -260,23 +302,33 @@
       ],
       "zwrot": true,
       "zalaczniki": true,
-      "tresc": "w odpowiedzi na wystosowany przez «przez_kogo» wniosek o udostępnienie informacji publicznej dotyczący «zakres_wniosku», po analizie sprawy we współpracy z komórką merytoryczną, tj. «komorka_merytoryczna» Urzędu Miasta Bydgoszczy, informuję, co następuje.\n«tresc_odpowiedzi»\n?podstawa_prawna Podstawa prawna: «podstawa_prawna».\n?dalsze_kroki «dalsze_kroki»",
+      "tresc": "w odpowiedzi na wystosowany przez «przez_kogo» wniosek«z_dnia» o udostępnienie informacji publicznej w zakresie «zakres_wniosku», po przeprowadzeniu analizy sprawy we współpracy z komórką merytoryczną, tj. «komorka_merytoryczna» Urzędu Miasta Bydgoszczy, uprzejmie informuję, co następuje.\n«stanowisko_glowne»\n?punkty_odpowiedzi «punkty_odpowiedzi»\n?wyjasnienie «wyjasnienie»\n?podstawa_prawna Niniejszej odpowiedzi udzielam na podstawie «podstawa_prawna».\n?informacje_dodatkowe «informacje_dodatkowe»",
       "pola": {
         "zakres_wniosku": {
-          "opis": "czego dotyczy wniosek – fraza w dopełniaczu, pasująca po „dotyczący” / „w zakresie”, np. „kosztu remontu ul. Gdańskiej”",
+          "opis": "czego dotyczy wniosek – fraza w dopełniaczu, pasująca po „w zakresie”, np. „kosztu remontu ul. Gdańskiej”",
           "typ": "tekst"
         },
-        "tresc_odpowiedzi": {
-          "opis": "główna treść odpowiedzi dostosowana do werdyktu i uzasadnienia; nieznane dane z wydziału jako [[do uzupełnienia: …]]",
+        "stanowisko_glowne": {
+          "opis": "jednoznaczne stanowisko urzędu i główna odpowiedź merytoryczna w stylu urzędowym (1. osoba l. poj.); nieznane dane z wydziału jako [[do uzupełnienia: …]]",
           "typ": "tekst"
         },
-        "podstawa_prawna": {
-          "opis": "właściwe podstawy prawne rozstrzygnięcia (np. art. 16 ust. 1 w zw. z art. 5 ust. 2 UDIP)",
+        "punkty_odpowiedzi": {
+          "opis": "szczegółowe odpowiedzi na kolejne pytania wniosku, gdy wniosek jest wielowątkowy (bez „Ad”)",
+          "typ": "punkty",
+          "opcjonalne": true
+        },
+        "wyjasnienie": {
+          "opis": "uzasadnienie faktyczne i prawne zajętego stanowiska (np. przyczyna ograniczenia, odesłania do BIP lub odrębnego trybu)",
           "typ": "tekst",
           "opcjonalne": true
         },
-        "dalsze_kroki": {
-          "opis": "dodatkowe pouczenie lub informacja o dalszym trybie postępowania (np. termin, pouczenie o decyzji)",
+        "podstawa_prawna": {
+          "opis": "właściwe podstawy prawne rozstrzygnięcia (np. art. 1 ust. 2, art. 5 ust. 2, art. 10 ust. 1 UDIP)",
+          "typ": "tekst",
+          "opcjonalne": true
+        },
+        "informacje_dodatkowe": {
+          "opis": "dodatkowe informacje dla wnioskodawcy (np. zakres dokonanej anonimizacji, adres BIP, wskazanie właściwego trybu albo termin na uzupełnienie wniosku)",
           "typ": "tekst",
           "opcjonalne": true
         }

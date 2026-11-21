@@ -9,7 +9,7 @@ from pathlib import Path
 
 from .archiwum import POLA_SPRAWY
 from .podobienstwo import najpodobniejsze
-from .wzor.pismo import ID_WZORU_UNIWERSALNEGO, WZOR_UNIWERSALNY
+from .wzor.pismo import ID_WZORU_DECYZJI, ID_WZORU_UNIWERSALNEGO, WZOR_DECYZJI, WZOR_UNIWERSALNY
 
 # Wydziały i biura Urzędu Miasta Bydgoszczy (nazwy z BIP: /artykuly/198/wydzialy, /artykuly/1158/biura).
 JEDNOSTKI_UMB: list[dict] = json.loads(
@@ -72,6 +72,9 @@ class Wiedza:
 
     def wzor_uniwersalny(self) -> dict:
         return self.wzor(ID_WZORU_UNIWERSALNEGO) or WZOR_UNIWERSALNY
+
+    def wzor_decyzji(self) -> dict:
+        return self.wzor(ID_WZORU_DECYZJI) or WZOR_DECYZJI
 
     # --- tryb „pelny”: wszystko (ok. 25 tys. tokenów – wymaga planu Groq z wyższym limitem) ---
 
@@ -140,11 +143,14 @@ class Wiedza:
         punkty: dict[str, float] = {}
         for pozycja, sprawa in enumerate(podobne):
             for w in wszystkie:
-                if w["id"] == ID_WZORU_UNIWERSALNEGO:
+                if w["id"] in (ID_WZORU_UNIWERSALNEGO, ID_WZORU_DECYZJI):
                     continue
                 if sprawa.get("werdykt") in w["werdykty"]:
                     punkty[w["id"]] = punkty.get(w["id"], 0) + (len(podobne) - pozycja)
         wybrane = sorted(punkty, key=lambda i: (-punkty[i], ranga_opisu.get(i, 99)))
+        tresc_mala = tresc_wniosku.lower()
+        if any(s in tresc_mala for s in ("sąsiad", "pesel", "prywatn", "tajemnic", "odmow", "umorze", "podatnik", "zaległości")):
+            wybrane.insert(1 if wybrane else 0, ID_WZORU_DECYZJI)
         for domyslny in WZORY_DOMYSLNE:
             if domyslny not in wybrane:
                 wybrane.append(domyslny)

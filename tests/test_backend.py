@@ -222,26 +222,123 @@ def test_weryfikacja_wzoru():
     p = zweryfikuj(json.dumps({**ODPOWIEDZ_MODELU, "wzor": "udostepnienie_w_tresci"}), WIEDZA)
     assert p.wzor_nazwa == "Udostępnienie informacji w treści pisma"
 
+    # nieznany wzór przy zwykłym werdykcie -> uniwersalny wzór z zachowaniem punktów, daty wniosku i podstaw prawnych
     p = zweryfikuj(json.dumps({**ODPOWIEDZ_MODELU, "wzor": "wymyslony"}), WIEDZA, "m", WNIOSEK)
     assert p.wzor == "odpowiedz_uniwersalna" and p.wzor_nazwa == "Uniwersalny wzór odpowiedzi"
     assert any("nieznany wzór" in o for o in p.ostrzezenia)
     assert "brak pasującego wzoru" not in p.projekt_odpowiedzi
+    assert "z dnia 20 listopada 2026 r." in p.projekt_odpowiedzi
     assert "liczby psów i kotów" in p.projekt_odpowiedzi
-    assert "Art. 6 ust. 1 pkt 5 UDIP" in p.projekt_odpowiedzi
+    assert "Ad 1" in p.projekt_odpowiedzi and "Ad 2" in p.projekt_odpowiedzi
+    assert "art. 6 ust. 1 pkt 5 oraz art. 13 ust. 1 ustawy z dnia 6 września 2001 r. o dostępie do informacji publicznej" in p.projekt_odpowiedzi
 
-    p_pusty = zweryfikuj(
-        json.dumps({**ODPOWIEDZ_MODELU, "werdykt": "NIE_MOZNA_DECYZJA_ODMOWNA", "wzor": "", "pola": {}}),
+    # pusty wzór przy decyzji odmownej -> kompletna decyzja administracyjna (art. 107 KPA + art. 16 UDIP + SKO)
+    p_decyzja = zweryfikuj(
+        json.dumps({
+            **ODPOWIEDZ_MODELU,
+            "werdykt": "NIE_MOZNA_DECYZJA_ODMOWNA",
+            "podstawy_prawne": ["Art. 5 ust. 2 UDIP", "Art. 16 ust. 1 UDIP", "§ 11 ust. 9 Zarządzenia Nr 535/2024"],
+            "wzor": "",
+            "pola": {},
+        }),
         WIEDZA,
         "m",
         WNIOSEK,
     )
-    assert p_pusty.wzor == "odpowiedz_uniwersalna"
-    assert "brak pasującego wzoru" not in p_pusty.projekt_odpowiedzi
-    assert ODPOWIEDZ_MODELU["uzasadnienie"] in p_pusty.projekt_odpowiedzi
-    assert "decyzja administracyjna" in p_pusty.projekt_odpowiedzi
+    assert p_decyzja.wzor == "decyzja_administracyjna"
+    assert p_decyzja.pismo["tytul"] == ["DECYZJA"]
+    assert "brak pasującego wzoru" not in p_decyzja.projekt_odpowiedzi
+    assert "w zw. z art. 5 ust. 2 ustawy z dnia 6 września 2001 r. o dostępie do informacji publicznej" in p_decyzja.projekt_odpowiedzi
+    assert "Zarządzenia Nr 535/2024" not in p_decyzja.projekt_odpowiedzi
+    assert "orzekam:" in p_decyzja.projekt_odpowiedzi
+    assert "UZASADNIENIE" in p_decyzja.projekt_odpowiedzi
+    assert "POUCZENIE" in p_decyzja.projekt_odpowiedzi
+    assert "Samorządowego Kolegium Odwoławczego w Bydgoszczy" in p_decyzja.projekt_odpowiedzi
+    assert "art. 127a" in p_decyzja.projekt_odpowiedzi
+    assert "art. 16 ust. 2 pkt 2" in p_decyzja.projekt_odpowiedzi
+    assert "z up. Prezydenta Miasta Bydgoszczy" in p_decyzja.projekt_odpowiedzi
+    assert any("radcy prawnego" in d for d in p_decyzja.do_weryfikacji)
 
-    pismo_none, _ = zloz_pismo(None, WIEDZA.wzory, DanePisma(pola={"zakres_wniosku": "testu", "tresc_odpowiedzi": "Treść."}))
-    assert "brak pasującego wzoru" not in pismo_none.tekst and "Treść." in pismo_none.tekst
+    # pusty wzór przy decyzji o umorzeniu
+    p_umorz = zweryfikuj(
+        json.dumps({**ODPOWIEDZ_MODELU, "werdykt": "NIE_MOZNA_UMORZENIE_DECYZJA", "wzor": "", "pola": {}}),
+        WIEDZA,
+        "m",
+        WNIOSEK,
+    )
+    assert p_umorz.wzor == "decyzja_administracyjna"
+    assert "umorzyć postępowanie" in p_umorz.projekt_odpowiedzi
+
+    pismo_none, _ = zloz_pismo(
+        None,
+        WIEDZA.wzory,
+        DanePisma(pola={"zakres_wniosku": "testu", "stanowisko_glowne": "Treść odpowiedzi."}),
+    )
+    assert "brak pasującego wzoru" not in pismo_none.tekst and "Treść odpowiedzi." in pismo_none.tekst
+
+
+def test_ai_formuuje_gotowy_mail_z_podstaw_prawnych():
+    from inteligentny_asystent_urzednika.propozycja import zaproponuj_odpowiedz
+
+    # 1) Model od razu zwraca treść maila w tresc_pisma dla dopasowanych podstaw prawnych
+    odp_z_tekstem = {
+        **ODPOWIEDZ_MODELU,
+        "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+        "podstawy_prawne": ["Art. 10 ust. 1 UDIP"],
+        "wzor": "odpowiedz_ai",
+        "pola": {},
+        "tresc_pisma": [
+            "W odpowiedzi na Pana wniosek informuję, że na podstawie art. 10 ust. 1 UDIP wnioskowane dane są opublikowane w BIP.",
+            "Dokumenty są dostępne pod adresem [[do uzupełnienia: link do BIP]].",
+        ],
+    }
+    p = zweryfikuj(json.dumps(odp_z_tekstem), WIEDZA, "m", WNIOSEK)
+    assert p.wzor == "odpowiedz_ai"
+    assert "AI na podstawie podstaw prawnych" in p.wzor_nazwa
+    assert "art. 10 ust. 1 UDIP" in p.projekt_odpowiedzi
+    assert p.projekt_odpowiedzi.startswith("URZĄD MIASTA BYDGOSZCZY")
+    assert "Szanowny Panie," in p.projekt_odpowiedzi
+
+    # 2) Gdy pierwsze wywołanie Groq nie zwróciło tresc_pisma, ale są podstawy prawne i brak szczegółowego wzoru,
+    #    zaproponuj_odpowiedz() wywołuje Groq po gotowy mail w oparciu o podstawy prawne
+    class DwuetapowyKlient:
+        def __init__(self, odpowiedzi):
+            self.odpowiedzi = list(odpowiedzi)
+            self.wywolania = 0
+
+        async def czat_json(self, wiadomosci):
+            self.wywolania += 1
+            wynik = self.odpowiedzi.pop(0)
+            if isinstance(wynik, Exception):
+                raise wynik
+            return wynik
+
+    klient = DwuetapowyKlient([
+        json.dumps({**ODPOWIEDZ_MODELU, "wzor": "", "pola": {}, "podstawy_prawne": ["Art. 1 ust. 2 UDIP"]}),
+        json.dumps({"tytul_pisma": [], "tresc_pisma": ["Informuję, że na mocy art. 1 ust. 2 UDIP obowiązuje odrębny tryb."]}),
+    ])
+    p2 = asyncio.run(zaproponuj_odpowiedz(WNIOSEK, WIEDZA, klient, "test-model"))
+    assert klient.wywolania == 2
+    assert p2.wzor == "odpowiedz_ai"
+    assert "odrębny tryb" in p2.projekt_odpowiedzi
+
+    # 3) Gdy brak podstaw prawnych – bez drugiego wywołania Groq, działa uniwersalny wzorzec
+    klient_bez_podstaw = DwuetapowyKlient([
+        json.dumps({**ODPOWIEDZ_MODELU, "wzor": "", "pola": {}, "podstawy_prawne": []}),
+    ])
+    p3 = asyncio.run(zaproponuj_odpowiedz(WNIOSEK, WIEDZA, klient_bez_podstaw, "test-model"))
+    assert klient_bez_podstaw.wywolania == 1
+    assert p3.wzor == "odpowiedz_uniwersalna"
+    assert "brak pasującego wzoru" not in p3.projekt_odpowiedzi
+
+    # 4) Gdy drugie wywołanie Groq zwróci błąd (np. limit TPM 429) – bezpieczny fallback na wzorzec
+    klient_limit = DwuetapowyKlient([
+        json.dumps({**ODPOWIEDZ_MODELU, "wzor": "", "pola": {}, "podstawy_prawne": ["Art. 5 ust. 2 UDIP"]}),
+        BladLLM("limit", 429),
+    ])
+    p4 = asyncio.run(zaproponuj_odpowiedz(WNIOSEK, WIEDZA, klient_limit, "test-model"))
+    assert p4.wzor == "odpowiedz_uniwersalna"
+    assert "art. 5 ust. 2 ustawy" in p4.projekt_odpowiedzi
 
 
 def test_pismo_skladane_przez_kod_ze_wzoru():

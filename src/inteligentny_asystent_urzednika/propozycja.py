@@ -8,7 +8,14 @@ import re
 from pydantic import BaseModel, Field, ValidationError, field_validator
 
 from .groq_klient import BladLLM, KlientLLM
-from .wzor.pismo import DanePisma, zloz_pismo
+from .wzor.pismo import (
+    DanePisma,
+    ID_WZORU_DECYZJI,
+    ID_WZORU_UNIWERSALNEGO,
+    do_uzupelnienia,
+    zloz_pismo,
+    zloz_pismo_z_tekstu,
+)
 from .wiedza import STOPNIE_WYBORU, Wiedza
 
 
@@ -40,8 +47,10 @@ class OdpowiedzModelu(BaseModel):
     adresat: list[str] = []
     pola: dict[str, str | list[str]] = {}
     zalaczniki: list[str] = []
+    tytul_pisma: list[str] = []
+    tresc_pisma: list[str] = []
 
-    @field_validator("adresat", "zalaczniki", mode="before")
+    @field_validator("adresat", "zalaczniki", "tytul_pisma", "tresc_pisma", mode="before")
     @classmethod
     def _lista(cls, v):
         if v is None:
@@ -101,23 +110,43 @@ przepisuj dokładnie z listy akty_prawne – nie podawaj ich z pamięci.
 Jeśli UMB nie jest dysponentem, wskaż właściwy podmiot – gdy podobna sprawa z archiwum go podaje (np. w „jaka_odpowiedz”), \
 użyj go; nie wskazuj wtedy jednostki UMB jako dysponenta.
 - Wypisz dane z wniosku, które przed publikacją/udostępnieniem trzeba zanonimizować (kategorie z katalogu).
-- NIE piszesz pisma – składa je aplikacja ze wzoru. Wybierz wzór (wzor = id) pasujący do werdyktu i sprawy \
+- Jeśli do sprawy pasuje jeden ze szczegółowych wzorów w WZORY PISM UMB, wybierz jego „wzor” (id) \
 i podaj w „pola” wartości WYŁĄCZNIE pól tego wzoru (klucze jak w jego „pola”). Wartości to fragmenty wstawiane \
 w miejsce «pole» w treści wzoru – trzymaj się zasad_wypelniania. Pole typu „punkty” to lista odpowiedzi w kolejności \
 pytań (bez „Ad”), „linie” – lista linii. Pól przez_kogo, komorka_merytoryczna i numer_sprawy nie podawaj.
 - forma: „Pan”, „Pani” albo „Państwo” – zgodnie z wnioskodawcą (instytucja/kilka osób: „Państwo”).
 - zalaczniki: lista nazw załączników tylko, gdy wzór na nie pozwala i faktycznie są; inaczej [].
-- Gdy żaden ze szczegółowych wzorów nie pasuje do sprawy (np. przy decyzji odmownej lub umorzeniowej), \
-wybierz wzór „odpowiedz_uniwersalna” i wypełnij jego pola (przy decyzji dodaj do do_weryfikacji „decyzję przygotowuje prawnik”). \
-Nie zostawiaj pustego pola „wzor”.
+- Jeśli żaden szczegółowy wzór nie pasuje (np. decyzja odmowna/umorzeniowa, odesłanie do BIP, odrębny tryb, \
+sprawa mieszana lub nietypowa), a do sprawy dopasowano podstawy_prawne: ustaw wzor na „odpowiedz_ai” \
+(albo „decyzja_administracyjna” dla decyzji) i w polu „tresc_pisma” (lista akapitów) sformułuj gotową, \
+kompletną odpowiedź/mail urzędowy opartą bezpośrednio na dopasowanych podstawach prawnych (z pełnym cytowaniem ustaw \
+z akty_prawne, stylem 1. osoby l. poj., bez nagłówka BKS i podpisu – dodaje je aplikacja; brakujące dane z wydziału \
+oznaczaj jako [[do uzupełnienia: …]]). Przy decyzji ustaw „tytul_pisma”: ["DECYZJA"], zawrzyj sentencję, \
+UZASADNIENIE (w tym art. 16 ust. 2 pkt 2 UDIP) i POUCZENIE (odwołanie do SKO w Bydgoszczy w 14 dni, art. 127a KPA) \
+oraz dodaj do do_weryfikacji „projekt decyzji wymaga akceptacji radcy prawnego”.
 - To jest projekt dla urzędnika – ostateczną decyzję podejmuje urzędnik.
 
 Odpowiedz WYŁĄCZNIE obiektem JSON o polach:
 {"werdykt": "<klucz ze słownika>", "uzasadnienie": "<2–6 zdań: kluczowe ustalenia z etapów oceny>", \
 "podstawy_prawne": ["…"], "komorka_merytoryczna": "…", \
 "podobne_sprawy": [{"sygnatura": "…", "dlaczego": "…"}], "dane_do_anonimizacji": ["…"], \
-"do_weryfikacji": ["<co urzędnik musi sprawdzić lub uzupełnić>"], "wzor": "<id wzoru>", \
-"forma": "Pan|Pani|Państwo", "adresat": ["<linia>"], "pola": {"<nazwa pola>": "<wartość>"}, "zalaczniki": []}"""
+"do_weryfikacji": ["<co urzędnik musi sprawdzić lub uzupełnić>"], "wzor": "<id wzoru albo odpowiedz_ai>", \
+"forma": "Pan|Pani|Państwo", "adresat": ["<linia>"], "pola": {"<nazwa pola>": "<wartość>"}, \
+"zalaczniki": [], "tytul_pisma": [], "tresc_pisma": []}"""
+
+SYSTEM_PISMO_AI = """Jesteś asystentem urzędnika Biura Komunikacji Społecznej Urzędu Miasta Bydgoszczy.
+Na podstawie treści wniosku, ustalonego werdyktu, uzasadnienia oraz dopasowanych podstaw prawnych sformułuj \
+gotową, konkretną i kompletną treść odpowiedzi (maila/pisma urzędowego albo decyzji administracyjnej).
+Zasady:
+- Oprzyj treść pisma bezpośrednio na podanych podstawach prawnych (cytuj pełne nazwy ustaw i konkretne artykuły).
+- Pisz w stylu urzędowym BKS UMB (1. osoba l. poj.: „informuję”, „wyjaśniam”, „wskazuję”), bez „Dotyczy:” i „Z poważaniem”.
+- Nie dodawaj nagłówka urzędu, daty, znaku sprawy ani końcowego podpisu – wstawia je aplikacja.
+- Nie wymyślaj nieznanych liczb, kwot, dat ani odpowiedzi wydziałów – brakujące fakty oznacz jako [[do uzupełnienia: …]].
+- Jeśli werdykt wymaga decyzji administracyjnej (NIE_MOZNA_DECYZJA_ODMOWNA lub NIE_MOZNA_UMORZENIE_DECYZJA): \
+ustaw „tytul_pisma”: ["DECYZJA"], w „tresc_pisma” zawrzyj podstawę prawną (art. 104, art. 107 KPA, art. 16 ust. 1 UDIP \
+i przepisy szczególne), linię „orzekam:”, sentencję, sekcję „UZASADNIENIE” (z art. 16 ust. 2 pkt 2 UDIP) oraz sekcję \
+„POUCZENIE” (odwołanie do Samorządowego Kolegium Odwoławczego w Bydgoszczy w 14 dni, zrzeczenie się z art. 127a KPA).
+Odpowiedz WYŁĄCZNIE obiektem JSON: {"tytul_pisma": ["..."], "tresc_pisma": ["<akapit 1>", "<akapit 2>", ...]}"""
 
 
 # Polski tekst w tokenizerach Groq: zmierzone ok. 2,9 znaku/token; 2,6 daje zapas bezpieczeństwa.
@@ -178,6 +207,60 @@ def zbuduj_wiadomosci(
     return wiadomosci, ostrzezenia
 
 
+_WZORY_GENERYCZNE = {"", "odpowiedz_ai", ID_WZORU_UNIWERSALNEGO, ID_WZORU_DECYZJI}
+
+
+async def _sformuluj_pismo_ai(
+    wniosek: Wniosek,
+    odp: OdpowiedzModelu,
+    wiedza: Wiedza,
+    klient: KlientLLM,
+) -> tuple[list[str], list[str]]:
+    """Dodatkowe wywołanie Groq: formułuje gotowy mail/pismo na podstawie dopasowanych podstaw prawnych."""
+    sformatowane_podstawy = _sformatuj_podstawy_prawne(odp.podstawy_prawne, wiedza)
+    dane = {
+        "werdykt": odp.werdykt,
+        "werdykt_opis": wiedza.slownik_werdyktow.get(odp.werdykt, ""),
+        "uzasadnienie": odp.uzasadnienie,
+        "podstawy_prawne": odp.podstawy_prawne,
+        "podstawy_prawne_pelne": sformatowane_podstawy,
+        "komorka_merytoryczna": odp.komorka_merytoryczna,
+        "dane_do_anonimizacji": odp.dane_do_anonimizacji,
+        "forma": odp.forma,
+        "numer_wniosku": wniosek.numer or "",
+        "data_wplywu": wniosek.data_wplywu or "",
+        "wnioskodawca": wniosek.wnioskodawca or "",
+        "temat": wniosek.temat or "",
+    }
+    wiadomosci = [
+        {"role": "system", "content": SYSTEM_PISMO_AI},
+        {
+            "role": "user",
+            "content": (
+                f"USTALENIA SPRAWY:\n{json.dumps(dane, ensure_ascii=False)}\n\n"
+                f"<tresc_wniosku>\n{wniosek.tresc[:4000]}\n</tresc_wniosku>"
+            ),
+        },
+    ]
+    surowa = await klient.czat_json(wiadomosci)
+    obiekt = json.loads(_wytnij_json(surowa))
+    tytul = obiekt.get("tytul_pisma") or []
+    tresc = obiekt.get("tresc_pisma") or []
+    if isinstance(tytul, str):
+        tytul = [l for l in tytul.splitlines() if l.strip()]
+    if isinstance(tresc, str):
+        tresc = [l for l in tresc.splitlines() if l.strip()]
+    return [str(x) for x in tytul if str(x).strip()], [str(x) for x in tresc if str(x).strip()]
+
+
+def _potrzebuje_pisma_ai(odp: OdpowiedzModelu, wiedza: Wiedza) -> bool:
+    """Czy wniosek ma dopasowane podstawy prawne i brak szczegółowego wzoru, więc AI powinno sformułować gotowy mail."""
+    if not odp.podstawy_prawne or odp.tresc_pisma:
+        return False
+    wzor = wiedza.wzor(odp.wzor)
+    return wzor is None or wzor["id"] in _WZORY_GENERYCZNE
+
+
 async def zaproponuj_odpowiedz(
     wniosek: Wniosek,
     wiedza: Wiedza,
@@ -188,19 +271,39 @@ async def zaproponuj_odpowiedz(
 ) -> Propozycja:
     wiadomosci, ostrzezenia = zbuduj_wiadomosci(wniosek, wiedza, tryb_kontekstu, budzet_tokenow)
     surowa = await klient.czat_json(wiadomosci)
-    propozycja = zweryfikuj(surowa, wiedza, model, wniosek)
+    odp = _parsuj_odpowiedz(surowa)
+
+    # Jeśli brak szczegółowego wzoru, ale są dopasowane podstawy prawne – poproś Groq o gotową treść maila/pisma.
+    # Przy błędzie / limicie TPM Groq płynnie przechodzimy na uniwersalny wzorzec bez przerywania odpowiedzi.
+    if _potrzebuje_pisma_ai(odp, wiedza):
+        try:
+            tytul_ai, tresc_ai = await _sformuluj_pismo_ai(wniosek, odp, wiedza, klient)
+            if tresc_ai:
+                odp = odp.model_copy(update={"tytul_pisma": tytul_ai, "tresc_pisma": tresc_ai})
+        except (BladLLM, json.JSONDecodeError, ValueError, TypeError):
+            pass
+
+    propozycja = _zbuduj_propozycje(odp, wiedza, model, wniosek)
     propozycja.ostrzezenia = ostrzezenia + propozycja.ostrzezenia
     return propozycja
 
 
-def zweryfikuj(surowa: str, wiedza: Wiedza, model: str = "", wniosek: Wniosek | None = None) -> Propozycja:
-    """Parsuje odpowiedź modelu, odsiewa to, czego nie ma w bazie wiedzy (ochrona przed halucynacjami)
-    i składa projekt pisma ze wzoru."""
+def _parsuj_odpowiedz(surowa: str) -> OdpowiedzModelu:
     try:
-        odp = OdpowiedzModelu.model_validate(json.loads(_wytnij_json(surowa)))
+        return OdpowiedzModelu.model_validate(json.loads(_wytnij_json(surowa)))
     except (json.JSONDecodeError, ValidationError) as e:
         raise BladLLM("Model zwrócił odpowiedź w niepoprawnym formacie. Spróbuj ponownie.", 502) from e
 
+
+def zweryfikuj(surowa: str, wiedza: Wiedza, model: str = "", wniosek: Wniosek | None = None) -> Propozycja:
+    """Parsuje odpowiedź modelu, odsiewa to, czego nie ma w bazie wiedzy (ochrona przed halucynacjami)
+    i składa projekt pisma ze wzoru albo z treści sformułowanej przez AI na podstawie podstaw prawnych."""
+    return _zbuduj_propozycje(_parsuj_odpowiedz(surowa), wiedza, model, wniosek)
+
+
+def _zbuduj_propozycje(
+    odp: OdpowiedzModelu, wiedza: Wiedza, model: str = "", wniosek: Wniosek | None = None
+) -> Propozycja:
     ostrzezenia: list[str] = []
     slownik = wiedza.slownik_werdyktow
     werdykt_opis = slownik.get(odp.werdykt, "")
@@ -212,28 +315,67 @@ def zweryfikuj(surowa: str, wiedza: Wiedza, model: str = "", wniosek: Wniosek | 
     if odrzucone:
         ostrzezenia.append(f"Pominięto sprawy spoza archiwum: {', '.join(odrzucone)}.")
 
+    werdykty_decyzyjne = ("NIE_MOZNA_DECYZJA_ODMOWNA", "NIE_MOZNA_UMORZENIE_DECYZJA")
     wzor = wiedza.wzor(odp.wzor)
-    uzyto_uniwersalnego = False
-    if not wzor:
-        if odp.wzor:
-            ostrzezenia.append(
-                f"Model wskazał nieznany wzór „{odp.wzor}” – zastosowano uniwersalny wzór odpowiedzi."
-            )
-        wzor = wiedza.wzor_uniwersalny()
-        uzyto_uniwersalnego = True
-
-    pola = {k: v for k, v in odp.pola.items() if k in wzor.get("pola", {})}
-    if uzyto_uniwersalnego:
-        pola = _uzupelnij_pola_uniwersalne(pola, odp, wniosek)
-
-    pismo, braki = zloz_pismo(wzor, wiedza.wzory, DanePisma(
-        pola=pola,
+    czy_decyzja = odp.werdykt in werdykty_decyzyjne
+    dane_pisma = DanePisma(
         forma=odp.forma,
         adresat=odp.adresat,
         zalaczniki=odp.zalaczniki,
         komorka_merytoryczna=odp.komorka_merytoryczna,
         znak_sprawy=(wniosek.numer or "") if wniosek else "",
-    ))
+        data_wniosku=(wniosek.data_wplywu or "") if wniosek else "",
+        wnioskodawca=(wniosek.wnioskodawca or "") if wniosek else "",
+    )
+
+    # 1. Jeśli model nie wskazał konkretnego szczegółowego wzoru, ale mamy dopasowane podstawy prawne
+    #    i gotową treść sformułowaną przez AI (Groq) – składamy gotowy mail/pismo z treści AI.
+    uzyj_tekstu_ai = bool(
+        odp.tresc_pisma
+        and odp.podstawy_prawne
+        and (wzor is None or wzor["id"] in _WZORY_GENERYCZNE)
+    )
+
+    if uzyj_tekstu_ai:
+        wzor_decyzji = wiedza.wzor_decyzji()
+        pismo = zloz_pismo_z_tekstu(
+            odp.tresc_pisma,
+            wiedza.wzory,
+            dane_pisma,
+            tytul=odp.tytul_pisma or (["DECYZJA"] if czy_decyzja else None),
+            zwrot=not czy_decyzja,
+            podpis_wlasny=wzor_decyzji.get("podpis") if czy_decyzja else None,
+        )
+        braki: list[str] = []
+        pola: dict[str, str | list[str]] = {}
+        wzor_id = ID_WZORU_DECYZJI if czy_decyzja else "odpowiedz_ai"
+        wzor_nazwa = (
+            "Projekt decyzji (AI na podstawie podstaw prawnych)"
+            if czy_decyzja
+            else "Projekt odpowiedzi (AI na podstawie podstaw prawnych)"
+        )
+    else:
+        if not wzor:
+            if odp.wzor and odp.wzor != "odpowiedz_ai":
+                ostrzezenia.append(
+                    f"Model wskazał nieznany wzór „{odp.wzor}” – zastosowano automatyczny wzór odpowiedzi."
+                )
+            wzor = wiedza.wzor_decyzji() if czy_decyzja else wiedza.wzor_uniwersalny()
+
+        pola = {k: v for k, v in odp.pola.items() if k in wzor.get("pola", {})}
+        if wzor["id"] == ID_WZORU_DECYZJI:
+            pola = _uzupelnij_pola_decyzji(pola, odp, wniosek, wiedza)
+        elif wzor["id"] == ID_WZORU_UNIWERSALNEGO:
+            pola = _uzupelnij_pola_uniwersalne(pola, odp, wniosek, wiedza)
+
+        dane_pisma.pola = pola
+        pismo, braki = zloz_pismo(wzor, wiedza.wzory, dane_pisma)
+        wzor_id = wzor["id"]
+        wzor_nazwa = wzor["nazwa"]
+
+    do_weryfikacji = list(odp.do_weryfikacji)
+    if czy_decyzja and not any("prawn" in d.lower() for d in do_weryfikacji):
+        do_weryfikacji.append("Projekt decyzji administracyjnej wymaga weryfikacji radcy prawnego i podpisu osoby upoważnionej.")
 
     return Propozycja(
         werdykt=odp.werdykt,
@@ -243,9 +385,9 @@ def zweryfikuj(surowa: str, wiedza: Wiedza, model: str = "", wniosek: Wniosek | 
         komorka_merytoryczna=odp.komorka_merytoryczna,
         podobne_sprawy=[s for s in odp.podobne_sprawy if s.sygnatura in znane],
         dane_do_anonimizacji=odp.dane_do_anonimizacji,
-        do_weryfikacji=odp.do_weryfikacji + [f"Uzupełnij w piśmie: {b}" for b in braki],
-        wzor=wzor["id"],
-        wzor_nazwa=wzor["nazwa"],
+        do_weryfikacji=do_weryfikacji + [f"Uzupełnij w piśmie: {b}" for b in braki],
+        wzor=wzor_id,
+        wzor_nazwa=wzor_nazwa,
         pola_wzoru=pola,
         projekt_odpowiedzi=pismo.tekst,
         pismo=pismo.jako_slownik(),
@@ -254,33 +396,219 @@ def zweryfikuj(surowa: str, wiedza: Wiedza, model: str = "", wniosek: Wniosek | 
     )
 
 
-def _uzupelnij_pola_uniwersalne(
-    pola: dict[str, str | list[str]], odp: OdpowiedzModelu, wniosek: Wniosek | None
-) -> dict[str, str | list[str]]:
-    """Wypełnia pola uniwersalnego wzoru z dostępnych danych modelu i wniosku, aby pismo nigdy nie było puste."""
-    wynik = dict(pola)
-    if not wynik.get("zakres_wniosku"):
-        zakres = odp.pola.get("zakres_wniosku") or (wniosek.temat if wniosek and wniosek.temat else "")
-        if isinstance(zakres, list):
-            zakres = "; ".join(zakres)
-        if zakres and str(zakres).strip():
-            wynik["zakres_wniosku"] = str(zakres).strip()
+def _wyciagnij_zakres(odp: OdpowiedzModelu, wniosek: Wniosek | None) -> str:
+    zakres = odp.pola.get("zakres_wniosku") or (wniosek.temat if wniosek and wniosek.temat else "")
+    if isinstance(zakres, list):
+        zakres = "; ".join(str(x).strip() for x in zakres if str(x).strip())
+    tekst = str(zakres).strip().rstrip(".")
+    if not tekst:
+        return ""
+    # skrót tematu zaczyna się wielką literą (np. „Koszt remontu…”) – w środku zdania używamy małej litery,
+    # o ile drugie słowo/znak nie wskazuje na skrótowiec (np. „BIP”, „UMB”)
+    if len(tekst) > 1 and tekst[0].isupper() and tekst[1].islower():
+        tekst = tekst[0].lower() + tekst[1:]
+    return tekst
 
-    if not wynik.get("tresc_odpowiedzi"):
-        kandydat = odp.pola.get("tresc_informacji") or odp.pola.get("odpowiedzi") or odp.uzasadnienie
-        if isinstance(kandydat, list):
-            kandydat = " ".join(str(x).strip() for x in kandydat if str(x).strip())
-        if kandydat and str(kandydat).strip():
-            wynik["tresc_odpowiedzi"] = str(kandydat).strip()
+
+_PELNE_NAZWY_AKTOW = {
+    "UDIP": "ustawy z dnia 6 września 2001 r. o dostępie do informacji publicznej (t.j. Dz. U. z 2022 r. poz. 902, z 2025 r. poz. 1844)",
+    "KPA": "ustawy z dnia 14 czerwca 1960 r. – Kodeks postępowania administracyjnego (t.j. Dz. U. z 2025 r. poz. 1691)",
+}
+
+
+def _pelna_nazwa_aktu(skrot: str, wiedza: Wiedza | None) -> str:
+    if wiedza:
+        for akt in wiedza.ocena.get("metadane", {}).get("akty_prawne_i_zrodla", []):
+            if akt.get("skrot", "").upper() == skrot.upper():
+                pelna = akt.get("pelna_nazwa", "").strip()
+                pub = akt.get("publikator", "").strip()
+                # „Ustawa z dnia …” -> dopełniacz „ustawy z dnia …”
+                if pelna.lower().startswith("ustawa "):
+                    pelna = "ustawy " + pelna[len("ustawa ") :]
+                return f"{pelna} ({pub})" if pub else pelna
+    return _PELNE_NAZWY_AKTOW.get(skrot.upper(), skrot)
+
+
+def _polacz_po_polsku(elementy: list[str]) -> str:
+    if not elementy:
+        return ""
+    if len(elementy) == 1:
+        return elementy[0]
+    return ", ".join(elementy[:-1]) + " oraz " + elementy[-1]
+
+
+def _sformatuj_podstawy_prawne(
+    podstawy: list[str], wiedza: Wiedza | None = None, wyklucz: tuple[str, ...] = ()
+) -> str:
+    """Zamienia listę skróconych odwołań (np. „Art. 5 ust. 2 UDIP”) na formalne cytowanie ustaw w piśmie."""
+    grupy: dict[str, list[str]] = {}
+    inne: list[str] = []
+    wyklucz_male = tuple(w.lower() for w in wyklucz)
+
+    for surowa in podstawy:
+        tekst = re.sub(r"\s+", " ", surowa).strip().rstrip(".,;")
+        if not tekst:
+            continue
+        mala = tekst.lower()
+        # Zarządzenie wewnętrzne UMB nie jest zewnętrzną podstawą prawną wobec obywatela
+        if "zarządzen" in mala or "zarzadzen" in mala:
+            continue
+        if any(w in mala for w in wyklucz_male):
+            continue
+
+        dopasowanie = re.match(r"^(.*?)\s+(UDIP|KPA)\b(.*)$", tekst, re.IGNORECASE)
+        if dopasowanie:
+            przepis = dopasowanie.group(1).strip()
+            akt = dopasowanie.group(2).upper()
+            przepis = re.sub(r"^Art\.", "art.", przepis)
+            lista = grupy.setdefault(akt, [])
+            if przepis and przepis not in lista:
+                lista.append(przepis)
+        else:
+            tekst_norm = re.sub(r"^Art\.", "art.", tekst)
+            if tekst_norm not in inne:
+                inne.append(tekst_norm)
+
+    czesci: list[str] = []
+    for akt in ("UDIP", "KPA"):
+        if akt in grupy:
+            czesci.append(f"{_polacz_po_polsku(grupy[akt])} {_pelna_nazwa_aktu(akt, wiedza)}")
+    czesci.extend(inne)
+    return _polacz_po_polsku(czesci)
+
+
+def _uzupelnij_pola_decyzji(
+    pola: dict[str, str | list[str]], odp: OdpowiedzModelu, wniosek: Wniosek | None, wiedza: Wiedza | None = None
+) -> dict[str, str | list[str]]:
+    """Buduje kompletny szkielet decyzji administracyjnej (art. 16 UDIP + art. 107 KPA)."""
+    wynik = dict(pola)
+    zakres = str(wynik.get("zakres_wniosku") or _wyciagnij_zakres(odp, wniosek)).strip()
+    if zakres:
+        wynik["zakres_wniosku"] = zakres
+
+    umorzenie = odp.werdykt == "NIE_MOZNA_UMORZENIE_DECYZJA"
+    if not wynik.get("podstawa_szczegolowa"):
+        sformatowana = _sformatuj_podstawy_prawne(
+            odp.podstawy_prawne,
+            wiedza,
+            wyklucz=("art. 16 ust. 1", "art. 104", "art. 107"),
+        )
+        if sformatowana:
+            wynik["podstawa_szczegolowa"] = sformatowana
+        elif umorzenie:
+            wynik["podstawa_szczegolowa"] = f"art. 14 ust. 2 {_pelna_nazwa_aktu('UDIP', wiedza)}"
+        else:
+            wynik["podstawa_szczegolowa"] = f"art. 5 ust. 2 {_pelna_nazwa_aktu('UDIP', wiedza)}"
+
+    if not wynik.get("sentencja"):
+        zakres_sentencji = zakres or do_uzupelnienia("zakres wniosku")
+        if umorzenie:
+            wynik["sentencja"] = (
+                f"umorzyć postępowanie w sprawie udostępnienia informacji publicznej w zakresie {zakres_sentencji}."
+            )
+        else:
+            wynik["sentencja"] = (
+                f"odmówić udostępnienia informacji publicznej w zakresie {zakres_sentencji}."
+            )
+
+    if not wynik.get("uzasadnienie_faktyczne_i_prawne"):
+        akapity = []
+        if odp.uzasadnienie.strip():
+            akapity.append(odp.uzasadnienie.strip())
+        if odp.dane_do_anonimizacji and not umorzenie:
+            akapity.append(
+                "Wnioskowany zakres obejmuje dane podlegające ochronie prawnej: "
+                + ", ".join(odp.dane_do_anonimizacji)
+                + ", których udostępnienie naruszałoby ograniczenia wynikające z art. 5 ustawy o dostępie do informacji publicznej."
+            )
+        if akapity:
+            wynik["uzasadnienie_faktyczne_i_prawne"] = " ".join(akapity)
+
+    if not umorzenie:
+        if not wynik.get("osoby_stanowisko"):
+            wynik["osoby_stanowisko"] = do_uzupelnienia(
+                "imiona, nazwiska i funkcje osób, które zajęły stanowisko w toku postępowania"
+            )
+        if not wynik.get("chronione_podmioty"):
+            wynik["chronione_podmioty"] = (
+                ", ".join(odp.dane_do_anonimizacji)
+                if odp.dane_do_anonimizacji
+                else do_uzupelnienia("oznaczenie podmiotów, ze względu na których dobra wydano decyzję")
+            )
+
+    return wynik
+
+
+def _stanowisko_dla_werdyktu(odp: OdpowiedzModelu, zakres: str) -> str:
+    """Formalne zdanie otwierające stanowisko urzędu dopasowane do werdyktu."""
+    cel = zakres or "wskazanym we wniosku"
+    if odp.werdykt == "MOZNA_UDOSTEPNIC":
+        return f"Wnioskowana informacja w zakresie {cel} stanowi informację publiczną i podlega udostępnieniu: {do_uzupelnienia('szczegółowe dane z komórki merytorycznej')}."
+    if odp.werdykt == "MOZNA_Z_ANONIMIZACJA":
+        return (
+            f"Wnioskowana informacja w zakresie {cel} podlega udostępnieniu po uprzedniej anonimizacji danych chronionych prawem: "
+            f"{do_uzupelnienia('udostępniana informacja po anonimizacji')}."
+        )
+    if odp.werdykt == "MOZNA_WARUNKOWO":
+        return (
+            f"Udostępnienie informacji w zakresie {cel} wymaga spełnienia przesłanek ustawowych "
+            f"({do_uzupelnienia('wskazać warunek: wykazanie szczególnie istotnego interesu publicznego / opłata / forma dostępu')})."
+        )
+    if odp.werdykt == "NIE_MOZNA_PISMO_INFORMACYJNE":
+        return f"Żądana informacja w zakresie {cel} nie podlega udostępnieniu na wniosek w trybie ustawy o dostępie do informacji publicznej."
+    if odp.werdykt == "POZOSTAWIENIE_BEZ_ROZPOZNANIA":
+        return (
+            f"Z uwagi na nieusunięcie braków formalnych wniosku w wyznaczonym terminie wniosek w zakresie {cel} "
+            "zostaje pozostawiony bez rozpoznania na podstawie art. 64 § 2 Kodeksu postępowania administracyjnego."
+        )
+    return odp.uzasadnienie.strip()
+
+
+def _uzupelnij_pola_uniwersalne(
+    pola: dict[str, str | list[str]], odp: OdpowiedzModelu, wniosek: Wniosek | None, wiedza: Wiedza | None = None
+) -> dict[str, str | list[str]]:
+    """Wypełnia pola uniwersalnego wzoru z dostępnych danych modelu i wniosku, aby pismo było pełne i formalne."""
+    wynik = dict(pola)
+    zakres = str(wynik.get("zakres_wniosku") or _wyciagnij_zakres(odp, wniosek)).strip()
+    if zakres:
+        wynik["zakres_wniosku"] = zakres
+
+    # jeśli model podał odpowiedzi punkt po punkcie dla innego wzoru – zachowaj je w piśmie
+    if not wynik.get("punkty_odpowiedzi") and isinstance(odp.pola.get("odpowiedzi"), list):
+        punkty = [str(x).strip() for x in odp.pola["odpowiedzi"] if str(x).strip()]
+        if punkty:
+            wynik["punkty_odpowiedzi"] = punkty
+
+    if not wynik.get("stanowisko_glowne"):
+        tresc_info = odp.pola.get("tresc_informacji") or odp.pola.get("tresc_odpowiedzi")
+        if isinstance(tresc_info, list):
+            tresc_info = " ".join(str(x).strip() for x in tresc_info if str(x).strip())
+        if tresc_info and str(tresc_info).strip():
+            wynik["stanowisko_glowne"] = str(tresc_info).strip()
+        else:
+            wynik["stanowisko_glowne"] = _stanowisko_dla_werdyktu(odp, zakres)
+
+    if not wynik.get("wyjasnienie") and odp.uzasadnienie.strip():
+        if odp.uzasadnienie.strip() != wynik.get("stanowisko_glowne"):
+            wynik["wyjasnienie"] = odp.uzasadnienie.strip()
 
     if not wynik.get("podstawa_prawna") and odp.podstawy_prawne:
-        wynik["podstawa_prawna"] = ", ".join(odp.podstawy_prawne)
+        sformatowana = _sformatuj_podstawy_prawne(odp.podstawy_prawne, wiedza)
+        if sformatowana:
+            wynik["podstawa_prawna"] = sformatowana
 
-    if not wynik.get("dalsze_kroki") and odp.werdykt in ("NIE_MOZNA_DECYZJA_ODMOWNA", "NIE_MOZNA_UMORZENIE_DECYZJA"):
-        wynik["dalsze_kroki"] = (
-            "W sprawie zostanie wydana formalna decyzja administracyjna w trybie art. 16 ustawy "
-            "z dnia 6 września 2001 r. o dostępie do informacji publicznej."
-        )
+    if not wynik.get("informacje_dodatkowe"):
+        if odp.werdykt == "MOZNA_Z_ANONIMIZACJA" and odp.dane_do_anonimizacji:
+            wynik["informacje_dodatkowe"] = (
+                "W udostępnionych materiałach dokonano anonimizacji danych podlegających ochronie prawnej "
+                "na podstawie art. 5 ust. 2 ustawy z dnia 6 września 2001 r. o dostępie do informacji publicznej "
+                f"({', '.join(odp.dane_do_anonimizacji)})."
+            )
+        elif odp.werdykt == "NIE_MOZNA_PISMO_INFORMACYJNE":
+            wynik["informacje_dodatkowe"] = (
+                "Jednocześnie wyjaśniam, że w powyższym przypadku załatwienie sprawy następuje w formie "
+                "pisma informacyjnego i nie wymaga wydania decyzji administracyjnej w trybie art. 16 UDIP."
+            )
 
     return wynik
 
