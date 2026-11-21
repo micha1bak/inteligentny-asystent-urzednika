@@ -23,7 +23,6 @@ export default function ZapytanieDoWydzialu({ wniosek, status, onOznaczWyslane }
   const [propozycja, setPropozycja] = useState<PropozycjaWydzialu>();
   const [wybrana, setWybrana] = useState('');
   const [pytania, setPytania] = useState('');
-  const [uwagi, setUwagi] = useState('');
   const [termin, setTermin] = useState('');
   const [temat, setTemat] = useState('');
   const [tresc, setTresc] = useState('');
@@ -56,7 +55,6 @@ export default function ZapytanieDoWydzialu({ wniosek, status, onOznaczWyslane }
       setPropozycja(p);
       setWybrana(p.jednostki[0]?.nazwa ?? '');
       setPytania(p.pytania.join('\n'));
-      setUwagi(p.uwagi.join('\n'));
       setTermin('');
       setRecznie(false);
     } catch (e) {
@@ -66,7 +64,7 @@ export default function ZapytanieDoWydzialu({ wniosek, status, onOznaczWyslane }
     }
   }
 
-  // wiadomość składa backend (bez AI) – po każdej zmianie jednostki, pytań, uwag lub terminu
+  // wiadomość składa backend (bez AI) – po każdej zmianie jednostki, pytań lub terminu
   useEffect(() => {
     if (!wybrana || recznie) return;
     const ac = new AbortController();
@@ -75,7 +73,6 @@ export default function ZapytanieDoWydzialu({ wniosek, status, onOznaczWyslane }
         {
           jednostka: wybrana,
           pytania: pytania.split('\n').map((l) => l.trim()).filter(Boolean),
-          uwagi: uwagi.split('\n').map((l) => l.trim()).filter(Boolean),
           numer: wniosek.numer || undefined,
           data_wplywu: wniosek.data_wplywu || undefined,
           termin: termin || undefined,
@@ -95,7 +92,7 @@ export default function ZapytanieDoWydzialu({ wniosek, status, onOznaczWyslane }
       clearTimeout(t);
       ac.abort();
     };
-  }, [wybrana, pytania, uwagi, termin, recznie, wniosek.numer, wniosek.data_wplywu]);
+  }, [wybrana, pytania, termin, recznie, wniosek.numer, wniosek.data_wplywu]);
 
   async function kopiuj() {
     try {
@@ -175,10 +172,6 @@ export default function ZapytanieDoWydzialu({ wniosek, status, onOznaczWyslane }
             <label className="pelny">
               Zakres zapytania (jedno pytanie w linii)
               <textarea rows={4} value={pytania} onChange={(e) => { setPytania(e.target.value); setRecznie(false); }} />
-            </label>
-            <label className="pelny">
-              Na co zwrócić uwagę (opcjonalnie, jedna uwaga w linii)
-              <textarea rows={2} value={uwagi} onChange={(e) => { setUwagi(e.target.value); setRecznie(false); }} />
             </label>
             <label>
               Termin projektu odpowiedzi

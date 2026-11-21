@@ -28,7 +28,7 @@ def test_kontekst_ma_wszystkie_jednostki_z_zakresem():
 def test_weryfikacja_odrzuca_jednostki_spoza_listy():
     p = zweryfikuj(json.dumps({"jednostki": [{"nazwa": "Wydział Edukacji i Sportu", "uzasadnienie": "szkoły"},
                                              {"nazwa": "Wydział Wymyślony"}, {"nazwa": "WE"}],
-                               "pytania": ["Liczba uczniów"], "uwagi": []}))
+                               "pytania": ["Liczba uczniów"]}))
     assert [j.symbol for j in p.jednostki] == ["WE"] and any("Wymyślony" in o for o in p.ostrzezenia)
 
 
@@ -39,7 +39,8 @@ def test_bez_modelu_wskazuje_wydzial_z_podobnej_sprawy():
 
 
 def test_wiadomosc_skladana_przez_kod():
-    w = zloz_wiadomosc("Wydział Edukacji i Sportu", ["Liczba uczniów."], ["Bez danych uczniów."], "BKS.IV.1431.307.2025", "2025-06-24")
+    w = zloz_wiadomosc("Wydział Edukacji i Sportu", ["Liczba uczniów."], "BKS.IV.1431.307.2025", "2025-06-24")
+    assert "Na co zwrócić uwagę" not in w.tresc
     assert w.termin == "2025-07-01" and w.tresc.startswith("Do: Wydział Edukacji i Sportu")
     assert "1. Liczba uczniów." in w.tresc and "bip@um.bydgoszcz.pl" in w.tresc and "§ 11 ust. 8" in w.tresc
     assert jednostka_po_nazwie("wydział inwestycji miasta")["symbol"] == "WIM"

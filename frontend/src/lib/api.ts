@@ -609,7 +609,6 @@ export interface PropozycjaWydzialu {
   jednostki: KandydatWydzialu[];
   podmiot_poza_umb: string;
   pytania: string[];
-  uwagi: string[];
   model: string;
   ostrzezenia: string[];
 }
@@ -634,7 +633,7 @@ export async function zaproponujWydzial(
 }
 
 export async function zlozWiadomoscDoWydzialu(
-  z: { jednostka: string; pytania: string[]; uwagi: string[]; numer?: string; data_wplywu?: string; termin?: string },
+  z: { jednostka: string; pytania: string[]; numer?: string; data_wplywu?: string; termin?: string },
   sygnal?: AbortSignal,
 ): Promise<WiadomoscDoWydzialu> {
   const odp = await wyslij('/api/wydzial/wiadomosc', {

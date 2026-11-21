@@ -395,7 +395,7 @@ def utworz_aplikacje() -> FastAPI:
             termin = date.fromisoformat(z.termin) if z.termin else None
         except ValueError as e:
             raise HTTPException(422, "Termin musi mieć format RRRR-MM-DD.") from e
-        return zloz_wiadomosc(j["nazwa"], z.pytania, z.uwagi, z.numer, z.data_wplywu, termin)
+        return zloz_wiadomosc(j["nazwa"], z.pytania, z.numer, z.data_wplywu, termin)
 
     @app.post("/api/propozycja-odpowiedzi", response_model=Propozycja)
     async def propozycja_odpowiedzi(
