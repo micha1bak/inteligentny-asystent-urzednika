@@ -221,3 +221,113 @@ export async function zaproponujWpis(
   const odp = await wyslij('/api/archiwum/propozycja', { method: 'POST', headers: JSON_NAGLOWKI, body: JSON.stringify(z), signal: sygnal });
   return odp.json();
 }
+
+// ---------------------------------------------------------------- baza wiedzy: nowe akty prawne i wersje
+
+export interface WersjaBazy {
+  id: string;
+  utworzono: string;
+  autor: string;
+  opis: string;
+  obowiazuje_od: string | null;
+  akt_kod: string | null;
+  akt_nazwa: string | null;
+  zmiany: { klucz: string; opis: string }[];
+  wycofana: { kiedy: string; kto: string } | null;
+  status: 'obowiazuje' | 'zaplanowana' | 'archiwalna' | 'wycofana';
+}
+
+export interface AktWBazie {
+  kod: string;
+  nazwa: string;
+  plik: string;
+}
+
+export interface StanBazyWiedzy {
+  wersje: WersjaBazy[];
+  akty: AktWBazie[];
+}
+
+export interface RoznicaPrzepisu {
+  etykieta: string;
+  rodzaj: 'zmieniony' | 'dodany' | 'uchylony';
+  przed: string;
+  po: string;
+}
+
+export interface ProponowanaZmiana {
+  id: string;
+  klucz: string;
+  opis: string;
+  przed: unknown;
+  po: unknown;
+  uzasadnienie: string;
+  przepisy: string[];
+  zrodlo: 'model' | 'metadane';
+}
+
+export interface AnalizaAktu {
+  id: string;
+  status: 'w_toku' | 'gotowa' | 'nie_dotyczy' | 'blad' | 'zapisana';
+  postep: { opis: string; zrobione: number; wszystkie: number };
+  akt: { kod: string; nazwa: string; skrot: string; publikator: string; obowiazuje_od: string; nazwa_pliku: string; nowy: boolean };
+  baza_wersja: string;
+  roznice: RoznicaPrzepisu[];
+  zmiany: ProponowanaZmiana[];
+  ostrzezenia: string[];
+  komunikat: string;
+  zapisana_wersja: string | null;
+}
+
+export interface WgranieAktu {
+  plik: File;
+  /** plik aktu w folderze dokumentów, którego to nowa wersja; pusty = nowy akt */
+  zastepuje: string;
+  nazwa: string;
+  skrot: string;
+  publikator: string;
+  obowiazujeOd: string;
+}
+
+export const ROZSZERZENIA_AKTU = ['.pdf', '.docx', '.txt'];
+
+export async function pobierzStanBazyWiedzy(sygnal?: AbortSignal): Promise<StanBazyWiedzy> {
+  return (await wyslij('/api/baza-wiedzy', { signal: sygnal })).json();
+}
+
+export async function wgrajAkt(w: WgranieAktu): Promise<AnalizaAktu> {
+  const dane = new FormData();
+  dane.append('plik', w.plik, w.plik.name);
+  dane.append('zastepuje', w.zastepuje);
+  dane.append('nazwa', w.nazwa);
+  dane.append('skrot', w.skrot);
+  dane.append('publikator', w.publikator);
+  dane.append('obowiazuje_od', w.obowiazujeOd);
+  return (await wyslij('/api/baza-wiedzy/analizy', { method: 'POST', body: dane })).json();
+}
+
+export async function pobierzAnalize(id: string, sygnal?: AbortSignal): Promise<AnalizaAktu> {
+  return (await wyslij(`/api/baza-wiedzy/analizy/${encodeURIComponent(id)}`, { signal: sygnal })).json();
+}
+
+export async function zastosujAnalize(
+  id: string,
+  decyzje: { id: string; zatwierdz: boolean; po?: unknown }[],
+  autor: string,
+): Promise<WersjaBazy> {
+  const odp = await wyslij(`/api/baza-wiedzy/analizy/${encodeURIComponent(id)}/zastosuj`, {
+    method: 'POST',
+    headers: JSON_NAGLOWKI,
+    body: JSON.stringify({ decyzje, autor }),
+  });
+  return odp.json();
+}
+
+export async function wycofajWersje(id: string, autor: string): Promise<WersjaBazy> {
+  const odp = await wyslij(`/api/baza-wiedzy/wersje/${encodeURIComponent(id)}/wycofaj`, {
+    method: 'POST',
+    headers: JSON_NAGLOWKI,
+    body: JSON.stringify({ autor }),
+  });
+  return odp.json();
+}

@@ -2,20 +2,24 @@
 
 from __future__ import annotations
 
+import json
 import tempfile
+from datetime import date
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, HTTPException, Query, Response, UploadFile
+from fastapi import BackgroundTasks, Depends, FastAPI, Form, HTTPException, Query, Response, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from . import archiwum
+from . import analiza_aktu, archiwum, baza_wiedzy
+from .analiza_aktu import ROZSZERZENIA_AKTU, Analiza
 from .archiwum import BladArchiwum, SprawaZArchiwum, ZmianaSprawy
+from .baza_wiedzy import BladBazyWiedzy, Wersja, WersjaZeStatusem
 from .config import Ustawienia, wczytaj_ustawienia
 from .groq_klient import BladLLM, KlientGroq, KlientLLM
 from .konwersja import ocr_llm
-from .propozycja import ZAPAS_TOKENOW, Propozycja, Wniosek, zaproponuj_odpowiedz
+from .propozycja import ZAPAS_TOKENOW, Propozycja, Wniosek, szacuj_tokeny, zaproponuj_odpowiedz, zbuduj_wiadomosci
 from .propozycja_archiwum import PropozycjaWpisu, ZapytanieOWpis, zaproponuj_wpis
 from .przepisy import (
     DokumentPrawnyInfo,
@@ -36,6 +40,32 @@ class Archiwum(BaseModel):
     jednostki: list[str]
 
 
+class AktWBazie(BaseModel):
+    kod: str
+    nazwa: str
+    plik: str
+
+
+class StanBazyWiedzy(BaseModel):
+    wersje: list[WersjaZeStatusem]
+    akty: list[AktWBazie]
+
+
+class DecyzjaZmiany(BaseModel):
+    id: str
+    zatwierdz: bool
+    po: object | None = None  # wartość poprawiona przez urzędnika (zamiast propozycji modelu)
+
+
+class ZatwierdzenieAnalizy(BaseModel):
+    decyzje: list[DecyzjaZmiany]
+    autor: str = Field(min_length=1, max_length=40)
+
+
+class Autor(BaseModel):
+    autor: str = Field(min_length=1, max_length=40)
+
+
 class WynikKonwersji(BaseModel):
     tekst: str
     # "tekst" – cały tekst z warstwy tekstowej / DOCX; "model" – co najmniej jedna strona przepisana przez model
@@ -52,7 +82,45 @@ def pobierz_ustawienia() -> Ustawienia:
 
 
 def pobierz_wiedze(u: Ustawienia = Depends(pobierz_ustawienia)) -> Wiedza:
+    # główny plik bazy = wersja obowiązująca dziś (zaplanowana wersja mogła właśnie wejść w życie)
+    baza_wiedzy.synchronizuj_jesli_trzeba(u.plik_oceny, u.katalog_dokumentow)
     return wczytaj_wiedze(u.plik_oceny, u.plik_werdyktow, u.plik_wzorow)
+
+
+def budzet_tokenow(u: Ustawienia) -> int:
+    return u.groq_limit_tpm - u.groq_max_tokens - ZAPAS_TOKENOW
+
+
+def liczba_zmian(n: int) -> str:
+    if n == 1:
+        return "1 zmiana"
+    if n % 10 in (2, 3, 4) and n % 100 not in (12, 13, 14):
+        return f"{n} zmiany"
+    return f"{n} zmian"
+
+
+PROBNY_WNIOSEK ="Wnoszę o udostępnienie informacji o kosztach remontu ulicy Gdańskiej w 2026 r. oraz o nazwie wykonawcy."
+
+
+def walidator_bazy(u: Ustawienia):
+    """Sprawdza bazę przed zapisem nowej wersji: struktura czytelna dla `wiedza.py`, a zapytanie w trybie
+    „wybrany” mieści się w limicie GROQ_LIMIT_TPM."""
+
+    def sprawdz(ocena: dict) -> None:
+        try:
+            wiedza = Wiedza(
+                ocena=ocena,
+                werdykty=json.loads(u.plik_werdyktow.read_text(encoding="utf-8")),
+                wzory=json.loads(u.plik_wzorow.read_text(encoding="utf-8")),
+            )
+            wiadomosci, _ = zbuduj_wiadomosci(Wniosek(tresc=PROBNY_WNIOSEK), wiedza, "wybrany", budzet_tokenow(u))
+            baza_wiedzy.elementy(ocena)
+        except (KeyError, TypeError, AttributeError, IndexError) as e:
+            raise BladBazyWiedzy(f"Po zmianie baza wiedzy ma niepoprawną strukturę ({e.__class__.__name__}: {e}).") from e
+        if szacuj_tokeny(wiadomosci) > budzet_tokenow(u):
+            raise BladBazyWiedzy("Po zmianie zapytanie do modelu nie mieści się w limicie GROQ_LIMIT_TPM – skróć zmienione elementy.")
+
+    return sprawdz
 
 
 def pobierz_indeks_przepisow(u: Ustawienia = Depends(pobierz_ustawienia)) -> IndeksPrzepisow:
@@ -115,10 +183,127 @@ def utworz_aplikacje() -> FastAPI:
         wiedza: Wiedza = Depends(pobierz_wiedze),
         klient: KlientLLM = Depends(pobierz_klienta),
     ) -> Propozycja:
+        # wniosek oceniamy według bazy wiedzy obowiązującej w dniu wpływu
+        uwagi: list[str] = []
         try:
-            budzet = u.groq_limit_tpm - u.groq_max_tokens - ZAPAS_TOKENOW
-            return await zaproponuj_odpowiedz(wniosek, wiedza, klient, u.groq_model, u.kontekst_prawny, budzet)
+            dzien = date.fromisoformat(wniosek.data_wplywu) if wniosek.data_wplywu else date.today()
+        except ValueError:
+            dzien = date.today()
+        sciezka, wersja = baza_wiedzy.sciezka_oceny_na_dzien(u.plik_oceny, dzien)
+        _, wersja_dzis = baza_wiedzy.sciezka_oceny_na_dzien(u.plik_oceny, date.today())
+        if wersja != wersja_dzis:
+            wiedza = wczytaj_wiedze(sciezka, u.plik_werdyktow, u.plik_wzorow)
+            uwagi.append(f"Wniosek oceniono według bazy wiedzy w wersji {wersja}, obowiązującej w dniu wpływu ({dzien.isoformat()}).")
+        try:
+            propozycja = await zaproponuj_odpowiedz(wniosek, wiedza, klient, u.groq_model, u.kontekst_prawny, budzet_tokenow(u))
         except BladLLM as e:
+            raise HTTPException(e.status, e.komunikat) from e
+        propozycja.ostrzezenia = uwagi + propozycja.ostrzezenia
+        return propozycja
+
+    # ------------------------------------------------------------ baza wiedzy: nowe akty prawne i wersje
+
+    @app.get("/api/baza-wiedzy", response_model=StanBazyWiedzy)
+    def baza_wiedzy_stan(
+        u: Ustawienia = Depends(pobierz_ustawienia),
+        indeks: IndeksPrzepisow = Depends(pobierz_indeks_przepisow),
+    ) -> StanBazyWiedzy:
+        baza_wiedzy.synchronizuj_jesli_trzeba(u.plik_oceny, u.katalog_dokumentow)
+        indeks = wczytaj_indeks_przepisow(u.katalog_dokumentow)  # po synchronizacji pliki aktów mogły się zmienić
+        return StanBazyWiedzy(
+            wersje=baza_wiedzy.lista_wersji(u.plik_oceny),
+            akty=[
+                AktWBazie(kod=d.akt, nazwa=d.nazwa, plik=d.plik)
+                for d in indeks.dokumenty
+                if any(j.rodzaj in ("art", "par") for j in d.jednostki)
+            ],
+        )
+
+    @app.post("/api/baza-wiedzy/analizy", response_model=Analiza, status_code=202)
+    async def baza_wiedzy_analiza(
+        tla: BackgroundTasks,
+        plik: UploadFile,
+        obowiazuje_od: date = Form(...),
+        zastepuje: str = Form("", max_length=300),
+        nazwa: str = Form("", max_length=300),
+        skrot: str = Form("", max_length=40),
+        publikator: str = Form("", max_length=300),
+        u: Ustawienia = Depends(pobierz_ustawienia),
+        indeks: IndeksPrzepisow = Depends(pobierz_indeks_przepisow),
+        klient: KlientLLM = Depends(pobierz_klienta),
+    ) -> Analiza:
+        """Wgranie aktu: `zastepuje` = plik aktu w folderze dokumentów, którego to nowa wersja (pusty = nowy akt)."""
+        nazwa_pliku = Path(plik.filename or "").name
+        if Path(nazwa_pliku).suffix.lower() not in ROZSZERZENIA_AKTU:
+            raise HTTPException(415, f"Nieobsługiwany format aktu (obsługiwane: {', '.join(sorted(ROZSZERZENIA_AKTU))}).")
+        dane = await plik.read(MAKS_ROZMIAR_PLIKU + 1)
+        if len(dane) > MAKS_ROZMIAR_PLIKU:
+            raise HTTPException(413, "Plik jest za duży (maks. 20 MB).")
+        poprzedni = next((d for d in indeks.dokumenty if d.plik == zastepuje), None) if zastepuje else None
+        if zastepuje and not poprzedni:
+            raise HTTPException(422, f"Nie ma w folderze dokumentów aktu {zastepuje}.")
+        if not poprzedni and (not nazwa.strip() or not skrot.strip()):
+            raise HTTPException(422, "Dla nowego aktu podaj jego pełną nazwę i skrót.")
+        akt = analiza_aktu.dane_aktu_z_formularza(nazwa_pliku, poprzedni, nazwa, skrot, publikator, obowiazuje_od)
+        zadanie = analiza_aktu.utworz(akt, dane, Path(nazwa_pliku).suffix.lower(), poprzedni.plik if poprzedni else None)
+        tla.add_task(analiza_aktu.analizuj, zadanie, u.plik_oceny, indeks, klient, budzet_tokenow(u))
+        return zadanie.analiza
+
+    @app.get("/api/baza-wiedzy/analizy/{id_analizy}", response_model=Analiza)
+    def baza_wiedzy_analiza_stan(id_analizy: str) -> Analiza:
+        zadanie = analiza_aktu.pobierz(id_analizy)
+        if not zadanie:
+            raise HTTPException(404, "Nie ma takiej analizy (mogła wygasnąć po restarcie backendu) – wgraj akt ponownie.")
+        return zadanie.analiza
+
+    @app.post("/api/baza-wiedzy/analizy/{id_analizy}/zastosuj", response_model=Wersja)
+    def baza_wiedzy_zastosuj(
+        id_analizy: str, zatwierdzenie: ZatwierdzenieAnalizy, u: Ustawienia = Depends(pobierz_ustawienia)
+    ) -> Wersja:
+        zadanie = analiza_aktu.pobierz(id_analizy)
+        if not zadanie:
+            raise HTTPException(404, "Nie ma takiej analizy – wgraj akt ponownie.")
+        a = zadanie.analiza
+        with zadanie.blokada:
+            if a.status != "gotowa":
+                powod = {
+                    "w_toku": "analiza jeszcze trwa",
+                    "zapisana": "analiza została już zapisana",
+                    "nie_dotyczy": "akt nie dotyczy dostępu do informacji publicznej",
+                    "blad": "analiza zakończyła się błędem",
+                }[a.status]
+                raise HTTPException(409, f"Nie można zapisać: {powod}.")
+            decyzje = {d.id: d for d in zatwierdzenie.decyzje}
+            if any(z.id not in decyzje for z in a.zmiany):
+                raise HTTPException(422, "Zatwierdź albo odrzuć każdą proponowaną zmianę.")
+            zmiany = [
+                (z.klucz, z.opis, decyzje[z.id].po if decyzje[z.id].po is not None else z.po)
+                for z in a.zmiany
+                if decyzje[z.id].zatwierdz
+            ]
+            opis = f"{a.akt.skrot}: " + ("nowy akt" if a.akt.nowy else f"nowa wersja aktu ({liczba_zmian(len(zmiany))} w bazie)")
+            try:
+                wersja = baza_wiedzy.zapisz_wersje(
+                    u.plik_oceny,
+                    u.katalog_dokumentow,
+                    a.baza_wersja,
+                    zmiany,
+                    zatwierdzenie.autor,
+                    opis,
+                    date.fromisoformat(a.akt.obowiazuje_od),
+                    analiza_aktu.jako_nowy_akt(zadanie),
+                    walidator_bazy(u),
+                )
+            except BladBazyWiedzy as e:
+                raise HTTPException(e.status, e.komunikat) from e
+            a.status, a.zapisana_wersja = "zapisana", wersja.id
+            return wersja
+
+    @app.post("/api/baza-wiedzy/wersje/{id_wersji}/wycofaj", response_model=Wersja)
+    def baza_wiedzy_wycofaj(id_wersji: str, autor: Autor, u: Ustawienia = Depends(pobierz_ustawienia)) -> Wersja:
+        try:
+            return baza_wiedzy.wycofaj(u.plik_oceny, u.katalog_dokumentow, id_wersji, autor.autor)
+        except BladBazyWiedzy as e:
             raise HTTPException(e.status, e.komunikat) from e
 
     # ------------------------------------------------------------ archiwum spraw
