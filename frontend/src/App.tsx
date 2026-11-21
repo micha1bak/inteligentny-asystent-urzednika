@@ -3,6 +3,7 @@ import Kalendarz from './pages/Kalendarz';
 import NowyWniosek from './pages/NowyWniosek';
 import Archiwum from './pages/Archiwum';
 import NowaSprawaArchiwum from './pages/NowaSprawaArchiwum';
+import BazaWiedzy from './pages/BazaWiedzy';
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
           <NavLink to="/" end>Kalendarz wniosków</NavLink>
           <NavLink to="/nowy">Dodaj wniosek</NavLink>
           <NavLink to="/archiwum" end>Archiwum odpowiedzi</NavLink>
+          <NavLink to="/baza-wiedzy">Baza wiedzy</NavLink>
         </nav>
         <div className="stopka">
           Narzędzie pomocnicze – ostateczną decyzję zawsze podejmuje urzędnik.
@@ -28,6 +30,7 @@ export default function App() {
           <Route path="/nowy" element={<NowyWniosek />} />
           <Route path="/archiwum" element={<Archiwum />} />
           <Route path="/archiwum/nowa" element={<NowaSprawaArchiwum />} />
+          <Route path="/baza-wiedzy" element={<BazaWiedzy />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

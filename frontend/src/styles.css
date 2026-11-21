@@ -295,3 +295,29 @@ dialog.podglad::backdrop { background: rgb(16 24 40 / 55%); }
 .podglad-docx .docx-wrapper { background: #e9ecf1; padding: 16px; }
 .podglad-docx .docx-wrapper > section.docx { box-shadow: var(--cien); margin-bottom: 16px; }
 .strefa-akcje { display: flex; gap: 8px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
+
+/* baza wiedzy: przegląd zmian */
+.karta-zmiany { border: 1px solid var(--linia); border-radius: var(--promien); padding: 12px 14px; margin-top: 10px; background: #fcfcfd; }
+.karta-zmiany.d-zatwierdzona, .karta-zmiany.d-poprawiona { border-color: #9fd6b5; background: #f6fbf8; }
+.karta-zmiany.d-odrzucona { opacity: 0.65; }
+.znaczek.d-zatwierdzona, .znaczek.d-poprawiona { background: var(--zielony-tlo); color: var(--zielony); }
+.znaczek.d-odrzucona { background: #eef0f3; color: #4a5565; }
+.roznica-pole { margin-top: 8px; }
+.roznica-nazwa { font-size: 0.8rem; font-weight: 600; color: var(--tekst-2); margin-bottom: 4px; }
+.roznica-kolumny { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.roznica-przed, .roznica-po { border-radius: 6px; padding: 8px 10px; font-size: 0.88rem; line-height: 1.45; min-width: 0; overflow-wrap: anywhere; }
+.roznica-przed { background: var(--czerwony-tlo); border: 1px solid #f5c2bc; }
+.roznica-po { background: var(--zielony-tlo); border: 1px solid #a8dcbc; }
+.lista-zwarta { margin: 4px 0 0; padding-left: 18px; }
+pre.json, textarea.json { font-family: Consolas, monospace; font-size: 0.8rem; white-space: pre-wrap; margin: 4px 0 0; }
+.przepis-zmiana { border: 1px solid var(--linia); border-radius: 6px; padding: 8px 10px; margin-top: 6px; }
+.przepis-zmiana summary { cursor: pointer; }
+.przepis-zmiana .roznica-kolumny { margin-top: 8px; }
+.tekst-przepisu { white-space: pre-wrap; max-height: 260px; overflow: auto; }
+.r-zmieniony { background: var(--zolty-tlo); color: var(--zolty); }
+.r-dodany { background: var(--zielony-tlo); color: var(--zielony); }
+.r-uchylony { background: var(--czerwony-tlo); color: var(--czerwony); }
+.v-obowiazuje { background: var(--zielony-tlo); color: var(--zielony); }
+.v-zaplanowana { background: var(--akcent-tlo); color: var(--akcent); }
+.v-archiwalna, .v-wycofana { background: #eef0f3; color: #4a5565; }
+@media (max-width: 700px) { .roznica-kolumny { grid-template-columns: 1fr; } }

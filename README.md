@@ -36,6 +36,11 @@ Wsparcie obsługi wniosków o dostęp do informacji publicznej w Urzędzie Miast
 | PUT | `/api/archiwum/{sygnatura}` | `{sprawa, autor}` → edycja, także `nieaktualna: true/false` |
 | DELETE | `/api/archiwum/{sygnatura}` | usunięcie sprawy |
 | POST | `/api/archiwum/propozycja` | `{wniosek, odpowiedz, sygnatura?}` (treść dokumentów) → zanonimizowana propozycja wpisu od modelu |
+| GET | `/api/baza-wiedzy` | wersje bazy wiedzy (ze statusem) i akty prawne z folderu dokumentów |
+| POST | `/api/baza-wiedzy/analizy` | multipart: `plik` (PDF/DOCX/TXT), `zastepuje`, `nazwa`, `skrot`, `publikator`, `obowiazuje_od` → analiza w tle |
+| GET | `/api/baza-wiedzy/analizy/{id}` | postęp i wynik analizy: zmienione przepisy i proponowane zmiany bazy |
+| POST | `/api/baza-wiedzy/analizy/{id}/zastosuj` | `{decyzje: [{id, zatwierdz, po?}], autor}` → nowa wersja bazy |
+| POST | `/api/baza-wiedzy/wersje/{id}/wycofaj` | `{autor}` → wycofanie wersji (powrót do poprzedniej) |
 
 `/api/konwersja` używa modułu `konwersja/ocr_llm.py` (ten sam co w CLI `python -m inteligentny_asystent_urzednika.konwersja.ocr_llm`):
 DOCX jest czytany lokalnie bez modelu; każda strona PDF/obrazu jest najpierw klasyfikowana przez model wizyjny Groq
@@ -75,6 +80,29 @@ jest link „Dodaj do archiwum”, który przenosi treść wniosku, sygnaturę i
   (e-mail, telefon, PESEL, numer konta – `anonimizacja.py`); w propozycji modelu są one maskowane automatycznie,
   a imiona i nazwiska model zastępuje opisem roli – urzędnik sprawdza wpis przed zatwierdzeniem,
 - pola techniczne (`historia`, `nieaktualna`) nie trafiają do modelu.
+
+### Aktualizacja bazy wiedzy po zmianie przepisów
+
+Zakładka **Baza wiedzy**: urzędnik wgrywa nową wersję aktu (np. tekst jednolity UDIP, KPA, nowe zarządzenie) albo nowy akt.
+Aplikacja:
+
+1. porównuje nową wersję z obecną (folder `Dokumenty i podstawy prawne/`) artykuł po artykule – bez modelu,
+2. wybiera elementy bazy (`ocena_prawna_wniosku_dip_kompletny.json`: etapy algorytmu, matryca, katalog anonimizacji,
+   instytucje KPA, procedura UMB), które powołują się na zmienione przepisy,
+3. wysyła do modelu tylko te elementy i zmienione przepisy (paczkami w limicie `GROQ_LIMIT_TPM`; przy limicie zapytań
+   na minutę czeka i ponawia) – model proponuje nowe brzmienie elementów,
+4. pokazuje „było → będzie” dla każdej zmiany; urzędnik zatwierdza, odrzuca albo poprawia (JSON) każdą z nich.
+
+Analiza działa w tle, a interfejs pokazuje jej postęp. Wyniki są trzymane w pamięci backendu, więc znikają po restarcie.
+Akt niezwiązany z dostępem do informacji publicznej jest odrzucany, a baza zostaje bez zmian. Nowy akt bez poprzedniej
+wersji jest dodawany do źródeł i do wyszukiwarki przepisów, ale algorytmu oceny nie zmienia automatycznie.
+
+Każdy zapis tworzy wersję w `wersje_bazy_wiedzy/` (pełna kopia bazy, wgrany akt, manifest: kto, kiedy, co, od kiedy obowiązuje).
+Wersja z przyszłą datą wejścia w życie czeka. Wniosek jest oceniany według wersji obowiązującej w dniu wpływu,
+a główny plik bazy i tekst aktu w folderze dokumentów są podmieniane w dniu wejścia w życie. Wycofanie wersji przywraca
+poprzednią bazę i poprzedni tekst aktu. Przed zapisem backend sprawdza strukturę bazy i to, czy zapytanie w trybie
+`wybrany` mieści się w limicie tokenów. Gdy istnieje katalog `wersje_bazy_wiedzy/`, ręczne zmiany głównego pliku bazy
+zostaną nadpisane przy synchronizacji, więc zmieniaj bazę przez aplikację.
 
 **Uwaga:** treść wniosku jest wysyłana do zewnętrznego dostawcy (Groq) – na hackathonie tylko dane testowe.
 Docelowo ten sam interfejs `KlientLLM` (`groq_klient.py`) można podpiąć pod model lokalny (np. Ollama/vLLM z API zgodnym z OpenAI – wystarczy zmienić `GROQ_URL` i `GROQ_MODEL`).
