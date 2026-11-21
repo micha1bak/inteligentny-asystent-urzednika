@@ -595,3 +595,53 @@ export async function pobierzPodobne(
   const odp = await wyslij('/api/podobne', { method: 'POST', headers: JSON_NAGLOWKI, body: JSON.stringify(z), signal: sygnal });
   return odp.json();
 }
+
+// ---------------------------------------------------------------- wskazywanie ścieżki: propozycja wydziałów
+
+export interface KandydatWydzialu {
+  symbol: string;
+  nazwa: string;
+  zakres: string;
+  uzasadnienie: string;
+}
+
+export interface PropozycjaWydzialu {
+  jednostki: KandydatWydzialu[];
+  podmiot_poza_umb: string;
+  pytania: string[];
+  uwagi: string[];
+  model: string;
+  ostrzezenia: string[];
+}
+
+export interface WiadomoscDoWydzialu {
+  temat: string;
+  tresc: string;
+  termin: string;
+}
+
+export async function zaproponujWydzial(
+  z: { tresc: string; numer?: string; data_wplywu?: string; temat?: string },
+  sygnal?: AbortSignal,
+): Promise<PropozycjaWydzialu> {
+  const odp = await wyslij('/api/wydzial/propozycja', {
+    method: 'POST',
+    headers: JSON_NAGLOWKI,
+    body: JSON.stringify(Object.fromEntries(Object.entries(z).filter(([, v]) => v))),
+    signal: sygnal,
+  });
+  return odp.json();
+}
+
+export async function zlozWiadomoscDoWydzialu(
+  z: { jednostka: string; pytania: string[]; uwagi: string[]; numer?: string; data_wplywu?: string; termin?: string },
+  sygnal?: AbortSignal,
+): Promise<WiadomoscDoWydzialu> {
+  const odp = await wyslij('/api/wydzial/wiadomosc', {
+    method: 'POST',
+    headers: JSON_NAGLOWKI,
+    body: JSON.stringify(Object.fromEntries(Object.entries(z).filter(([, v]) => v !== undefined && v !== ''))),
+    signal: sygnal,
+  });
+  return odp.json();
+}

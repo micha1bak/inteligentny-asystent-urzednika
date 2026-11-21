@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import PelnyPodgladPisma from '../components/PelnyPodgladPisma';
 import OdpowiedziWydzialow from '../components/OdpowiedziWydzialow';
+import ZapytanieDoWydzialu from '../components/ZapytanieDoWydzialu';
 import PodobneSprawy from '../components/PodobneSprawy';
 import PropozycjaOdpowiedzi from '../components/PropozycjaOdpowiedzi';
 import { Pozostalo, ZnaczekStatusu } from '../components/Znaczki';
@@ -173,10 +174,12 @@ function WidokSzczegolow({
 
   const gotowe = !!dane.numer.trim() && !!dane.dataWplywu && !!dane.temat.trim() && !duplikat;
 
-  async function zapisz() {
+  /** Zapis wniosku; `status` pozwala kartom (zapytanie do wydziału, odpowiedź wysłana) od razu zmienić status. */
+  async function zapisz(status: Status = dane.status) {
     setTrwaZapis(true);
     setBlad('');
     setInfo('');
+    const dataOdpowiedzi = status === 'odpowiedz_wyslana' ? dane.dataOdpowiedzi || dzis : undefined;
     try {
       zapamietajInicjaly(dane.inicjaly.trim());
       await onZapisz({
@@ -187,12 +190,15 @@ function WidokSzczegolow({
         kontakt: dane.kontakt.trim() || undefined,
         temat: dane.temat.trim(),
         tresc: dane.tresc,
-        status: dane.status,
-        dniKwerendy: dane.status === 'kwerenda' ? dane.dniKwerendy : undefined,
-        dataOdpowiedzi: dane.status === 'odpowiedz_wyslana' ? dane.dataOdpowiedzi || undefined : undefined,
+        status,
+        dniKwerendy: status === 'kwerenda' ? dane.dniKwerendy : undefined,
+        dataOdpowiedzi,
         nazwaPliku: wniosek.nazwaPliku,
       });
-      setInfo('Zapisano zmiany.');
+      if (status !== dane.status) {
+        zmienStatus(status);
+        setInfo(`Zapisano – status: ${STATUSY.find((s) => s.id === status)?.etykieta ?? status}.`);
+      } else setInfo('Zapisano zmiany.');
     } catch (e) {
       setBlad(e instanceof Error ? e.message : String(e));
     } finally {
@@ -335,6 +341,12 @@ function WidokSzczegolow({
             />
           )}
           <PodobneSprawy tresc={dane.tresc} pominId={wniosek.id} dataOdniesienia={dane.dataWplywu} />
+          <ZapytanieDoWydzialu
+            key={`wydzial-${wniosek.id}`}
+            wniosek={{ tresc: dane.tresc, numer: dane.numer, data_wplywu: dane.dataWplywu, temat: dane.temat }}
+            wyslane={dane.status !== 'brak_dzialan'}
+            onOznaczWyslane={() => zapisz('zapytania_wyslane')}
+          />
           <OdpowiedziWydzialow wniosekId={wniosek.id} odpowiedzi={wniosek.odpowiedziWydzialow ?? []} onZmiana={onPodmien} />
           <PropozycjaOdpowiedzi
             key={wniosek.id}

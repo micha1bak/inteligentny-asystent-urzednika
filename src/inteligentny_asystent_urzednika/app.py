@@ -39,6 +39,16 @@ from .przepisy import (
     wczytaj_indeks_przepisow,
 )
 from .wiedza import JEDNOSTKI_UMB, Wiedza, wczytaj_wiedze
+from .wydzialy import (
+    PropozycjaWydzialu,
+    Wiadomosc,
+    WniosekDoWydzialu,
+    ZapytanieOWiadomosc,
+    jednostka_po_nazwie,
+    propozycja_bez_modelu,
+    zaproponuj_wydzial,
+    zloz_wiadomosc,
+)
 
 
 MAKS_ROZMIAR_PLIKU = 20 * 1024 * 1024  # 20 MB
@@ -355,6 +365,35 @@ def utworz_aplikacje() -> FastAPI:
     def jednostki() -> list[dict]:
         """Wydziały i biura UMB (nazwy i symbole z BIP, zakres spraw) – do wyboru jednostki przez urzędnika."""
         return JEDNOSTKI_UMB
+
+    @app.post("/api/wydzial/propozycja", response_model=PropozycjaWydzialu)
+    async def wydzial_propozycja(
+        wniosek: WniosekDoWydzialu,
+        u: Ustawienia = Depends(pobierz_ustawienia),
+        wiedza: Wiedza = Depends(pobierz_wiedze),
+    ) -> PropozycjaWydzialu:
+        """Wskazanie ścieżki: ranking jednostek UMB właściwych dla wniosku (z AI, a bez klucza – archiwum i zakresy)."""
+        if not u.groq_api_key:
+            return propozycja_bez_modelu(wiedza, wniosek.tresc)
+        klient = KlientGroq(u.groq_api_key, u.groq_model, u.groq_url, u.groq_timeout_s, u.groq_max_tokens)
+        try:
+            return await zaproponuj_wydzial(wniosek, wiedza, klient, u.groq_model)
+        except BladLLM as e:
+            p = propozycja_bez_modelu(wiedza, wniosek.tresc)
+            p.ostrzezenia.insert(0, f"Model AI niedostępny ({e.komunikat[:120]}).")
+            return p
+
+    @app.post("/api/wydzial/wiadomosc", response_model=Wiadomosc)
+    def wydzial_wiadomosc(z: ZapytanieOWiadomosc) -> Wiadomosc:
+        """Prośba do wydziału o projekt odpowiedzi – składana przez kod; urzędnik wysyła ją sam (brak automatycznej wysyłki)."""
+        j = jednostka_po_nazwie(z.jednostka)
+        if not j:
+            raise HTTPException(422, f"Nieznana jednostka UMB: {z.jednostka}")
+        try:
+            termin = date.fromisoformat(z.termin) if z.termin else None
+        except ValueError as e:
+            raise HTTPException(422, "Termin musi mieć format RRRR-MM-DD.") from e
+        return zloz_wiadomosc(j["nazwa"], z.pytania, z.uwagi, z.numer, z.data_wplywu, termin)
 
     @app.post("/api/propozycja-odpowiedzi", response_model=Propozycja)
     async def propozycja_odpowiedzi(

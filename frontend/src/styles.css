@@ -354,3 +354,10 @@ pre.json, textarea.json { font-family: Consolas, monospace; font-size: 0.8rem; w
 .podobienstwo { display: inline-block; min-width: 38px; text-align: center; font-size: 0.75rem; font-weight: 600; color: var(--akcent);
   background: var(--akcent-tlo); border-radius: 10px; padding: 0 6px; }
 .podobne-kompakt { border-top: 1px dashed var(--linia); margin-top: 10px; padding-top: 8px; }
+
+/* zapytanie do wydziału */
+.wybor-wydzialu { border: 1px solid var(--linia); border-radius: 6px; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; margin: 0; }
+.wydzial-opcja { display: flex; gap: 8px; align-items: flex-start; padding: 6px 8px; border-radius: 6px; cursor: pointer; font-weight: 400; }
+.wydzial-opcja.wybrana { background: var(--akcent-tlo); }
+.wydzial-opcja input { width: auto; margin-top: 3px; }
+.wydzial-zakres { display: block; margin-top: 2px; }
