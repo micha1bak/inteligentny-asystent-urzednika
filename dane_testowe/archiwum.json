@@ -1,0 +1,41 @@
+{
+  "uwaga": "Fikcyjne archiwalne wnioski z odpowiedziami (dane osobowe już zanonimizowane) do testów wyszukiwania podobnych spraw.",
+  "sprawy": [
+    {
+      "numer": "BKS.1431.87.2025", "data_wplywu": "2025-09-02", "wydzial": "WIM",
+      "temat": "Koszt przebudowy ul. Grunwaldzkiej",
+      "wniosek": "Wnoszę o informację o całkowitym koszcie przebudowy ul. Grunwaldzkiej oraz o wykonawcy robót.",
+      "odpowiedz": "W odpowiedzi na wniosek o udostępnienie informacji publicznej uprzejmie informuję, że całkowity koszt przebudowy ul. Grunwaldzkiej wyniósł 18 450 000 zł brutto. Wykonawcą robót była firma wyłoniona w przetargu nieograniczonym. Inwestycję realizował Wydział Inwestycji Miasta."
+    },
+    {
+      "numer": "BKS.1431.45.2025", "data_wplywu": "2025-04-14", "wydzial": "WOA",
+      "temat": "Wynagrodzenia Prezydenta i zastępców",
+      "wniosek": "Proszę o informację o wynagrodzeniu Prezydenta Miasta i jego zastępców w 2024 r.",
+      "odpowiedz": "Uprzejmie informuję, że wynagrodzenia osób pełniących funkcje publiczne stanowią informację publiczną. Wysokość wynagrodzeń brutto w 2024 r. przedstawia załączone zestawienie przygotowane przez Wydział Organizacyjno-Administracyjny."
+    },
+    {
+      "numer": "BKS.1431.112.2025", "data_wplywu": "2025-11-05", "wydzial": "WOŚ",
+      "temat": "Wycinka drzew w parku Kochanowskiego",
+      "wniosek": "Proszę o informację o podstawie prawnej wycinki drzew w parku Kochanowskiego i nasadzeniach zastępczych.",
+      "odpowiedz": "Informuję, że zezwolenie na usunięcie drzew wydano na podstawie art. 83 ustawy o ochronie przyrody, ze względu na zły stan fitosanitarny drzew. W ramach nasadzeń zastępczych posadzono 24 drzewa. Sprawę prowadził Wydział Ochrony Środowiska."
+    },
+    {
+      "numer": "BKS.1431.33.2025", "data_wplywu": "2025-03-10", "wydzial": "BPR",
+      "temat": "Umowy z mediami na promocję miasta",
+      "wniosek": "Proszę o wykaz umów z mediami zawartych w 2024 r. na promocję miasta.",
+      "odpowiedz": "W załączeniu przekazuję wykaz umów zawartych w 2024 r. z podaniem kontrahenta, przedmiotu umowy i wynagrodzenia. Informacje przygotowało Biuro Prasowe we współpracy z Biurem Promocji Miasta."
+    },
+    {
+      "numer": "BKS.1431.71.2025", "data_wplywu": "2025-07-21", "wydzial": "WE",
+      "temat": "Liczba uczniów i oddziałów w szkołach",
+      "wniosek": "Wnoszę o dane o liczbie uczniów i oddziałów w szkołach podstawowych w roku szkolnym 2024/2025.",
+      "odpowiedz": "Uprzejmie informuję, że dane o liczbie uczniów i oddziałów w szkołach podstawowych prowadzonych przez Miasto Bydgoszcz zawiera załączona tabela przygotowana przez Wydział Edukacji i Sportu na podstawie Systemu Informacji Oświatowej."
+    },
+    {
+      "numer": "BKS.1431.58.2025", "data_wplywu": "2025-05-28", "wydzial": "BRM",
+      "temat": "Diety radnych w 2024 r.",
+      "wniosek": "Proszę o informację o wysokości diet radnych w 2024 r.",
+      "odpowiedz": "Informuję, że zasady ustalania diet radnych określa uchwała Rady Miasta Bydgoszczy. Wysokość diet wypłaconych poszczególnym radnym w 2024 r. zawiera załączone zestawienie przygotowane przez Biuro Rady Miasta."
+    }
+  ]
+}

@@ -8,3 +8,8 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Dane lokalne (baza, wgrane pliki) i sekrety
+/dane/
+.env
+.pytest_cache/

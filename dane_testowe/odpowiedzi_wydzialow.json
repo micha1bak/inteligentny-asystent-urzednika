@@ -1,0 +1,17 @@
+{
+  "uwaga": "Fikcyjne odpowiedzi wydziałów do wniosków testowych (do generowania projektu pisma).",
+  "odpowiedzi": [
+    {
+      "numer_wniosku": "BKS.1431.101.2026", "wydzial": "WIM",
+      "tresc": "W odpowiedzi na zapytanie BKS informujemy, że remont ul. Gdańskiej w 2026 r. kosztował łącznie 12 300 000 zł brutto: etap I – 5 100 000 zł, etap II – 7 200 000 zł. Wykonawcą była firma Drogbud Sp. z o.o. wybrana w przetargu nieograniczonym. Sprawę prowadzi inspektor Krzysztof Malinowski, tel. 52 58 00 000."
+    },
+    {
+      "numer_wniosku": "BKS.1431.109.2026", "wydzial": "BRM",
+      "tresc": "Biuro Rady Miasta przekazuje zestawienie diet wypłaconych radnym w 2025 r. Łączna kwota diet wyniosła 1 845 000 zł. Wysokość diety miesięcznej określa uchwała nr XII/245/24 Rady Miasta Bydgoszczy. Zestawienie imienne w załączniku."
+    },
+    {
+      "numer_wniosku": "BKS.1431.105.2026", "wydzial": "WE",
+      "tresc": "Wydział Edukacji i Sportu informuje, że w roku szkolnym 2026/2027 do szkół podstawowych prowadzonych przez Miasto uczęszcza 24 870 uczniów w 1 112 oddziałach. Dane dla poszczególnych szkół w załączonej tabeli."
+    }
+  ]
+}
