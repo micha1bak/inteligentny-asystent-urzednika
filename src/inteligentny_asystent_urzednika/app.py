@@ -5,19 +5,35 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, HTTPException, Query, Response, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from . import archiwum
+from .archiwum import BladArchiwum, SprawaZArchiwum, ZmianaSprawy
 from .config import Ustawienia, wczytaj_ustawienia
 from .groq_klient import BladLLM, KlientGroq, KlientLLM
 from .konwersja import ocr_llm
 from .propozycja import ZAPAS_TOKENOW, Propozycja, Wniosek, zaproponuj_odpowiedz
-from .wiedza import Wiedza, wczytaj_wiedze
+from .propozycja_archiwum import PropozycjaWpisu, ZapytanieOWpis, zaproponuj_wpis
+from .przepisy import (
+    DokumentPrawnyInfo,
+    IndeksPrzepisow,
+    WynikWyszukiwaniaPrzepisow,
+    szukaj_przepisow,
+    wczytaj_indeks_przepisow,
+)
+from .wiedza import JEDNOSTKI_UMB, Wiedza, wczytaj_wiedze
 
 
 MAKS_ROZMIAR_PLIKU = 20 * 1024 * 1024  # 20 MB
+
+
+class Archiwum(BaseModel):
+    sprawy: list[SprawaZArchiwum]
+    werdykty: dict[str, str]
+    jednostki: list[str]
 
 
 class WynikKonwersji(BaseModel):
@@ -39,6 +55,10 @@ def pobierz_wiedze(u: Ustawienia = Depends(pobierz_ustawienia)) -> Wiedza:
     return wczytaj_wiedze(u.plik_oceny, u.plik_werdyktow, u.plik_wzorow)
 
 
+def pobierz_indeks_przepisow(u: Ustawienia = Depends(pobierz_ustawienia)) -> IndeksPrzepisow:
+    return wczytaj_indeks_przepisow(u.katalog_dokumentow)
+
+
 def pobierz_klienta(u: Ustawienia = Depends(pobierz_ustawienia)) -> KlientLLM:
     if not u.groq_api_key:
         raise HTTPException(503, "Brak klucza GROQ_API_KEY w pliku .env – backend nie może połączyć się z modelem.")
@@ -50,12 +70,16 @@ def utworz_aplikacje() -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=wczytaj_ustawienia().dozwolone_originy,
-        allow_methods=["GET", "POST"],
+        allow_methods=["GET", "POST", "PUT", "DELETE"],
         allow_headers=["Content-Type"],
     )
 
     @app.get("/api/zdrowie")
-    def zdrowie(u: Ustawienia = Depends(pobierz_ustawienia), wiedza: Wiedza = Depends(pobierz_wiedze)) -> dict:
+    def zdrowie(
+        u: Ustawienia = Depends(pobierz_ustawienia),
+        wiedza: Wiedza = Depends(pobierz_wiedze),
+        indeks: IndeksPrzepisow = Depends(pobierz_indeks_przepisow),
+    ) -> dict:
         return {
             "status": "ok",
             "llm_skonfigurowany": bool(u.groq_api_key),
@@ -64,7 +88,25 @@ def utworz_aplikacje() -> FastAPI:
             "limit_tpm": u.groq_limit_tpm,
             "spraw_w_archiwum": len(wiedza.sygnatury),
             "werdyktow": len(wiedza.slownik_werdyktow),
+            "dokumentow_prawnych": len(indeks.dokumenty),
         }
+
+    @app.get("/api/przepisy/dokumenty", response_model=list[DokumentPrawnyInfo])
+    def dokumenty_prawne(
+        indeks: IndeksPrzepisow = Depends(pobierz_indeks_przepisow),
+    ) -> list[DokumentPrawnyInfo]:
+        """Lista lokalnie zaindeksowanych plików z folderu „Dokumenty i podstawy prawne” (bez modelu AI)."""
+        return indeks.informacje_o_dokumentach()
+
+    @app.get("/api/przepisy/szukaj", response_model=WynikWyszukiwaniaPrzepisow)
+    def przepisy_szukaj(
+        q: str = Query(..., min_length=1, max_length=300, description="Odwołanie do przepisu lub fraza"),
+        akt: str | None = Query(default=None, max_length=60, description="Opcjonalny filtr aktu (np. UDIP, KPA)"),
+        limit: int = Query(default=8, ge=1, le=20),
+        indeks: IndeksPrzepisow = Depends(pobierz_indeks_przepisow),
+    ) -> WynikWyszukiwaniaPrzepisow:
+        """Deterministyczne wyszukiwanie ustępów, artykułów i paragrafów w folderze dokumentów (bez AI)."""
+        return szukaj_przepisow(indeks, q, akt=akt, limit=limit)
 
     @app.post("/api/propozycja-odpowiedzi", response_model=Propozycja)
     async def propozycja_odpowiedzi(
@@ -76,6 +118,57 @@ def utworz_aplikacje() -> FastAPI:
         try:
             budzet = u.groq_limit_tpm - u.groq_max_tokens - ZAPAS_TOKENOW
             return await zaproponuj_odpowiedz(wniosek, wiedza, klient, u.groq_model, u.kontekst_prawny, budzet)
+        except BladLLM as e:
+            raise HTTPException(e.status, e.komunikat) from e
+
+    # ------------------------------------------------------------ archiwum spraw
+
+    @app.get("/api/archiwum", response_model=Archiwum)
+    def archiwum_lista(u: Ustawienia = Depends(pobierz_ustawienia), wiedza: Wiedza = Depends(pobierz_wiedze)) -> Archiwum:
+        return Archiwum(
+            sprawy=archiwum.lista(u.plik_werdyktow),
+            werdykty=wiedza.slownik_werdyktow,
+            jednostki=[j["nazwa"] for j in JEDNOSTKI_UMB],
+        )
+
+    @app.post("/api/archiwum", response_model=SprawaZArchiwum, status_code=201)
+    def archiwum_dodaj(
+        zmiana: ZmianaSprawy, u: Ustawienia = Depends(pobierz_ustawienia), wiedza: Wiedza = Depends(pobierz_wiedze)
+    ) -> SprawaZArchiwum:
+        try:
+            return archiwum.dodaj(u.plik_werdyktow, zmiana, wiedza.slownik_werdyktow)
+        except BladArchiwum as e:
+            raise HTTPException(e.status, e.komunikat) from e
+
+    @app.put("/api/archiwum/{sygnatura}", response_model=SprawaZArchiwum)
+    def archiwum_zmien(
+        sygnatura: str,
+        zmiana: ZmianaSprawy,
+        u: Ustawienia = Depends(pobierz_ustawienia),
+        wiedza: Wiedza = Depends(pobierz_wiedze),
+    ) -> SprawaZArchiwum:
+        try:
+            return archiwum.zmien(u.plik_werdyktow, sygnatura, zmiana, wiedza.slownik_werdyktow)
+        except BladArchiwum as e:
+            raise HTTPException(e.status, e.komunikat) from e
+
+    @app.delete("/api/archiwum/{sygnatura}", status_code=204)
+    def archiwum_usun(sygnatura: str, u: Ustawienia = Depends(pobierz_ustawienia)) -> Response:
+        try:
+            archiwum.usun(u.plik_werdyktow, sygnatura)
+        except BladArchiwum as e:
+            raise HTTPException(e.status, e.komunikat) from e
+        return Response(status_code=204)
+
+    @app.post("/api/archiwum/propozycja", response_model=PropozycjaWpisu)
+    async def archiwum_propozycja(
+        zapytanie: ZapytanieOWpis,
+        u: Ustawienia = Depends(pobierz_ustawienia),
+        wiedza: Wiedza = Depends(pobierz_wiedze),
+        klient: KlientLLM = Depends(pobierz_klienta),
+    ) -> PropozycjaWpisu:
+        try:
+            return await zaproponuj_wpis(zapytanie, wiedza, klient, u.groq_model)
         except BladLLM as e:
             raise HTTPException(e.status, e.komunikat) from e
 

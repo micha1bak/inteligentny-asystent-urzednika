@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from functools import cache
+from functools import lru_cache
 from pathlib import Path
 
+from .archiwum import POLA_SPRAWY
 from .podobienstwo import najpodobniejsze
 
 # Wydziały i biura Urzędu Miasta Bydgoszczy (nazwy z BIP: /artykuly/198/wydzialy, /artykuly/1158/biura).
@@ -51,8 +52,15 @@ class Wiedza:
         return self.ocena["metadane"]["slownik_werdyktow"]
 
     @property
+    def sprawy(self) -> list[dict]:
+        """Aktualne sprawy z archiwum, bez pól technicznych (historia zmian, znacznik nieaktualności)."""
+        return [
+            {k: s[k] for k in POLA_SPRAWY if k in s} for s in self.werdykty["sprawy"] if not s.get("nieaktualna")
+        ]
+
+    @property
     def sygnatury(self) -> set[str]:
-        return {s["sygnatura"] for s in self.werdykty["sprawy"]}
+        return {s["sygnatura"] for s in self.sprawy}
 
     @property
     def id_wzorow(self) -> set[str]:
@@ -67,7 +75,7 @@ class Wiedza:
         return (
             f"MODEL OCENY PRAWNEJ:\n{_zwarty(self.ocena)}\n\n"
             f"JEDNOSTKI UMB:\n{_zwarty([j['nazwa'] for j in JEDNOSTKI_UMB])}\n\n"
-            f"ARCHIWUM SPRAW:\n{_zwarty(self.werdykty['sprawy'])}\n\n"
+            f"ARCHIWUM SPRAW:\n{_zwarty(self.sprawy)}\n\n"
             f"WZORY PISM UMB:\n{_zwarty(self._wzory_do_kontekstu(self.wzory['wzory']))}"
         )
 
@@ -113,7 +121,7 @@ class Wiedza:
         )
 
     def podobne_sprawy(self, tresc_wniosku: str, limit: int) -> list[dict]:
-        sprawy = self.werdykty["sprawy"]
+        sprawy = self.sprawy
         return najpodobniejsze(
             tresc_wniosku, sprawy, [f"{s['wniosek_o_co']} {s['komorka_merytoryczna']}" for s in sprawy], limit
         )
@@ -168,8 +176,14 @@ def _zwarty(dane: object) -> str:
     return json.dumps(dane, ensure_ascii=False, separators=(",", ":"))
 
 
-@cache
 def wczytaj_wiedze(plik_oceny: Path, plik_werdyktow: Path, plik_wzorow: Path) -> Wiedza:
+    """Wczytuje bazę wiedzy; ponownie tylko po zmianie któregoś z plików (np. edycji archiwum z aplikacji)."""
+    znaczniki = tuple(p.stat().st_mtime_ns for p in (plik_oceny, plik_werdyktow, plik_wzorow))
+    return _wczytaj_wiedze(plik_oceny, plik_werdyktow, plik_wzorow, znaczniki)
+
+
+@lru_cache(maxsize=8)
+def _wczytaj_wiedze(plik_oceny: Path, plik_werdyktow: Path, plik_wzorow: Path, _znaczniki: tuple) -> Wiedza:
     return Wiedza(
         ocena=json.loads(plik_oceny.read_text(encoding="utf-8")),
         werdykty=json.loads(plik_werdyktow.read_text(encoding="utf-8")),

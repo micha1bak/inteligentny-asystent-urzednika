@@ -29,6 +29,7 @@ class Ustawienia:
     plik_oceny: Path
     plik_werdyktow: Path
     plik_wzorow: Path
+    katalog_dokumentow: Path
     dozwolone_originy: list[str]
 
 
@@ -50,6 +51,7 @@ def wczytaj_ustawienia() -> Ustawienia:
         plik_oceny=Path(os.getenv("PLIK_OCENY", KATALOG_GLOWNY / "ocena_prawna_wniosku_dip_kompletny.json")),
         plik_werdyktow=Path(os.getenv("PLIK_WERDYKTOW", KATALOG_GLOWNY / "werdykty_wniosek_odpowiedz_dip.json")),
         plik_wzorow=Path(os.getenv("PLIK_WZOROW", KATALOG_GLOWNY / "wzory_pism.json")),
+        katalog_dokumentow=Path(os.getenv("KATALOG_DOKUMENTOW", KATALOG_GLOWNY / "Dokumenty i podstawy prawne")),
         dozwolone_originy=os.getenv(
             "DOZWOLONE_ORIGINY", "http://localhost:5173,http://127.0.0.1:5173"
         ).split(","),

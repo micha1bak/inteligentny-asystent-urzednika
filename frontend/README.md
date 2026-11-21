@@ -22,6 +22,9 @@ przesunięcie z soboty i dni ustawowo wolnych na najbliższy dzień roboczy (art
 
 ## Dodaj wniosek (`/nowy`)
 - wgranie pliku PDF / DOCX / zdjęcia (przeciągnij lub kliknij); tekst odczytuje backend modułem `konwersja`,
+- kliknięcie w strefę z wgranym plikiem otwiera podgląd w oryginalnym formacie (okno modalne): PDF – wbudowana
+  przeglądarka PDF, DOCX – `docx-preview` (układ i formatowanie Worda), zdjęcia – jako obraz; plik zmienia się
+  przyciskiem „Zmień plik” albo przeciągnięciem nowego; podgląd działa lokalnie, plik nie jest nigdzie wysyłany,
 - pismo odręczne jest odfiltrowywane – formularz nie jest wypełniany, urzędnik ocenia dokument sam,
 - skan druku jest przepisywany przez model (komunikat, by dokładnie sprawdzić pola),
 - automatyczne wypełnienie tematu, wnioskodawcy i e-maila; kolejny numer BKS.IV.1431.N.rok; podgląd terminu,

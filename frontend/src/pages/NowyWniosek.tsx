@@ -6,14 +6,7 @@ import PropozycjaOdpowiedzi from '../components/PropozycjaOdpowiedzi';
 import { dzisIso, formatuj } from '../lib/daty';
 import { terminOdpowiedzi } from '../lib/terminy';
 import { wyciagnijMetadane, type WynikOdczytu } from '../lib/parsowanie';
-
-function zapamietaneInicjaly(): string {
-  try {
-    return localStorage.getItem('asystent.inicjaly') ?? '';
-  } catch {
-    return '';
-  }
-}
+import { zapamietaneInicjaly, zapamietajInicjaly } from '../lib/inicjaly';
 
 export default function NowyWniosek() {
   const { dodajWniosek, nastepnyNumer, wnioski } = useMagazyn();
@@ -54,11 +47,7 @@ export default function NowyWniosek() {
   const gotowe = nazwaPliku && dane.numer && dane.dataWplywu && dane.temat && !duplikat;
 
   function zatwierdz() {
-    try {
-      localStorage.setItem('asystent.inicjaly', dane.inicjaly);
-    } catch {
-      /* bez znaczenia */
-    }
+    zapamietajInicjaly(dane.inicjaly);
     dodajWniosek({
       ...dane,
       inicjaly: dane.inicjaly.toUpperCase(),
@@ -77,16 +66,21 @@ export default function NowyWniosek() {
       <div className="siatka-2">
         <div className="stos">
           <div className="karta">
-            <StrefaPliku napis={nazwaPliku ? `Wczytano: ${nazwaPliku} – kliknij, aby zmienić` : 'Wgraj wniosek (PDF / DOCX)'} onWczytano={wczytano} />
-          </div>
-          <div className="karta">
-            <h2>Dane wniosku do zatwierdzenia</h2>
+            <StrefaPliku napis="Wgraj wniosek (PDF / DOCX)" onWczytano={wczytano} />
             {odczyt?.odreczny && (
-              <div className="uwaga" style={{ marginBottom: 12 }}>
+              <div className="uwaga" style={{ marginTop: 10 }}>
                 Dokument zawiera pismo odręczne (strony: {odczyt.strony_odreczne.join(', ')}) – tekst nie został odczytany
                 automatycznie. Oceń dokument samodzielnie i wpisz dane wniosku ręcznie.
               </div>
             )}
+            {nazwaPliku && !tresc && !odczyt?.odreczny && (
+              <div className="uwaga" style={{ marginTop: 10 }}>
+                Nie udało się odczytać tekstu z pliku. Wpisz dane wniosku ręcznie.
+              </div>
+            )}
+          </div>
+          <div className="karta">
+            <h2>Dane wniosku do zatwierdzenia</h2>
             {odczyt && !odczyt.odreczny && odczyt.zrodlo === 'tekst' && tresc && (
               <div className="info" style={{ marginBottom: 12 }}>Pola uzupełnione automatycznie – sprawdź je przed zatwierdzeniem.</div>
             )}
@@ -94,11 +88,6 @@ export default function NowyWniosek() {
               <div className="uwaga" style={{ marginBottom: 12 }}>
                 Plik zawiera skan – tekst {odczyt.stron > 1 ? `stron ${odczyt.strony_z_modelu.join(', ')} ` : ''}przepisał model.
                 Pola uzupełnione na tej podstawie; sprawdź je dokładnie, zwłaszcza nazwiska i numery.
-              </div>
-            )}
-            {nazwaPliku && !tresc && !odczyt?.odreczny && (
-              <div className="uwaga" style={{ marginBottom: 12 }}>
-                Nie udało się odczytać tekstu z pliku. Wpisz dane wniosku ręcznie.
               </div>
             )}
             <div className="formularz">
@@ -136,14 +125,6 @@ export default function NowyWniosek() {
           </div>
         </div>
         <div className="stos">
-          <div className="karta">
-            <h2>Treść wniosku</h2>
-            {tresc ? (
-              <div className="pole-tekstu" style={{ maxHeight: 420 }}>{tresc}</div>
-            ) : (
-              <p className="maly">{!nazwaPliku ? 'Treść pojawi się po wgraniu pliku.' : odczyt?.odreczny ? 'Pismo odręczne – tekst nie jest odczytywany automatycznie.' : 'Nie udało się odczytać tekstu z pliku.'}</p>
-            )}
-          </div>
           <PropozycjaOdpowiedzi
             key={nazwaPliku}
             wniosek={{ tresc, temat: dane.temat, numer: dane.numer, data_wplywu: dane.dataWplywu, wnioskodawca: dane.wnioskodawca }}
