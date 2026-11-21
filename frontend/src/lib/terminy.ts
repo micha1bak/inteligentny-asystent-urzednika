@@ -83,7 +83,8 @@ export function pilnosc(w: Wniosek, dzis: string): { pilnosc: Pilnosc; pozostalo
   if (w.status === 'odpowiedz_wyslana') return { pilnosc: 'zakonczony', pozostalo, termin };
   if (pozostalo < 0) return { pilnosc: 'po_terminie', pozostalo, termin };
   if (pozostalo === 0) return { pilnosc: 'dzis', pozostalo, termin };
-  if (pozostalo === 1) return { pilnosc: 'jutro', pozostalo, termin };
+  // „jutro” = termin w najbliższym dniu roboczym: w piątek i w weekend także termin poniedziałkowy
+  if (pozostalo === 1 || termin === najblizszyRoboczy(dodajDni(dzis, 1))) return { pilnosc: 'jutro', pozostalo, termin };
   if (pozostalo <= 3) return { pilnosc: 'wkrotce', pozostalo, termin };
   return { pilnosc: 'w_terminie', pozostalo, termin };
 }
@@ -91,7 +92,7 @@ export function pilnosc(w: Wniosek, dzis: string): { pilnosc: Pilnosc; pozostalo
 export const OPIS_PILNOSCI: Record<Pilnosc, string> = {
   po_terminie: 'Po terminie',
   dzis: 'Termin dziś',
-  jutro: 'Termin jutro',
+  jutro: 'Termin w następny dzień roboczy',
   wkrotce: 'Do 3 dni',
   w_terminie: 'W terminie',
   zakonczony: 'Zakończony',

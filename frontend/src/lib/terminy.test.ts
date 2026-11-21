@@ -37,6 +37,10 @@ describe('terminy UDIP', () => {
   it('oznacza pilność', () => {
     expect(pilnosc(wniosek({}), '2026-11-16').pilnosc).toBe('dzis');
     expect(pilnosc(wniosek({}), '2026-11-15').pilnosc).toBe('jutro');
+    // piątek i sobota przed terminem poniedziałkowym (16.11.2026) – „następny dzień roboczy”
+    expect(pilnosc(wniosek({}), '2026-11-13').pilnosc).toBe('jutro');
+    expect(pilnosc(wniosek({}), '2026-11-14').pilnosc).toBe('jutro');
+    expect(pilnosc(wniosek({}), '2026-11-12').pilnosc).toBe('w_terminie'); // czwartek – 4 dni
     expect(pilnosc(wniosek({}), '2026-11-17').pilnosc).toBe('po_terminie');
     expect(pilnosc(wniosek({ status: 'odpowiedz_wyslana' }), '2026-11-17').pilnosc).toBe('zakonczony');
   });

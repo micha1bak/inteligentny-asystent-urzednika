@@ -83,7 +83,7 @@ export default function Wnioski() {
       <div className="kafle">
         <div className="kafel"><span className={`liczba ${liczba('po_terminie') ? 'pil-po_terminie' : ''}`}>{liczba('po_terminie')}</span><span className="maly">Po terminie</span></div>
         <div className="kafel"><span className={`liczba ${liczba('dzis') ? 'pil-dzis' : ''}`}>{liczba('dzis')}</span><span className="maly">Termin dziś</span></div>
-        <div className="kafel"><span className={`liczba ${liczba('jutro') ? 'pil-jutro' : ''}`}>{liczba('jutro')}</span><span className="maly">Termin jutro</span></div>
+        <div className="kafel"><span className={`liczba ${liczba('jutro') ? 'pil-jutro' : ''}`}>{liczba('jutro')}</span><span className="maly">Termin w następny dzień roboczy</span></div>
         <div className="kafel"><span className="liczba">{wiersze.filter((w) => w.pilnosc !== 'zakonczony').length}</span><span className="maly">W toku</span></div>
         <div className="kafel"><span className="liczba">{wiersze.length}</span><span className="maly">Wszystkie w {rok} r.</span></div>
       </div>
@@ -110,7 +110,7 @@ export default function Wnioski() {
           <div className="legenda">
             <span className="l-po">po terminie</span>
             <span className="l-dzis">termin dziś</span>
-            <span className="l-jutro">termin jutro</span>
+            <span className="l-jutro">termin w następny dzień roboczy</span>
           </div>
         </div>
 
