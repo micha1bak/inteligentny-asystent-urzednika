@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react';
 import { pobierzPropozycje, type Propozycja, type ZapytanieOPropozycje } from '../lib/api';
+import { pismoNaTekst, type StrukturaPisma } from '../lib/pismo';
+import PelnyPodgladPisma from './PelnyPodgladPisma';
 import PodstawyPrawne from './PodstawyPrawne';
 
 /** Propozycja odpowiedzi z modelu (Groq) na podstawie modelu oceny prawnej i archiwum werdyktów. */
@@ -7,6 +9,9 @@ export default function PropozycjaOdpowiedzi({ wniosek }: { wniosek: ZapytanieOP
   const [wynik, setWynik] = useState<Propozycja>();
   const [podstawy, setPodstawy] = useState<string[]>([]);
   const [projekt, setProjekt] = useState('');
+  const [pismo, setPismo] = useState<StrukturaPisma | null>(null);
+  const [podglad, setPodglad] = useState(false);
+  const [wstawiono, setWstawiono] = useState('');
   const [blad, setBlad] = useState('');
   const [trwa, setTrwa] = useState(false);
   const [skopiowano, setSkopiowano] = useState(false);
@@ -26,6 +31,9 @@ export default function PropozycjaOdpowiedzi({ wniosek }: { wniosek: ZapytanieOP
       setWynik(p);
       setPodstawy(p.podstawy_prawne);
       setProjekt(p.projekt_odpowiedzi);
+      setPismo(p.pismo);
+      setWstawiono('');
+      if (p.pismo) setPodglad(true);
     } catch (e) {
       if (!(e instanceof DOMException && e.name === 'AbortError')) setBlad(e instanceof Error ? e.message : String(e));
     } finally {
@@ -38,6 +46,13 @@ export default function PropozycjaOdpowiedzi({ wniosek }: { wniosek: ZapytanieOP
   }
 
   function wstawDoPisma(fragment: string) {
+    if (pismo) {
+      // pismo w układzie A4: odwołanie / cytat trafia jako nowy akapit na koniec treści (przed zakończeniem);
+      // urzędnik przestawia go w podglądzie jak każdy inny blok
+      setPismo((p) => (p ? { ...p, tresc: [...p.tresc, { typ: 'akapit', tekst: fragment }] } : p));
+      setWstawiono(fragment);
+      return;
+    }
     const pole = projektRef.current;
     if (!pole) {
       setProjekt((prev) => (prev ? `${prev}\n${fragment}` : fragment));
@@ -57,7 +72,7 @@ export default function PropozycjaOdpowiedzi({ wniosek }: { wniosek: ZapytanieOP
 
   async function kopiuj() {
     try {
-      await navigator.clipboard.writeText(projekt);
+      await navigator.clipboard.writeText(pismo ? pismoNaTekst(pismo) : projekt);
       setSkopiowano(true);
       setTimeout(() => setSkopiowano(false), 1500);
     } catch {
@@ -117,18 +132,41 @@ export default function PropozycjaOdpowiedzi({ wniosek }: { wniosek: ZapytanieOP
           <Lista tytul="Podobne sprawy z archiwum" elementy={wynik.podobne_sprawy.map((s) => `${s.sygnatura} – ${s.dlaczego}`)} />
           <Lista tytul="Do anonimizacji" elementy={wynik.dane_do_anonimizacji} />
           <Lista tytul="Do sprawdzenia przez urzędnika" elementy={wynik.do_weryfikacji} />
-          <label>
-            {wynik.wzor_nazwa ? `Projekt pisma – wzór: ${wynik.wzor_nazwa} (możesz edytować)` : 'Projekt pisma (możesz edytować)'}
-            <textarea
-              ref={projektRef}
-              rows={16}
-              value={projekt}
-              onChange={(e) => setProjekt(e.target.value)}
-              style={{ fontFamily: "'Times New Roman', serif", fontSize: '0.98rem' }}
-            />
-          </label>
+          {pismo ? (
+            <div className="stos" style={{ gap: 6 }}>
+              <div className="rzad">
+                <button className="glowny" onClick={() => setPodglad(true)}>Otwórz pismo (podgląd i edycja)</button>
+                <span className="maly">{wynik.wzor_nazwa ? `Wzór: ${wynik.wzor_nazwa}` : 'Projekt pisma'}</span>
+              </div>
+              {wstawiono && (
+                <div className="maly">
+                  Wstawiono do pisma jako nowy akapit na końcu treści: „{wstawiono.length > 80 ? `${wstawiono.slice(0, 80)}…` : wstawiono}”.
+                  Otwórz pismo, aby przestawić go we właściwe miejsce (⋮⋮ lub ↑ ↓ na marginesie).
+                </div>
+              )}
+              {podglad && (
+                <PelnyPodgladPisma
+                  pismo={pismo}
+                  onZmiana={setPismo}
+                  onZamknij={() => setPodglad(false)}
+                  tytul={wynik.wzor_nazwa ? `Projekt pisma – ${wynik.wzor_nazwa}` : undefined}
+                />
+              )}
+            </div>
+          ) : (
+            <label>
+              {wynik.wzor_nazwa ? `Projekt pisma – wzór: ${wynik.wzor_nazwa} (możesz edytować)` : 'Projekt pisma (możesz edytować)'}
+              <textarea
+                ref={projektRef}
+                rows={16}
+                value={projekt}
+                onChange={(e) => setProjekt(e.target.value)}
+                style={{ fontFamily: "'Times New Roman', serif", fontSize: '0.98rem' }}
+              />
+            </label>
+          )}
           <div className="rzad">
-            <button className="maly-p" onClick={() => void kopiuj()}>{skopiowano ? 'Skopiowano' : 'Kopiuj projekt'}</button>
+            <button className="maly-p" onClick={() => void kopiuj()}>{skopiowano ? 'Skopiowano' : 'Kopiuj tekst'}</button>
             <span className="maly">model: {wynik.model}</span>
           </div>
         </div>

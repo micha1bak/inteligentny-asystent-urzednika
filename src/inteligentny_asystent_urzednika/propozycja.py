@@ -5,9 +5,10 @@ from __future__ import annotations
 import json
 import re
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
 from .groq_klient import BladLLM, KlientLLM
+from .wzor.pismo import DanePisma, zloz_pismo
 from .wiedza import STOPNIE_WYBORU, Wiedza
 
 
@@ -24,6 +25,37 @@ class PodobnaSprawa(BaseModel):
     dlaczego: str = ""
 
 
+class OdpowiedzModelu(BaseModel):
+    """To, co zwraca model: ocena sprawy + wybór wzoru i wartości jego pól (bez gotowego pisma)."""
+
+    werdykt: str
+    uzasadnienie: str
+    podstawy_prawne: list[str] = []
+    komorka_merytoryczna: str = ""
+    podobne_sprawy: list[PodobnaSprawa] = []
+    dane_do_anonimizacji: list[str] = []
+    do_weryfikacji: list[str] = []
+    wzor: str = ""
+    forma: str = ""
+    adresat: list[str] = []
+    pola: dict[str, str | list[str]] = {}
+    zalaczniki: list[str] = []
+
+    @field_validator("adresat", "zalaczniki", mode="before")
+    @classmethod
+    def _lista(cls, v):
+        if v is None:
+            return []
+        return [l for l in v.splitlines() if l.strip()] if isinstance(v, str) else v
+
+    @field_validator("pola", mode="before")
+    @classmethod
+    def _pola(cls, v):
+        if not isinstance(v, dict):
+            return {}
+        return {k: w if isinstance(w, list) else str(w) for k, w in v.items() if w not in (None, "", [])}
+
+
 class Propozycja(BaseModel):
     werdykt: str
     werdykt_opis: str = ""
@@ -35,7 +67,9 @@ class Propozycja(BaseModel):
     do_weryfikacji: list[str] = []
     wzor: str = ""
     wzor_nazwa: str = ""
+    pola_wzoru: dict[str, str | list[str]] = {}
     projekt_odpowiedzi: str
+    pismo: dict | None = None  # struktura pisma do podglądu w układzie strony A4 (wzor/pismo.py: Pismo)
     model: str = ""
     ostrzezenia: list[str] = []
 
@@ -46,15 +80,15 @@ Masz do dyspozycji WYŁĄCZNIE:
 1. MODEL OCENY PRAWNEJ – słownik werdyktów, etapy oceny krokowej (ETAP_01–ETAP_12) z podstawami prawnymi \
 (UDIP, KPA, Zarządzenie 535/2024), pozycje matrycy oceny informacji i katalog danych do anonimizacji,
 2. ARCHIWUM SPRAW – wcześniejsze wnioski z odpowiedziami i werdyktami,
-3. WZORY PISM UMB – nagłówek, podpis, zasady stylu i wzory pism Biura Komunikacji Społecznej.
+3. WZORY PISM UMB – wzory pism Biura Komunikacji Społecznej z polami do wypełnienia.
 
 Zadanie: oceń nowy wniosek według etapów algorytmu i zaproponuj odpowiedź.
 Zasady:
 - Opieraj się tylko na dostarczonym kontekście. Nie wymyślaj faktów, kwot, dat, nazwisk ani treści odpowiedzi wydziałów.
-- Merytoryczną treść, której nie znasz (liczby, kwoty, nazwy kontrahentów, dane z wydziału), wpisz w projekcie pisma \
+- Merytoryczną treść, której nie znasz (liczby, kwoty, nazwy kontrahentów, dane z wydziału), wpisz w polu \
 jako [[do uzupełnienia: …]] – nigdy nie pisz, że coś jest „w załączeniu”, jeśli tego nie masz.
-- Dane adresata bierz tylko z wniosku (adres e-mail też jest adresem do odpowiedzi); jeśli nie ma żadnego, wpisz \
-[[adres do doręczeń]]. Nie twórz przykładowych adresów.
+- adresat: linie adresu wnioskodawcy tylko z wniosku (adres e-mail też jest adresem do odpowiedzi); jeśli nie ma, \
+podaj []. Nie twórz przykładowych adresów.
 - Braki formalne z art. 63–64 KPA (np. brak adresu pocztowego, podpisu) mają znaczenie tylko, gdy sprawa wymaga wydania \
 decyzji (odmowa – art. 16 UDIP). Gdy informację da się udostępnić (czynność materialno-techniczna), brak adresu \
 pocztowego nie jest powodem wezwania ani pozostawienia bez rozpoznania.
@@ -67,18 +101,22 @@ przepisuj dokładnie z listy akty_prawne – nie podawaj ich z pamięci.
 Jeśli UMB nie jest dysponentem, wskaż właściwy podmiot – gdy podobna sprawa z archiwum go podaje (np. w „jaka_odpowiedz”), \
 użyj go; nie wskazuj wtedy jednostki UMB jako dysponenta.
 - Wypisz dane z wniosku, które przed publikacją/udostępnieniem trzeba zanonimizować (kategorie z katalogu).
-- Projekt odpowiedzi ułóż według WZORU PISMA pasującego do werdyktu i sprawy, zachowując jego sformułowania: \
-nagłówek BKS, „Bydgoszcz, dnia [[data]] r.”, znak sprawy (numer wniosku), adresat (jeśli znany), treść wzoru i podpis. \
-Pola «…» wypełnij danymi z wniosku; czego nie wiadomo – [[do uzupełnienia: …]]. Trzymaj się zasad_stylu \
-(bez „Dotyczy:” i „Z poważaniem”). Przy decyzji użyj szkieletu decyzji.
+- NIE piszesz pisma – składa je aplikacja ze wzoru. Wybierz wzór (wzor = id) pasujący do werdyktu i sprawy \
+i podaj w „pola” wartości WYŁĄCZNIE pól tego wzoru (klucze jak w jego „pola”). Wartości to fragmenty wstawiane \
+w miejsce «pole» w treści wzoru – trzymaj się zasad_wypelniania. Pole typu „punkty” to lista odpowiedzi w kolejności \
+pytań (bez „Ad”), „linie” – lista linii. Pól przez_kogo, komorka_merytoryczna i numer_sprawy nie podawaj.
+- forma: „Pan”, „Pani” albo „Państwo” – zgodnie z wnioskodawcą (instytucja/kilka osób: „Państwo”).
+- zalaczniki: lista nazw załączników tylko, gdy wzór na nie pozwala i faktycznie są; inaczej [].
+- Wzoru decyzji administracyjnej nie ma – przy werdykcie wymagającym decyzji podaj wzor "" i dodaj \
+do do_weryfikacji „decyzję przygotowuje prawnik”.
 - To jest projekt dla urzędnika – ostateczną decyzję podejmuje urzędnik.
 
 Odpowiedz WYŁĄCZNIE obiektem JSON o polach:
 {"werdykt": "<klucz ze słownika>", "uzasadnienie": "<2–6 zdań: kluczowe ustalenia z etapów oceny>", \
 "podstawy_prawne": ["…"], "komorka_merytoryczna": "…", \
 "podobne_sprawy": [{"sygnatura": "…", "dlaczego": "…"}], "dane_do_anonimizacji": ["…"], \
-"do_weryfikacji": ["<co urzędnik musi sprawdzić lub uzupełnić>"], "wzor": "<id użytego wzoru>", \
-"projekt_odpowiedzi": "<pełny tekst pisma>"}"""
+"do_weryfikacji": ["<co urzędnik musi sprawdzić lub uzupełnić>"], "wzor": "<id wzoru>", \
+"forma": "Pan|Pani|Państwo", "adresat": ["<linia>"], "pola": {"<nazwa pola>": "<wartość>"}, "zalaczniki": []}"""
 
 
 # Polski tekst w tokenizerach Groq: zmierzone ok. 2,9 znaku/token; 2,6 daje zapas bezpieczeństwa.
@@ -149,60 +187,60 @@ async def zaproponuj_odpowiedz(
 ) -> Propozycja:
     wiadomosci, ostrzezenia = zbuduj_wiadomosci(wniosek, wiedza, tryb_kontekstu, budzet_tokenow)
     surowa = await klient.czat_json(wiadomosci)
-    propozycja = zweryfikuj(surowa, wiedza, model)
+    propozycja = zweryfikuj(surowa, wiedza, model, wniosek)
     propozycja.ostrzezenia = ostrzezenia + propozycja.ostrzezenia
     return propozycja
 
 
-def zweryfikuj(surowa: str, wiedza: Wiedza, model: str = "") -> Propozycja:
-    """Parsuje odpowiedź modelu i odsiewa to, czego nie ma w bazie wiedzy (ochrona przed halucynacjami)."""
+def zweryfikuj(surowa: str, wiedza: Wiedza, model: str = "", wniosek: Wniosek | None = None) -> Propozycja:
+    """Parsuje odpowiedź modelu, odsiewa to, czego nie ma w bazie wiedzy (ochrona przed halucynacjami)
+    i składa projekt pisma ze wzoru."""
     try:
-        dane = json.loads(_wytnij_json(surowa))
-        propozycja = Propozycja.model_validate(dane)
+        odp = OdpowiedzModelu.model_validate(json.loads(_wytnij_json(surowa)))
     except (json.JSONDecodeError, ValidationError) as e:
         raise BladLLM("Model zwrócił odpowiedź w niepoprawnym formacie. Spróbuj ponownie.", 502) from e
 
     ostrzezenia: list[str] = []
     slownik = wiedza.slownik_werdyktow
-    if propozycja.werdykt not in slownik:
-        ostrzezenia.append(f"Model podał nieznany werdykt „{propozycja.werdykt}” – wybierz rozstrzygnięcie samodzielnie.")
-    else:
-        propozycja.werdykt_opis = slownik[propozycja.werdykt]
+    werdykt_opis = slownik.get(odp.werdykt, "")
+    if not werdykt_opis:
+        ostrzezenia.append(f"Model podał nieznany werdykt „{odp.werdykt}” – wybierz rozstrzygnięcie samodzielnie.")
 
     znane = wiedza.sygnatury
-    odrzucone = [s.sygnatura for s in propozycja.podobne_sprawy if s.sygnatura not in znane]
+    odrzucone = [s.sygnatura for s in odp.podobne_sprawy if s.sygnatura not in znane]
     if odrzucone:
         ostrzezenia.append(f"Pominięto sprawy spoza archiwum: {', '.join(odrzucone)}.")
-    propozycja.podobne_sprawy = [s for s in propozycja.podobne_sprawy if s.sygnatura in znane]
 
-    wzor = wiedza.wzor(propozycja.wzor)
-    propozycja.wzor = wzor["id"] if wzor else ""
-    propozycja.wzor_nazwa = wzor["nazwa"] if wzor else ""
-    propozycja.projekt_odpowiedzi = ujednolic_pismo(propozycja.projekt_odpowiedzi, wiedza.wzory)
+    wzor = wiedza.wzor(odp.wzor)
+    if odp.wzor and not wzor:
+        ostrzezenia.append(f"Model wskazał nieznany wzór „{odp.wzor}” – treść pisma do uzupełnienia.")
+    pola = {k: v for k, v in odp.pola.items() if wzor and k in wzor.get("pola", {})}
+    pismo, braki = zloz_pismo(wzor, wiedza.wzory, DanePisma(
+        pola=pola,
+        forma=odp.forma,
+        adresat=odp.adresat,
+        zalaczniki=odp.zalaczniki,
+        komorka_merytoryczna=odp.komorka_merytoryczna,
+        znak_sprawy=(wniosek.numer or "") if wniosek else "",
+    ))
 
-    propozycja.model = model
-    propozycja.ostrzezenia = ostrzezenia
-    return propozycja
-
-
-def ujednolic_pismo(tekst: str, wzory: dict) -> str:
-    """Wstawia dosłowny nagłówek i podpis BKS z pliku wzorów (model potrafi w nich zrobić literówkę)."""
-    naglowek, podpis = wzory["naglowek"], wzory["podpis"]
-    linie = tekst.strip().splitlines()
-
-    # nagłówek: od „URZĄD MIASTA BYDGOSZCZY” do linii z adresem www (w pierwszych 8 liniach)
-    if linie and linie[0].strip().upper().startswith("URZĄD MIASTA BYDGOSZCZY"):
-        koniec = next((i for i, l in enumerate(linie[:8]) if "bydgoszcz.pl" in l.lower()), None)
-        if koniec is not None:
-            linie = naglowek.splitlines() + linie[koniec + 1 :]
-    else:
-        linie = naglowek.splitlines() + [""] + linie
-
-    # podpis: wszystko od „Łączę wyrazy szacunku” zastępujemy wzorem
-    start = next((i for i, l in enumerate(linie) if l.strip().lower().startswith("łączę wyrazy szacunku")), None)
-    if start is not None:
-        linie = linie[:start] + podpis.splitlines()
-    return "\n".join(linie)
+    return Propozycja(
+        werdykt=odp.werdykt,
+        werdykt_opis=werdykt_opis,
+        uzasadnienie=odp.uzasadnienie,
+        podstawy_prawne=odp.podstawy_prawne,
+        komorka_merytoryczna=odp.komorka_merytoryczna,
+        podobne_sprawy=[s for s in odp.podobne_sprawy if s.sygnatura in znane],
+        dane_do_anonimizacji=odp.dane_do_anonimizacji,
+        do_weryfikacji=odp.do_weryfikacji + [f"Uzupełnij w piśmie: {b}" for b in braki],
+        wzor=wzor["id"] if wzor else "",
+        wzor_nazwa=wzor["nazwa"] if wzor else "",
+        pola_wzoru=pola,
+        projekt_odpowiedzi=pismo.tekst,
+        pismo=pismo.jako_slownik(),
+        model=model,
+        ostrzezenia=ostrzezenia,
+    )
 
 
 def _wytnij_json(tekst: str) -> str:

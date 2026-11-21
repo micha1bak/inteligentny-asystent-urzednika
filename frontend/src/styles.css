@@ -153,6 +153,94 @@ tr.p-jutro td:first-child { box-shadow: inset 4px 0 #e0b400; }
 .postep-ciagly > div { width: 30%; animation: postep-ciagly 1.4s ease-in-out infinite; }
 @keyframes postep-ciagly { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
 
+/* ---------------- podgląd pisma BKS (strona A4 jak w oryginalnych pismach; wymiary w pt) ---------------- */
+.podglad-pisma { position: relative; background: #e9ecf1; border-radius: var(--promien); padding: 12px; overflow: hidden; }
+.podglad-pisma > .podglad-skala { box-sizing: content-box; }
+.podglad-skala { position: relative; margin: 0 auto; }
+.ekran-pisma { position: absolute; left: 0; top: 0; display: flex; flex-direction: column; transform-origin: top left; }
+.druk-pisma { display: none; }
+.strona-a4 {
+  position: relative; width: 595.3pt; height: 841.9pt; flex: none; background: #fff; color: #000;
+  box-shadow: 0 1px 3px rgb(16 24 40 / 25%); overflow: hidden;
+}
+/* czcionki pisma – także dla niewidocznej kopii do pomiaru, która leży poza .strona-a4 */
+.strona-a4, .pomiar-pisma {
+  --pismo-szeryf: 'Times New Roman', Times, 'Liberation Serif', Tinos, serif;
+  --pismo-bezszeryf: Corbel, Candara, Carlito, 'Segoe UI', sans-serif;
+  color: #000;
+}
+.strona-naglowek { position: absolute; left: 61pt; top: 22pt; display: flex; gap: 30pt; align-items: flex-start; }
+.strona-naglowek img { width: 70pt; height: 44pt; object-fit: contain; }
+.strona-naglowek > div { margin-top: 14pt; font-family: var(--pismo-bezszeryf); font-size: 14pt; line-height: 17pt; color: #323232; }
+.strona-ramka-pozioma { position: absolute; left: 59pt; top: 83pt; width: 477pt; border-top: 0.75pt solid #000; }
+.strona-ramka-pionowa { position: absolute; left: 57pt; top: 84pt; height: 702pt; border-left: 0.75pt solid #000; }
+.strona-tresc { position: absolute; left: 71pt; top: 93pt; width: 469pt; font-family: var(--pismo-szeryf); font-size: 12pt; line-height: 20.7pt; }
+.strona-stopka { position: absolute; left: 71pt; top: 745pt; font-family: var(--pismo-bezszeryf); font-size: 9pt; line-height: 12pt; color: #323232; }
+.strona-numer { position: absolute; right: 56pt; bottom: 30pt; font-family: var(--pismo-szeryf); font-size: 9pt; color: #555; }
+.pomiar-pisma { position: absolute; visibility: hidden; pointer-events: none; left: -10000px; top: 0; height: auto; }
+
+.p-data { line-height: 20pt; padding-bottom: 3pt; }        /* data y = 98 pt, znak y = 118 pt jak w oryginale */
+.p-znak { font-size: 10pt; line-height: 14pt; }
+.p-adres { min-height: 104pt; padding-top: 28pt; }           /* pole adresowe – treść zaczyna się na y ≈ 239 pt */
+.p-adresat { font-weight: 700; }
+.p-tytul { font-weight: 700; text-align: center; padding-bottom: 20.7pt; }
+.p-akapit { text-align: justify; hyphens: manual; }
+.p-ciag { text-align-last: justify; }                        /* akapit kontynuowany na następnej stronie */
+.p-ad { font-weight: 700; }
+.p-koniec { padding: 29pt 0 0 284pt; line-height: 16pt; }   /* zakończenie i podpis od x = 355 pt */
+.p-podpis { padding-top: 16pt; }
+
+.p-edytowalny { outline: none; border-radius: 2px; cursor: text; }
+.p-edytowalny:hover { background: #f1f6fd; }
+.p-edytowalny:focus { background: #e7f0fa; box-shadow: 0 0 0 1px #9cc2ea; }
+.p-edytowalny:empty::before { content: attr(data-podpowiedz); color: #9aa3b2; font-weight: 400; }
+.p-znacznik { background: #fff0a8; color: inherit; border-radius: 2px; }
+
+/* przestawianie bloków treści (tylko ekran; pasek na lewym marginesie strony, poza obszarem tekstu) */
+.klocek { position: relative; }
+.klocek-narzedzia {
+  position: absolute; left: -66pt; top: 1pt; display: flex; gap: 1px; padding: 1px;
+  font-family: 'Segoe UI', system-ui, sans-serif; font-size: 8pt; line-height: 1;
+  background: #fff; border: 1px solid #c7d2e0; border-radius: 4px; box-shadow: 0 1px 2px rgb(16 24 40 / 12%);
+  opacity: 0; transition: opacity 0.12s; z-index: 2;
+}
+.klocek:hover > .klocek-narzedzia, .klocek-narzedzia:focus-within { opacity: 1; }
+.klocek-narzedzia button, .klocek-uchwyt {
+  width: 12pt; height: 13pt; padding: 0; border: 0; border-radius: 3px; background: none; color: #334155;
+  display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font: inherit;
+}
+.klocek-uchwyt { cursor: grab; letter-spacing: -2px; }
+.klocek-narzedzia button:hover:not(:disabled), .klocek-uchwyt:hover { background: #e7f0fa; color: var(--akcent); }
+.klocek-narzedzia button:disabled { opacity: 0.3; cursor: default; }
+.klocek:hover { background: rgb(11 92 173 / 4%); }
+.klocek-przeciagany { opacity: 0.4; }
+.klocek-cel-przed::before, .klocek-cel-po::after {
+  content: ''; position: absolute; left: -4pt; right: -4pt; border-top: 2px solid var(--akcent); z-index: 3;
+}
+.klocek-cel-przed::before { top: -1px; }
+.klocek-cel-po::after { bottom: -1px; }
+
+/* pełnoekranowy podgląd pisma (nakładka na środku strony) */
+.pelny-podglad { position: fixed; inset: 0; z-index: 1000; display: flex; flex-direction: column; background: rgb(15 23 42 / 72%); }
+.pelny-podglad-pasek {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 20px;
+  background: var(--karta); border-bottom: 1px solid var(--linia); box-shadow: var(--cien);
+}
+.pelny-podglad-pasek .tytul { font-weight: 600; margin-right: auto; }
+.pelny-podglad-przewijanie { flex: 1; overflow: auto; padding: 24px 16px 48px; }
+.pelny-podglad-przewijanie .podglad-pisma { max-width: calc(595.3pt + 24px); margin: 0 auto; background: none; padding: 0; }
+
+@media print {
+  @page { size: A4; margin: 0; }
+  html, body { margin: 0; padding: 0; background: #fff; }
+  body > :not(.druk-pisma) { display: none !important; }
+  .druk-pisma { display: block; }
+  /* 841,9 pt > A4 (841,89 pt) dawało pustą stronę po każdej stronie pisma */
+  .druk-pisma .strona-a4 { box-shadow: none; height: 296.5mm; break-after: page; break-inside: avoid; }
+  .druk-pisma .strona-a4:last-child { break-after: auto; }
+  .p-znacznik { background: none; }
+}
+
 /* podstawy prawne i podgląd ustępów */
 .podstawy-sekcja { display: flex; flex-direction: column; gap: 8px; }
 .podstawy-lista { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; }
