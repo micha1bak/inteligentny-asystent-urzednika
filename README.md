@@ -16,7 +16,7 @@ Wsparcie obsługi wniosków o dostęp do informacji publicznej w Urzędzie Miast
 | Wymaganie / krok instrukcji | Jak jest zrealizowane |
 |---|---|
 | Wgrywanie plików PDF / Word | „Dodaj wniosek” (wiele plików naraz), odczyt Word i PDF lokalnie; skany i pismo odręczne – model wizyjny |
-| Kalendarz wniosków | tabela + widok miesiąca, od najstarszych, Lp., nr, temat, inicjały, data wpływu, termin (z dniami wolnymi), data odpowiedzi, wybór roku; podświetlenie: po terminie, termin dziś, termin w następny dzień roboczy |
+| Kalendarz wniosków | tabela + widok miesiąca, sortowanie wg czasu na odpowiedź (najpilniejsze na górze, wysłane na końcu), Lp., nr, temat, inicjały, data wpływu, termin (z dniami wolnymi), data odpowiedzi, wybór roku; podświetlenie: po terminie, termin dziś, termin w następny dzień roboczy |
 | Statusy na każdym kroku | brak działań → zapytania do wydziałów (po oznaczeniu wysłania prośby) → kwerenda + dni → odpowiedź przygotowana (po zatwierdzeniu pisma) → odpowiedź wysłana + data |
 | Podobne wnioski z ostatniego roku / przeszukiwanie archiwum | karta „Podobne sprawy i wnioski” po wgraniu i w szczegółach sprawy (TF-IDF, lokalnie) |
 | Wskazywanie ścieżki – wydziały z BIP | karta „Zapytanie do wydziału”: 3 propozycje jednostek z uzasadnieniem, wybór urzędnika, treść prośby wg Zarządzenia 535/2024 |
@@ -86,7 +86,7 @@ Dane zostają na komputerze/serwerze urzędu: `wnioski.db` (SQLite), archiwum i 
 | POST | `/api/podobne` | `{tresc, pomin_id?, data_odniesienia?}` → podobne sprawy z archiwum i wnioski z ostatniego roku (bez AI) |
 | GET | `/api/jednostki` | wydziały i biura UMB (nazwy z BIP, zakres spraw) |
 | POST | `/api/wydzial/propozycja` | `{tresc, numer?, data_wplywu?}` → do 3 właściwych jednostek z uzasadnieniem, pytania do wydziału (AI; bez klucza – archiwum + zakresy) |
-| POST | `/api/wydzial/wiadomosc` | `{jednostka, pytania, uwagi, numer?, data_wplywu?, termin?}` → treść prośby do wydziału (do skopiowania – program nic nie wysyła) |
+| POST | `/api/wydzial/wiadomosc` | `{jednostka, pytania, numer?, data_wplywu?, termin?}` → treść prośby do wydziału (do skopiowania – program nic nie wysyła) |
 | POST | `/api/wnioski/{id}/odpowiedzi-wydzialow` | `{wydzial, nazwa_pliku, tresc}` → odpowiedź wydziału zapisana przy wniosku (podstawa projektu pisma) |
 | DELETE | `/api/wnioski/{id}/odpowiedzi-wydzialow/{id_odp}` | usunięcie odpowiedzi wydziału |
 | POST | `/api/anonimizacja/sugestie` | `{tekst, dodatkowe?}` → fragmenty z danymi osobowymi do ukrycia (lokalnie, bez AI) |

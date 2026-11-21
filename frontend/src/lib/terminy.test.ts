@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { czyDzienWolny, maksDniKwerendy, pilnosc, terminOdpowiedzi } from './terminy';
+import { czyDzienWolny, maksDniKwerendy, pilnosc, porownajWgCzasuNaOdpowiedz, terminOdpowiedzi } from './terminy';
 import type { Wniosek } from '../types';
 
 const wniosek = (p: Partial<Wniosek>): Wniosek => ({
@@ -43,5 +43,17 @@ describe('terminy UDIP', () => {
     expect(pilnosc(wniosek({}), '2026-11-12').pilnosc).toBe('w_terminie'); // czwartek – 4 dni
     expect(pilnosc(wniosek({}), '2026-11-17').pilnosc).toBe('po_terminie');
     expect(pilnosc(wniosek({ status: 'odpowiedz_wyslana' }), '2026-11-17').pilnosc).toBe('zakonczony');
+  });
+});
+
+describe('kolejność listy wniosków', () => {
+  it('najmniej czasu na odpowiedź na górze, wysłane na końcu', () => {
+    const w = [
+      { numer: 'A', status: 'brak_dzialan' as const, termin: '2026-11-30', dataWplywu: '2026-11-16' },
+      { numer: 'B', status: 'odpowiedz_wyslana' as const, termin: '2026-11-10', dataWplywu: '2026-10-27' },
+      { numer: 'C', status: 'kwerenda' as const, termin: '2026-11-20', dataWplywu: '2026-11-01' },
+      { numer: 'D', status: 'brak_dzialan' as const, termin: '2026-11-24', dataWplywu: '2026-11-10' },
+    ];
+    expect([...w].sort(porownajWgCzasuNaOdpowiedz).map((x) => x.numer)).toEqual(['C', 'D', 'A', 'B']);
   });
 });

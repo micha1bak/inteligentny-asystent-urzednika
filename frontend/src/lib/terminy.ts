@@ -105,3 +105,21 @@ export function opisPozostalo(pozostalo: number): string {
   if (pozostalo < 0) return `${-pozostalo} dni po terminie`;
   return `${pozostalo} dni`;
 }
+
+/**
+ * Kolejność listy wniosków: najmniej czasu na odpowiedź na górze (po terminie, dziś, jutro…),
+ * wnioski z wysłaną odpowiedzią na końcu; przy tym samym terminie – starszy wpływ, potem numer.
+ */
+export function porownajWgCzasuNaOdpowiedz(
+  a: { status: Wniosek['status']; termin: string; dataWplywu: string; numer: string },
+  b: { status: Wniosek['status']; termin: string; dataWplywu: string; numer: string },
+): number {
+  const zakA = a.status === 'odpowiedz_wyslana' ? 1 : 0;
+  const zakB = b.status === 'odpowiedz_wyslana' ? 1 : 0;
+  return (
+    zakA - zakB ||
+    a.termin.localeCompare(b.termin) ||
+    a.dataWplywu.localeCompare(b.dataWplywu) ||
+    a.numer.localeCompare(b.numer, 'pl', { numeric: true })
+  );
+}
