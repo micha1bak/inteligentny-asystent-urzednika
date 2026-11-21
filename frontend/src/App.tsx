@@ -1,3 +1,4 @@
+import Anonimizacja from './pages/Anonimizacja';
 import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import Wnioski from './pages/Wnioski';
 import SzczegolyWniosku from './pages/SzczegolyWniosku';
@@ -19,6 +20,7 @@ export default function App() {
           <NavLink to="/nowy">Dodaj wniosek</NavLink>
           <NavLink to="/archiwum" end>Archiwum odpowiedzi</NavLink>
           <NavLink to="/baza-wiedzy">Baza wiedzy</NavLink>
+          <NavLink to="/anonimizacja">Anonimizacja dokumentu</NavLink>
         </nav>
       </aside>
       <main className="tresc">
@@ -29,6 +31,7 @@ export default function App() {
           <Route path="/archiwum" element={<Archiwum />} />
           <Route path="/archiwum/nowa" element={<NowaSprawaArchiwum />} />
           <Route path="/baza-wiedzy" element={<BazaWiedzy />} />
+          <Route path="/anonimizacja" element={<Anonimizacja />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

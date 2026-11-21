@@ -156,3 +156,38 @@ def pismo_do_docx(pismo: dict) -> bytes:
         for nazwa, tresc in pliki.items():
             z.writestr(nazwa, tresc)
     return bufor.getvalue()
+
+
+def dokument_do_docx(tekst: str, ukryte: list[str]) -> bytes:
+    """Dowolny dokument (np. wgrany plik) po anonimizacji jako DOCX: akapit na każdą linię, bez nagłówka BKS."""
+    akapity = "".join(_akapit(_run(linia)) for linia in anonimizuj(tekst, ukryte).split("\n"))
+    dokument = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+        f'<w:body>{akapity}<w:sectPr><w:pgSz w:w="{int(595.3 * TWIP)}" w:h="{int(841.9 * TWIP)}"/>'
+        f'<w:pgMar w:top="{56 * TWIP}" w:right="{56 * TWIP}" w:bottom="{56 * TWIP}" w:left="{71 * TWIP}" '
+        'w:header="0" w:footer="0" w:gutter="0"/></w:sectPr></w:body></w:document>'
+    )
+    pliki = {
+        "[Content_Types].xml": (
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+            '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+            '<Default Extension="xml" ContentType="application/xml"/>'
+            '<Override PartName="/word/document.xml" '
+            'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>'
+        ),
+        "_rels/.rels": (
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+            '<Relationship Id="rId1" '
+            'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" '
+            'Target="word/document.xml"/></Relationships>'
+        ),
+        "word/document.xml": dokument,
+    }
+    bufor = io.BytesIO()
+    with zipfile.ZipFile(bufor, "w", zipfile.ZIP_DEFLATED) as z:
+        for nazwa, tresc in pliki.items():
+            z.writestr(nazwa, tresc)
+    return bufor.getvalue()

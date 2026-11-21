@@ -56,3 +56,15 @@ def test_endpointy_eksportu():
     assert 'filename="BKS.IV.1431.18.2026_odpowiedz.docx"' in d.headers["content-disposition"]
     t = k.post("/api/pismo/txt", json={"pismo": PISMO})
     assert t.status_code == 200 and "Kowalski" not in t.text
+
+
+def test_eksport_dowolnego_dokumentu():
+    k = TestClient(app)
+    tekst = "Wnioskodawca: Jan Kowalski\nPESEL 85010112345\nTreść bez danych."
+    d = k.post("/api/dokument/docx", json={"tekst": tekst, "ukryte": ["Jan Kowalski", "85010112345"]})
+    with zipfile.ZipFile(io.BytesIO(d.content)) as z:
+        doc = z.read("word/document.xml").decode()
+        minidom.parseString(doc)
+    assert "Kowalski" not in doc and "85010112345" not in doc and "Treść bez danych." in doc
+    t = k.post("/api/dokument/txt", json={"tekst": tekst, "ukryte": ["Jan Kowalski"]}).text
+    assert t.startswith("Wnioskodawca: ████████████")

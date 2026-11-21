@@ -86,6 +86,12 @@ class EksportPisma(BaseModel):
     nazwa: str = Field(default="odpowiedz", max_length=120)
 
 
+class EksportDokumentu(BaseModel):
+    tekst: str = Field(max_length=500_000)
+    ukryte: list[str] = Field(default=[], max_length=2000)
+    nazwa: str = Field(default="dokument_zanonimizowany", max_length=120)
+
+
 class ZapytanieOAnonimizacje(BaseModel):
     tekst: str = Field(max_length=200_000)
     dodatkowe: list[str] = Field(default=[], max_length=200)
@@ -517,6 +523,23 @@ def utworz_aplikacje() -> FastAPI:
             eksport.pismo_do_docx(e.pismo),
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             headers={"Content-Disposition": _naglowek_pliku(e.nazwa, "docx")},
+        )
+
+    @app.post("/api/dokument/docx")
+    def dokument_docx(e: EksportDokumentu) -> Response:
+        """Dowolny dokument po anonimizacji (DOCX) – ukryte fragmenty zastąpione znakami █."""
+        return Response(
+            eksport.dokument_do_docx(e.tekst, e.ukryte),
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={"Content-Disposition": _naglowek_pliku(e.nazwa, "docx")},
+        )
+
+    @app.post("/api/dokument/txt")
+    def dokument_txt(e: EksportDokumentu) -> Response:
+        return Response(
+            eksport.anonimizuj(e.tekst, e.ukryte),
+            media_type="text/plain; charset=utf-8",
+            headers={"Content-Disposition": _naglowek_pliku(e.nazwa, "txt")},
         )
 
     @app.post("/api/pismo/txt")

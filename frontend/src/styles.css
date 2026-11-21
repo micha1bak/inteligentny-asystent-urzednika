@@ -342,3 +342,8 @@ pre.json, textarea.json { font-family: Consolas, monospace; font-size: 0.8rem; w
   .druk-pisma .anon-proponowane { background: none; }
   .druk-pisma .anon-ukryte, .druk-pisma .anon-ukryte:hover { background: #000; color: #000; }
 }
+.dokument-anonimizacja { white-space: pre-wrap; font-family: 'Times New Roman', Times, 'Liberation Serif', serif; font-size: 1rem;
+  line-height: 1.6; background: #fff; border: 1px solid var(--linia); border-radius: 6px; padding: 14px 16px; max-height: 70vh; overflow: auto; }
+.lista-ukryc { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; max-height: 40vh; overflow: auto; }
+.przycisk-ukrycia { border: 0; padding: 1px 6px; font: inherit; cursor: pointer; text-align: left; }
+.przycisk-ukrycia.anon-ukryte { color: #fff; }
