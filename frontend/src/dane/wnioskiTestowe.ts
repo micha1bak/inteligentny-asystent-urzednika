@@ -64,7 +64,7 @@ const SZABLONY: Szablon[] = [
     tresc: 'Proszę o informację o wysokości diet wypłaconych poszczególnym radnym Rady Miasta Bydgoszczy w 2025 r.',
   },
   {
-    temat: 'Liczba wydanych pozwoleń na budowę', terminZaDni: 13, inicjaly: 'AK', status: 'brak_dzialan',
+    temat: 'Liczba wydanych pozwoleń na budowę', terminZaDni: -3, inicjaly: 'AK', status: 'odpowiedz_wyslana',
     wnioskodawca: 'Ewa Dąbrowska',
     tresc: 'Proszę o podanie liczby pozwoleń na budowę budynków mieszkalnych wielorodzinnych wydanych przez Prezydenta Miasta Bydgoszczy w latach 2024–2026, z podziałem na lata.',
   },
@@ -91,6 +91,8 @@ function dodajDniRobocze(iso: string, n: number): string {
   return d;
 }
 
+const maks = (a: string, b: string) => (a > b ? a : b);
+
 export function wnioskiTestowe(dzis: string): Wniosek[] {
   const rok = dzis.slice(0, 4);
   return SZABLONY.map((s, i) => {
@@ -109,6 +111,8 @@ export function wnioskiTestowe(dzis: string): Wniosek[] {
       tresc: s.tresc,
       status: s.status,
       dniKwerendy: s.dniKwerendy,
+      // sprawa zakończona: odpowiedź wysłana kilka dni roboczych przed dziś (ale nie przed wpływem)
+      dataOdpowiedzi: s.status === 'odpowiedz_wyslana' ? maks(dodajDniRobocze(dzis, -4), dataWplywu) : undefined,
     };
   });
 }
