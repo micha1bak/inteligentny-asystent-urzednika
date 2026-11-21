@@ -1,0 +1,917 @@
+{
+  "metadane": {
+    "nazwa": "Kompletny model oceny prawnej wniosku o dostęp do informacji publicznej (Informacja – Założenia – Werdykt)",
+    "wersja": "1.0.0",
+    "zakres_zastosowania": "Ocena prawna wniosków o udostępnienie informacji publicznej (ogólnokrajowa na podstawie UDIP i KPA oraz szczegółowa procedura wewnętrzna Urzędu Miasta Bydgoszczy)",
+    "akty_prawne_i_zrodla": [
+      {
+        "skrot": "UDIP",
+        "pelna_nazwa": "Ustawa z dnia 6 września 2001 r. o dostępie do informacji publicznej",
+        "publikator": "t.j. Dz. U. z 2022 r. poz. 902, z 2025 r. poz. 1844 (pierwotnie Dz. U. 2001 Nr 112 poz. 1198)"
+      },
+      {
+        "skrot": "KPA",
+        "pelna_nazwa": "Ustawa z dnia 14 czerwca 1960 r. – Kodeks postępowania administracyjnego",
+        "publikator": "t.j. Dz. U. z 2025 r. poz. 1691 (pierwotnie Dz. U. 1960 Nr 30 poz. 168)"
+      },
+      {
+        "skrot": "Zarzadzenie_535_2024",
+        "pelna_nazwa": "Zarządzenie Nr 535/2024 Prezydenta Miasta Bydgoszczy z września 2024 r. w sprawie zasad i trybu udostępniania informacji publicznej",
+        "publikator": "Akt wewnętrzny Urzędu Miasta Bydgoszczy (uchylający Zarządzenie Nr 151/2011 oraz Nr 681/2012)"
+      },
+      {
+        "skrot": "BIP_UMB_Info",
+        "pelna_nazwa": "Informacja o zasadach udostępniania informacji publicznej w Urzędzie Miasta Bydgoszczy (w tym klauzula RODO)",
+        "publikator": "Biuletyn Informacji Publicznej Urzędu Miasta Bydgoszczy"
+      },
+      {
+        "skrot": "Katalog_Anonimizacji",
+        "pelna_nazwa": "Katalog danych podlegających anonimizacji w procesie udostępniania informacji publicznej",
+        "publikator": "Wytyczne merytoryczne dostarczone przez użytkownika (28 kategorii danych)"
+      }
+    ],
+    "slownik_werdyktow": {
+      "MOZNA_UDOSTEPNIC": "Informacja podlega udostępnieniu w całości w drodze czynności materialno-technicznej (bez wydawania decyzji administracyjnej).",
+      "MOZNA_Z_ANONIMIZACJA": "Informacja podlega udostępnieniu po uprzednim zanonimizowaniu danych chronionych prawem (prywatność, tajemnice), o ile nie zniekształca to istoty dokumentu i nie pozbawia go wartości informacyjnej.",
+      "MOZNA_WARUNKOWO": "Udostępnienie możliwe po spełnieniu określonego warunku ustawowego (np. wykazanie szczególnie istotnego interesu publicznego dla informacji przetworzonej, akceptacja opłaty, zmiana formy/sposobu).",
+      "NIE_MOZNA_DECYZJA_ODMOWNA": "Brak możliwości udostępnienia z powodu ograniczeń ustawowych (art. 5 UDIP) lub niewykazania szczególnie istotnego interesu publicznego (art. 3 ust. 1 pkt 1 UDIP) – wymagane wydanie decyzji administracyjnej o odmowie (art. 16 UDIP + KPA).",
+      "NIE_MOZNA_UMORZENIE_DECYZJA": "Brak możliwości udostępnienia w żądanej formie/sposobie z przyczyn technicznych oraz brak reakcji wnioskodawcy w terminie 14 dni od powiadomienia – wymagane wydanie decyzji o umorzeniu postępowania (art. 14 ust. 2 w zw. z art. 16 UDIP).",
+      "NIE_MOZNA_PISMO_INFORMACYJNE": "Wniosek nie podlega załatwieniu w trybie UDIP (informacja nie jest publiczna, organ jej nie posiada, istnieje odrębny tryb ustawowy albo informacja jest już w BIP/portalu danych/CRU) – odpowiedź zwykłym pismem bez wydawania decyzji KPA.",
+      "POZOSTAWIENIE_BEZ_ROZPOZNANIA": "Dotyczy wyłącznie etapu, na którym stosuje się KPA (np. wydanie decyzji odmownej/umorzeniowej), gdy wniosek zawiera nieusunięte braki formalne (brak podpisu, adresu) mimo wezwania w trybie art. 64 KPA."
+    }
+  },
+  "algorytm_oceny_krokowej": [
+    {
+      "etap_id": "ETAP_01",
+      "nazwa": "Wpływ, rejestracja i wstępna weryfikacja formalna wniosku",
+      "informacja": "Forma złożenia wniosku, dane wnioskodawcy, kanał wpływu oraz brak wymogu wykazywania interesu.",
+      "zalozenia": [
+        "Wniosek może złożyć każdy (osoba fizyczna, prawna, jednostka organizacyjna) bez wykazywania interesu prawnego ani faktycznego (art. 2 ust. 1 i 2 UDIP).",
+        "Wniosek w Urzędzie Miasta Bydgoszczy może wpłynąć: pocztą tradycyjną, osobiście w sekretariacie, faksem, na adres do doręczeń elektronicznych (e-Doręczenia) lub pocztą elektroniczną (e-mail) (BIP_UMB_Info).",
+        "Informacja, która może być niezwłocznie udostępniona, jest udostępniana w formie ustnej lub pisemnej bez pisemnego wniosku (art. 10 ust. 2 UDIP; § 8 ust. 2 Zarządzenia 535/2024).",
+        "W UMB każdy wpływający wniosek jest przekazywany i rejestrowany przez Administratora Informacji Publicznej (AIP), który niezwłocznie przekazuje zakres wniosku właściwym merytorycznie Wydziałom (§ 9 i § 10 Zarządzenia 535/2024).",
+        "Uwaga KPA: Na etapie samego złożenia wniosku o udostępnienie informacji prostej wniosek jest odformalizowany (dopuszczalny nawet zwykły e-mail bez podpisu). Wymogi formalne z art. 63 KPA (wskazanie osoby, adresu, podpisu) oraz wezwanie do uzupełnienia braków w terminie min. 7 dni (art. 64 § 2 KPA) aktualizują się dopiero wtedy, gdy zachodzi konieczność wydania decyzji administracyjnej (odmowa lub umorzenie z art. 16 UDIP)."
+      ],
+      "podstawa_prawna": [
+        "Art. 2 ust. 1 i 2 UDIP",
+        "Art. 10 ust. 2 UDIP",
+        "Art. 63 i art. 64 KPA (wyłącznie na etapie decyzyjnym)",
+        "§ 8 ust. 2, § 9, § 10 Zarządzenia Nr 535/2024"
+      ],
+      "werdykt": {
+        "czy_mozna": "TAK_PROCEDUJ_DALEJ",
+        "rozstrzygniecie": "Rejestracja wniosku przez AIP i przekazanie do właściwego Wydziału; zakaz żądania wykazania interesu prawnego/faktycznego.",
+        "wyjatek_negatywny": "Jeżeli sprawa wymaga wydania decyzji (art. 16 UDIP), a wniosek złożono np. zwykłym e-mailem bez podpisu lub adresu, wzywa się wnioskodawcę do uzupełnienia braków w terminie nie krótszym niż 7 dni (art. 64 § 2 KPA), a przy braku adresu i niemożności jego ustalenia pozostawia bez rozpoznania (art. 64 § 1 KPA)."
+      },
+      "nastepny_etap": "ETAP_02"
+    },
+    {
+      "etap_id": "ETAP_02",
+      "nazwa": "Ocena podmiotowa – status adresata i posiadanie informacji",
+      "informacja": "Czy adresat wniosku jest podmiotem obowiązanym oraz czy znajduje się w posiadaniu żądanej informacji.",
+      "zalozenia": [
+        "Podmiotami obowiązanymi są władze publiczne oraz inne podmioty wykonujące zadania publiczne, m.in. organy władzy publicznej, organy samorządów gospodarczych i zawodowych, podmioty reprezentujące Skarb Państwa, państwowe i samorządowe osoby prawne i jednostki organizacyjne, inne podmioty wykonujące zadania publiczne lub dysponujące majątkiem publicznym, spółki z pozycją dominującą podmiotów publicznych, reprezentatywne organizacje związkowe i pracodawców oraz partie polityczne (art. 4 ust. 1 i 2 UDIP).",
+        "Obowiązek dotyczy wyłącznie informacji będących w posiadaniu podmiotu (art. 4 ust. 3 UDIP).",
+        "W UMB, jeśli Wydział nie posiada informacji, niezwłocznie informuje AIP i wskazuje – o ile jest znana – jednostkę właściwą (§ 11 ust. 3 Zarządzenia 535/2024).",
+        "Jeżeli dokumentacja znajduje się w archiwum zakładowym UMB, właściwy jest Wydział, który ją przekazał (lub następca), a dla wydziału zlikwidowanego bez następcy – Wydział prowadzący archiwum (§ 11 ust. 4 Zarządzenia 535/2024).",
+        "W trybie UDIP nie przekazuje się wniosku innemu organowi na podstawie art. 65 KPA, lecz informuje wnioskodawcę zwykłym pismem o nieposiadaniu informacji."
+      ],
+      "podstawa_prawna": [
+        "Art. 4 ust. 1, 2 i 3 UDIP",
+        "§ 11 ust. 3 i 4 Zarządzenia Nr 535/2024",
+        "BIP_UMB_Info"
+      ],
+      "werdykt": {
+        "czy_mozna": "WARUNKOWO_JESLI_POSIADA",
+        "rozstrzygniecie_pozytywne": "Podmiot obowiązany i posiada informację -> przejdź do ETAP_03.",
+        "rozstrzygniecie_negatywne": "NIE_MOZNA_PISMO_INFORMACYJNE – odpowiedź zwykłym pismem z wyjaśnieniem, że Urząd nie dysponuje żądaną informacją (ewentualnie ze wskazaniem właściwego podmiotu). Nie wydaje się decyzji administracyjnej."
+      },
+      "nastepny_etap": "ETAP_03"
+    },
+    {
+      "etap_id": "ETAP_03",
+      "nazwa": "Ocena przedmiotowa – kwalifikacja jako informacja publiczna",
+      "informacja": "Czy żądana treść stanowi informację o sprawach publicznych w rozumieniu UDIP.",
+      "zalozenia": [
+        "Informacją publiczną jest każda informacja o sprawach publicznych (art. 1 ust. 1 UDIP), w szczególności objęta otwartym katalogiem z art. 6 ust. 1 UDIP (polityka, status i organizacja podmiotów, zasady funkcjonowania, dane publiczne w tym dokumenty urzędowe, majątek publiczny).",
+        "Dokumentem urzędowym jest treść oświadczenia woli lub wiedzy, utrwalona i podpisana w dowolnej formie przez funkcjonariusza publicznego w rozumieniu Kodeksu karnego, w ramach jego kompetencji, skierowana do innego podmiotu lub złożona do akt sprawy (art. 6 ust. 2 UDIP).",
+        "Informacją publiczną nie są sprawy prywatne, wewnętrzne notatki robocze niestanowiące dokumentów urzędowych ani żądania dokonania wykładni prawa czy udzielenia porady prawnej."
+      ],
+      "podstawa_prawna": [
+        "Art. 1 ust. 1 UDIP",
+        "Art. 6 ust. 1 i 2 UDIP",
+        "BIP_UMB_Info"
+      ],
+      "werdykt": {
+        "czy_mozna": "WARUNKOWO_JESLI_PUBLICZNA",
+        "rozstrzygniecie_pozytywne": "Informacja jest informacją publiczną -> przejdź do ETAP_04.",
+        "rozstrzygniecie_negatywne": "NIE_MOZNA_PISMO_INFORMACYJNE – odpowiedź w formie zwykłego pisma z wyjaśnieniem, że żądana informacja nie dotyczy spraw publicznych. Nie wydaje się decyzji administracyjnej."
+      },
+      "nastepny_etap": "ETAP_04"
+    },
+    {
+      "etap_id": "ETAP_04",
+      "nazwa": "Weryfikacja odrębnego trybu ustawowego dostępu (kolizja ustaw)",
+      "informacja": "Czy dostęp do żądanej informacji regulują odrębne przepisy szczególne (lex specialis).",
+      "zalozenia": [
+        "Przepisy UDIP nie naruszają przepisów innych ustaw określających odmienne zasady i tryb dostępu do informacji będących informacjami publicznymi (art. 1 ust. 2 UDIP).",
+        "Przykładowo: strona postępowania administracyjnego ma prawo wglądu w akta sprawy na podstawie art. 73 KPA (a nie UDIP); dostęp do akt sądowych, ksiąg wieczystych, rejestrów publicznych regulują właściwe ustawy szczególne.",
+        "Jeżeli ustawa szczególna wyczerpująco reguluje zasady i tryb dostępu, wyłącza ona stosowanie UDIP."
+      ],
+      "podstawa_prawna": [
+        "Art. 1 ust. 2 UDIP",
+        "Art. 73 i art. 74 KPA (przykład trybu odrębnego dla strony)",
+        "BIP_UMB_Info"
+      ],
+      "werdykt": {
+        "czy_mozna": "WARUNKOWO_BRAK_ODREBNEGO_TRYBU",
+        "rozstrzygniecie_pozytywne": "Brak odrębnego trybu szczególnego -> przejdź do ETAP_05.",
+        "rozstrzygniecie_negatywne": "NIE_MOZNA_PISMO_INFORMACYJNE – odpowiedź zwykłym pismem z wyjaśnieniem, że istnieją przepisy określające odmienne zasady i tryb dostępu do tej informacji oraz wskazaniem tego trybu. Nie wydaje się decyzji z art. 16 UDIP."
+      },
+      "nastepny_etap": "ETAP_05"
+    },
+    {
+      "etap_id": "ETAP_05",
+      "nazwa": "Weryfikacja uprzedniej publikacji (BIP, Portal Danych, CRU)",
+      "informacja": "Czy wnioskowana informacja została już udostępniona w publicznych publikatorach.",
+      "zalozenia": [
+        "Udostępnieniu na wniosek podlega wyłącznie informacja publiczna, która nie została udostępniona w: 1) Biuletynie Informacji Publicznej (BIP), 2) portalu danych, 3) Centralnym Rejestrze Umów Jednostek Sektora Finansów Publicznych (art. 10 ust. 1 UDIP).",
+        "W UMB, jeżeli wnioskowana informacja została opublikowana w BIP, wnioskodawcy wskazuje się dokładny adres strony BIP zawierającej tę informację (§ 8 ust. 1 Zarządzenia 535/2024).",
+        "Informacje z art. 6 ust. 1 pkt 1-3, pkt 4 lit. a tiret drugie, lit. c i d oraz pkt 5 podlegają obowiązkowej publikacji w BIP (art. 8 ust. 3 UDIP)."
+      ],
+      "podstawa_prawna": [
+        "Art. 7 ust. 1 pkt 1 i 4 UDIP",
+        "Art. 8 ust. 3 UDIP",
+        "Art. 10 ust. 1 UDIP",
+        "§ 8 ust. 1 Zarządzenia Nr 535/2024"
+      ],
+      "werdykt": {
+        "czy_mozna": "WARUNKOWO_NIEOPUBLIKOWANA",
+        "rozstrzygniecie_pozytywne": "Informacja nie została opublikowana w BIP / portalu danych / CRU -> przejdź do ETAP_06.",
+        "rozstrzygniecie_negatywne": "NIE_MOZNA_PISMO_INFORMACYJNE (odesłanie do publikatora) – pismo wskazujące wnioskodawcy dokładny adres strony BIP / portalu danych / CRU. Brak obowiązku ponownego przesyłania treści i brak decyzji odmownej."
+      },
+      "nastepny_etap": "ETAP_06"
+    },
+    {
+      "etap_id": "ETAP_06",
+      "nazwa": "Kwalifikacja: informacja prosta czy przetworzona",
+      "informacja": "Czy przygotowanie odpowiedzi wymaga wytworzenia jakościowo nowej informacji (informacja przetworzona).",
+      "zalozenia": [
+        "Uzyskanie informacji przetworzonej przysługuje wyłącznie w takim zakresie, w jakim jest to szczególnie istotne dla interesu publicznego (art. 3 ust. 1 pkt 1 UDIP).",
+        "Informacja prosta udostępniana jest bez badania interesu wnioskodawcy.",
+        "W UMB, jeżeli Wydział uzna informację za przetworzoną, przesyła do AIP projekt odpowiedzi zawierający uzasadnienie dla uznania wnioskowanej informacji za przetworzoną (§ 11 ust. 7 Zarządzenia 535/2024).",
+        "Organ wzywa wnioskodawcę do wykazania, w jakim zakresie uzyskanie informacji przetworzonej jest szczególnie istotne dla interesu publicznego (z wyznaczeniem terminu).",
+        "Sama anonimizacja lub proste techniczne zestawienie danych z istniejących rejestrów co do zasady nie tworzy informacji przetworzonej, chyba że wymaga ponadstandardowego nakładu pracy angażującego zasoby organu w stopniu zakłócającym bieżące zadania."
+      ],
+      "podstawa_prawna": [
+        "Art. 3 ust. 1 pkt 1 UDIP",
+        "Art. 16 ust. 1 UDIP",
+        "§ 11 ust. 7 Zarządzenia Nr 535/2024"
+      ],
+      "werdykt": {
+        "czy_mozna": "MOZNA_WARUNKOWO",
+        "rozstrzygniecie_pozytywne": "Informacja prosta LUB informacja przetworzona przy wykazanym szczególnie istotnym interesie publicznym -> przejdź do ETAP_07.",
+        "rozstrzygniecie_negatywne": "NIE_MOZNA_DECYZJA_ODMOWNA – brak wykazania szczególnie istotnego interesu publicznego skutkuje wydaniem decyzji administracyjnej o odmowie udostępnienia informacji publicznej na podstawie art. 16 ust. 1 w zw. z art. 3 ust. 1 pkt 1 UDIP (z zastosowaniem KPA)."
+      },
+      "nastepny_etap": "ETAP_07"
+    },
+    {
+      "etap_id": "ETAP_07",
+      "nazwa": "Weryfikacja ograniczeń ustawowych, tajemnic i obowiązku anonimizacji",
+      "informacja": "Czy żądana informacja podlega ograniczeniom z art. 5 UDIP lub zawiera dane podlegające anonimizacji.",
+      "zalozenia": [
+        "Ograniczenie z powodu informacji niejawnych oraz innych tajemnic ustawowo chronionych (m.in. skarbowa, bankowa, ubezpieczeniowa, zawodowa, lekarska, adwokacka) – art. 5 ust. 1 UDIP.",
+        "Ograniczenie ze względu na prywatność osoby fizycznej (w tym dane osobowe z Katalogu Anonimizacji) lub tajemnicę przedsiębiorcy – art. 5 ust. 2 zd. 1 UDIP.",
+        "WYJĄTEK od ograniczenia z art. 5 ust. 2: Ograniczenie nie dotyczy informacji o osobach pełniących funkcje publiczne, mających związek z pełnieniem tych funkcji (w tym o warunkach powierzenia i wykonywania funkcji), oraz przypadku, gdy osoba fizyczna lub przedsiębiorca rezygnują z przysługującego im prawa (art. 5 ust. 2 zd. 2 UDIP).",
+        "Ograniczenie z powodu przepisów o przymusowej restrukturyzacji (art. 5 ust. 2a UDIP) oraz ustawy o rekapitalizacji niektórych instytucji i rządowych instrumentach stabilizacji finansowej (art. 5 ust. 2b UDIP).",
+        "Zakaz ograniczania dostępu do informacji o sprawach rozstrzyganych w postępowaniach przed organami państwa (administracyjnym, karnym, cywilnym) ze względu na ochronę interesu strony, jeżeli postępowanie dotyczy władz publicznych, podmiotów wykonujących zadania publiczne lub osób pełniących funkcje publiczne – w zakresie tych zadań/funkcji (art. 5 ust. 3 UDIP).",
+        "Ograniczenia z art. 5 ust. 3 nie naruszają prawa do informacji o organizacji i pracy organów prowadzących postępowania (czas, tryb, miejsce, kolejność rozpatrywania spraw) (art. 5 ust. 4 UDIP).",
+        "Zasada proporcjonalności (anonimizacja zamiast odmowy): Jeżeli dokument zawiera obok informacji publicznej także dane chronione (np. z Katalogu Anonimizacji), właściwy Wydział dokonuje koniecznej anonimizacji przed przekazaniem informacji (§ 11 ust. 8 Zarządzenia 535/2024).",
+        "Jeżeli wniosek dotyczy wyłącznie informacji chronionej prawem lub anonimizacja pozbawiłaby dokument jakiejkolwiek wartości informacyjnej, właściwy Wydział przygotowuje projekt decyzji administracyjnej o odmowie udostępnienia informacji publicznej (§ 11 ust. 9 Zarządzenia 535/2024; art. 16 ust. 1 UDIP)."
+      ],
+      "podstawa_prawna": [
+        "Art. 5 ust. 1, 2, 2a, 2b, 3 i 4 UDIP",
+        "Art. 16 ust. 1 i ust. 2 pkt 2 UDIP",
+        "§ 11 ust. 8 i 9 Zarządzenia Nr 535/2024",
+        "Katalog_Anonimizacji"
+      ],
+      "werdykt": {
+        "czy_mozna": "ZALEZNY_OD_ZAKRESU_OCHRONY",
+        "wariant_1_pelna_jawnosc": "MOZNA_UDOSTEPNIC – brak przesłanek z art. 5 UDIP lub zachodzi wyjątek (osoba pełniąca funkcję publiczną / rezygnacja z ochrony) -> przejdź do ETAP_08.",
+        "wariant_2_anonimizacja": "MOZNA_Z_ANONIMIZACJA – informacja zawiera dane z Katalogu Anonimizacji możliwe do usunięcia bez utraty sensu dokumentu -> Wydział anonimizuje dane (§ 11 ust. 8) i przekazuje do udostępnienia -> przejdź do ETAP_08.",
+        "wariant_3_odmowa": "NIE_MOZNA_DECYZJA_ODMOWNA – informacja w całości lub wnioskowanej części objęta tajemnicą ustawową, prywatnością (bez możliwości zanonimizowania przy zachowaniu sensu) lub tajemnicą przedsiębiorcy -> wydanie decyzji odmownej w trybie art. 16 UDIP + KPA (z podaniem imion, nazwisk, funkcji osób zajmujących stanowisko i oznaczeniem podmiotów chronionych z art. 5 ust. 2)."
+      },
+      "nastepny_etap": "ETAP_08"
+    },
+    {
+      "etap_id": "ETAP_08",
+      "nazwa": "Ocena techniczna sposobu i formy udostępnienia",
+      "informacja": "Czy organ dysponuje środkami technicznymi umożliwiającymi udostępnienie informacji w sposób i w formie żądanych we wniosku.",
+      "zalozenia": [
+        "Udostępnienie następuje w sposób i w formie zgodnych z wnioskiem (art. 14 ust. 1 UDIP; § 11 ust. 2 Zarządzenia 535/2024).",
+        "Podmiot musi zapewnić możliwość kopiowania, wydruku, przesłania lub przeniesienia na powszechnie stosowany nośnik informacji (art. 12 ust. 2 UDIP).",
+        "Jeżeli środki techniczne nie umożliwiają udostępnienia zgodnie z wnioskiem, organ powiadamia pisemnie wnioskodawcę o przyczynach i wskazuje sposób lub formę, w jakiej informacja może być udostępniona niezwłocznie (art. 14 ust. 2 zd. 1 UDIP). W UMB Wydział niezwłocznie powiadamia o tym pisemnie AIP (§ 11 ust. 2).",
+        "Jeżeli w terminie 14 dni od powiadomienia wnioskodawca nie złoży wniosku o udostępnienie w sposób lub w formie wskazanych przez organ, postępowanie umarza się w drodze decyzji administracyjnej (art. 14 ust. 2 zd. 2 w zw. z art. 16 ust. 1 UDIP).",
+        "W przypadku wglądu w akta w UMB, dokumentację przygotowuje i udostępnia w swojej siedzibie właściwy Wydział, przesyłając niezwłocznie potwierdzenie wglądu do AIP (§ 11 ust. 6 Zarządzenia 535/2024)."
+      ],
+      "podstawa_prawna": [
+        "Art. 12 ust. 2 UDIP",
+        "Art. 14 ust. 1 i 2 UDIP",
+        "Art. 16 ust. 1 UDIP",
+        "§ 11 ust. 2 i 6 Zarządzenia Nr 535/2024"
+      ],
+      "werdykt": {
+        "czy_mozna": "MOZNA_WARUNKOWO",
+        "rozstrzygniecie_pozytywne": "Środki techniczne pozwalają na udostępnienie zgodnie z wnioskiem LUB wnioskodawca w 14 dni zaakceptował formę zastępczą -> przejdź do ETAP_09.",
+        "rozstrzygniecie_negatywne": "NIE_MOZNA_UMORZENIE_DECYZJA – brak możliwości technicznych i brak wniosku o formę zastępczą w terminie 14 dni od powiadomienia -> decyzja o umorzeniu postępowania (art. 14 ust. 2 w zw. z art. 16 ust. 1 UDIP + KPA)."
+      },
+      "nastepny_etap": "ETAP_09"
+    },
+    {
+      "etap_id": "ETAP_09",
+      "nazwa": "Weryfikacja kosztów dodatkowych (opłaty)",
+      "informacja": "Czy sposób udostępnienia lub konieczność przekształcenia formy generuje dla organu dodatkowe koszty.",
+      "zalozenia": [
+        "Zasadą jest bezpłatność dostępu do informacji publicznej (art. 7 ust. 2 UDIP).",
+        "Jeżeli organ ma ponieść dodatkowe koszty związane ze wskazanym we wniosku sposobem udostępnienia lub koniecznością przekształcenia informacji w formę wskazaną we wniosku, może pobrać opłatę odpowiadającą tym kosztom (art. 15 ust. 1 UDIP).",
+        "W terminie 14 dni od dnia złożenia wniosku organ powiadamia wnioskodawcę o wysokości opłaty (art. 15 ust. 2 zd. 1 UDIP).",
+        "Udostępnienie informacji zgodnie z wnioskiem następuje po upływie 14 dni od dnia powiadomienia wnioskodawcy, chyba że w tym terminie wnioskodawca zmieni wniosek co do sposobu/formy albo go wycofa (art. 15 ust. 2 zd. 2 UDIP)."
+      ],
+      "podstawa_prawna": [
+        "Art. 7 ust. 2 UDIP",
+        "Art. 15 ust. 1 i 2 UDIP",
+        "BIP_UMB_Info"
+      ],
+      "werdykt": {
+        "czy_mozna": "MOZNA_WARUNKOWO",
+        "rozstrzygniecie_bezplatne": "Brak dodatkowych kosztów -> udostępnienie bezpłatne -> przejdź do ETAP_10.",
+        "rozstrzygniecie_odplatne": "Powiadomienie o opłacie w 14 dni od wpływu wniosku; realizacja po upływie 14 dni od powiadomienia (chyba że wnioskodawca zmieni lub wycofa wniosek)."
+      },
+      "nastepny_etap": "ETAP_10"
+    },
+    {
+      "etap_id": "ETAP_10",
+      "nazwa": "Kontrola terminów załatwienia sprawy",
+      "informacja": "Terminy ustawowe na udostępnienie informacji, powiadomienie o opóźnieniu oraz zasady ich liczenia.",
+      "zalozenia": [
+        "Udostępnienie następuje bez zbędnej zwłoki, nie później niż w terminie 14 dni od dnia złożenia wniosku (art. 13 ust. 1 UDIP).",
+        "Jeżeli informacja nie może być udostępniona w terminie 14 dni, organ powiadamia wnioskodawcę w tym terminie (przed upływem 14 dni) o powodach opóźnienia oraz o nowym terminie, nie dłuższym jednak niż 2 miesiące od dnia złożenia wniosku (art. 13 ust. 2 UDIP).",
+        "W UMB Wydział przesyła projekt odpowiedzi na adres bip@um.bydgoszcz.pl w terminie określonym przez AIP, a w razie niemożności – powiadamia pisemnie AIP o powodach opóźnienia i nowym terminie (§ 11 ust. 1 i 5 Zarządzenia 535/2024).",
+        "Obliczanie terminów (art. 57 KPA): przy terminie w dniach nie uwzględnia się dnia zdarzenia; termin w miesiącach kończy się z upływem dnia odpowiadającego początkowemu (lub ostatniego dnia miesiąca); jeśli koniec terminu przypada na dzień ustawowo wolny od pracy lub sobotę, termin upływa następnego dnia roboczego."
+      ],
+      "podstawa_prawna": [
+        "Art. 13 ust. 1 i 2 UDIP",
+        "Art. 57 § 1-5 KPA",
+        "§ 11 ust. 1 i 5 Zarządzenia Nr 535/2024"
+      ],
+      "werdykt": {
+        "czy_mozna": "OBOWIAZEK_TERMINOWOSCI",
+        "rozstrzygniecie": "Załatwienie do 14 dni albo skuteczne przedłużenie do maks. 2 miesięcy. Przekroczenie terminu naraża organ na skargę na bezczynność do WSA oraz odpowiedzialność karną z art. 23 UDIP."
+      },
+      "nastepny_etap": "ETAP_11"
+    },
+    {
+      "etap_id": "ETAP_11",
+      "nazwa": "Realizacja rozstrzygnięcia i wymogi formalne dokumentu",
+      "informacja": "Oznaczenie udostępnianej informacji, elementy decyzji administracyjnej, upoważnienia, doręczenia i RODO.",
+      "zalozenia": [
+        "Informacje udostępniane na wniosek lub przez wyłożenie oznacza się: danymi podmiotu udostępniającego, tożsamością osoby, która wytworzyła informację lub odpowiada za jej treść, tożsamością osoby, która ją udostępniła, oraz datą udostępnienia (art. 12 ust. 1 UDIP).",
+        "Decyzja o odmowie udostępnienia lub o umorzeniu postępowania (art. 16 ust. 1 UDIP) musi spełniać wymogi art. 107 § 1 i 3 KPA (oznaczenie organu, data, strona, podstawa prawna, rozstrzygnięcie, uzasadnienie faktyczne i prawne, pouczenie o odwołaniu i prawie do zrzeczenia się odwołania, podpis z imieniem, nazwiskiem i stanowiskiem).",
+        "Dodatkowe wymogi uzasadnienia decyzji odmownej (art. 16 ust. 2 pkt 2 UDIP): imiona, nazwiska i funkcje osób, które zajęły stanowisko w toku postępowania, oraz oznaczenie podmiotów, ze względu na których dobra z art. 5 ust. 2 wydano decyzję.",
+        "W UMB decyzje wydaje Prezydent Miasta lub upoważnieni: Zastępcy Prezydenta, Sekretarz, Skarbnik oraz pracownik Biura Komunikacji Społecznej (§ 12 ust. 1 Zarządzenia 535/2024; art. 268a KPA). Kopie wszystkich odpowiedzi, decyzji, odwołań i skarg przekazuje się AIP (§ 12 ust. 2).",
+        "Doręczenie decyzji następuje zgodnie z art. 39-49 KPA (priorytet adresu do doręczeń elektronicznych, następnie publiczna usługa hybrydowa lub przesyłka rejestrowana / pracownik).",
+        "Obowiązek informacyjny RODO (art. 13 ust. 1 i 2 rozporządzenia 2016/679) realizowany jest niezależnie od KPA i nie wpływa na tok i wynik postępowania (art. 2a, art. 61 § 5 KPA; klauzula RODO UMB)."
+      ],
+      "podstawa_prawna": [
+        "Art. 12 ust. 1 UDIP",
+        "Art. 16 ust. 1 i 2 UDIP",
+        "Art. 2a, art. 39-49, art. 61 § 5, art. 107, art. 268a KPA",
+        "§ 12 ust. 1 i 2 Zarządzenia Nr 535/2024"
+      ],
+      "werdykt": {
+        "czy_mozna": "ZAMKNIECIE_POSTEPOWANIA_I_INSTANCJI",
+        "rozstrzygniecie": "Udostępnienie (z oznaczeniami art. 12 ust. 1) ALBO pismo informacyjne ALBO doręczenie decyzji administracyjnej (art. 16 UDIP + art. 107 KPA)."
+      },
+      "nastepny_etap": "ETAP_12"
+    },
+    {
+      "etap_id": "ETAP_12",
+      "nazwa": "Tryb odwoławczy, kontrola sądowa i sankcje",
+      "informacja": "Środki zaskarżenia przysługujące wnioskodawcy oraz odpowiedzialność podmiotu obowiązanego.",
+      "zalozenia": [
+        "Od decyzji organu władzy publicznej (w UMB: Prezydenta Miasta) przysługuje odwołanie do organu wyższego stopnia (w UMB: Samorządowe Kolegium Odwoławcze w Bydgoszczy) w terminie 14 dni od doręczenia (art. 127 § 1-2, art. 129 § 1-2 KPA).",
+        "Organ I instancji przekazuje odwołanie wraz z aktami w ciągu 7 dni (art. 133 KPA), chyba że sam zmieni decyzję w trybie autokontroli (art. 132 KPA).",
+        "Organ odwoławczy rozpoznaje odwołanie w skróconym terminie 14 dni (art. 16 ust. 2 pkt 1 UDIP – przepis szczególny wobec miesięcznego terminu z art. 35 § 3 KPA).",
+        "W przypadku podmiotów niebędących organami władzy publicznej (art. 17 UDIP) wnioskodawcy służy wniosek o ponowne rozpatrzenie sprawy do tego samego podmiotu (stosuje się odpowiednio przepisy o odwołaniu).",
+        "Na decyzję ostateczną oraz na bezczynność organu służy skarga do Wojewódzkiego Sądu Administracyjnego (w UMB: WSA w Bydgoszczy). Przekazanie akt i odpowiedzi na skargę następuje w terminie 15 dni od otrzymania skargi, a sąd rozpatruje skargę w terminie 30 dni (art. 21 UDIP).",
+        "Kto wbrew ciążącemu na nim obowiązkowi nie udostępnia informacji publicznej, podlega grzywnie, karze ograniczenia wolności albo pozbawienia wolności do roku (art. 23 UDIP)."
+      ],
+      "podstawa_prawna": [
+        "Art. 16 ust. 2 pkt 1, art. 17, art. 21, art. 23 UDIP",
+        "Art. 127-140 KPA",
+        "BIP_UMB_Info"
+      ],
+      "werdykt": {
+        "czy_mozna": "KONTROLA_INSTANCYJNA_I_SADOWOADMINISTRACYJNA",
+        "rozstrzygniecie": "Odwołanie do SKO / wniosek o ponowne rozpatrzenie (14 dni na złożenie, 14 dni na rozpoznanie), skarga do WSA (15 dni na przekazanie akt, 30 dni na wyrok), odpowiedzialność karna z art. 23 UDIP."
+      },
+      "nastepny_etap": null
+    }
+  ],
+  "matryca_oceny_informacji": [
+    {
+      "id": "INF_01",
+      "informacja": "Polityka wewnętrzna i zagraniczna (zamierzenia działań władzy ustawodawczej i wykonawczej, projektowanie aktów normatywnych, programy realizacji zadań publicznych, sposób realizacji, wykonywanie i skutki)",
+      "zalozenia": "Informacja publiczna podlegająca obowiązkowej publikacji w BIP; jeśli nieopublikowana – udostępniana na wniosek. Brak tajemnic z art. 5 UDIP.",
+      "podstawa_prawna": "Art. 6 ust. 1 pkt 1 lit. a-c, art. 8 ust. 3 UDIP",
+      "werdykt": {
+        "czy_mozna": "TAK",
+        "typ": "MOZNA_UDOSTEPNIC",
+        "uwagi": "Jeśli jest w BIP – wskazać dokładny link (§ 8 ust. 1 Zarządzenia 535/2024)."
+      }
+    },
+    {
+      "id": "INF_02",
+      "informacja": "Informacje o podmiotach obowiązanych (status prawny/forma prawna, organizacja, przedmiot działalności i kompetencje, organy i osoby sprawujące funkcje oraz ich kompetencje, struktura własnościowa, majątek)",
+      "zalozenia": "Informacja publiczna podlegająca obowiązkowej publikacji w BIP. Ograniczenie prywatności nie dotyczy osób pełniących funkcje publiczne w zakresie pełnionych funkcji.",
+      "podstawa_prawna": "Art. 6 ust. 1 pkt 2 lit. a-f, art. 5 ust. 2, art. 8 ust. 3 UDIP",
+      "werdykt": {
+        "czy_mozna": "TAK",
+        "typ": "MOZNA_UDOSTEPNIC",
+        "uwagi": "Obowiązkowa publikacja w BIP; na wniosek udostępnić dane nieopublikowane."
+      }
+    },
+    {
+      "id": "INF_03",
+      "informacja": "Zasady funkcjonowania podmiotów (tryb działania władz, gospodarka budżetowa i pozabudżetowa, stanowienie aktów, sposoby przyjmowania i załatwiania spraw, stan i kolejność spraw, rejestry/ewidencje/archiwa, nabory na wolne stanowiska)",
+      "zalozenia": "Informacja publiczna (obowiązkowa w BIP). W przypadku rejestrów/ewidencji/archiwów i naborów należy sprawdzić, czy przepisy odrębne nie wprowadzają innego trybu (art. 1 ust. 2) lub anonimizacji danych kandydatów (art. 5 ust. 2).",
+      "podstawa_prawna": "Art. 6 ust. 1 pkt 3 lit. a-g, art. 8 ust. 3, art. 5 ust. 2 UDIP",
+      "werdykt": {
+        "czy_mozna": "TAK_Z_ZASTRZEZENIEM_ANONIMIZACJI",
+        "typ": "MOZNA_Z_ANONIMIZACJA",
+        "uwagi": "Dane prywatne kandydatów w naborach (nieobjęte jawną listą z przepisów odrębnych) podlegają anonimizacji."
+      }
+    },
+    {
+      "id": "INF_04",
+      "informacja": "Dokumenty urzędowe – akty administracyjne i inne rozstrzygnięcia, dokumentacja przebiegu i efektów kontroli, wystąpienia, stanowiska, wnioski, opinie kontrolujących, orzeczenia sądów i trybunałów",
+      "zalozenia": "Dokument urzędowy w rozumieniu art. 6 ust. 2 UDIP (oświadczenie woli/wiedzy podpisane przez funkcjonariusza publicznego). Wymaga weryfikacji pod kątem danych osobowych stron prywatnych, tajemnicy przedsiębiorcy oraz innych tajemnic z art. 5 UDIP.",
+      "podstawa_prawna": "Art. 6 ust. 1 pkt 4 lit. a, art. 6 ust. 2, art. 5 ust. 1-4 UDIP",
+      "werdykt": {
+        "czy_mozna": "TAK_PO_ANONIMIZACJI",
+        "typ": "MOZNA_Z_ANONIMIZACJA",
+        "uwagi": "Przed udostępnieniem należy zanonimizować dane osób fizycznych niepełniących funkcji publicznych i tajemnice ustawowe (§ 11 ust. 8 Zarządzenia 535/2024). Jeśli sprawa dotyczy organu/osoby publicznej – nie ogranicza się dostępu ze względu na interes strony (art. 5 ust. 3)."
+      }
+    },
+    {
+      "id": "INF_05",
+      "informacja": "Stanowiska w sprawach publicznych zajęte przez organy władzy publicznej i funkcjonariuszy publicznych, inne wystąpienia i oceny organów, informacja o stanie państwa, samorządów i ich jednostek",
+      "zalozenia": "Informacja publiczna; lit. c i d podlegają obowiązkowej publikacji w BIP.",
+      "podstawa_prawna": "Art. 6 ust. 1 pkt 4 lit. b-d, art. 8 ust. 3 UDIP",
+      "werdykt": {
+        "czy_mozna": "TAK",
+        "typ": "MOZNA_UDOSTEPNIC",
+        "uwagi": "Z zastrzeżeniem ewentualnych tajemnic z art. 5 ust. 1 UDIP."
+      }
+    },
+    {
+      "id": "INF_06",
+      "informacja": "Majątek publiczny (Skarb Państwa, JST, osoby prawne JST/SP, spółki handlowe z pozycją dominującą podmiotów publicznych – dochody, straty, dysponowanie nimi, dług publiczny, pomoc publiczna, ciężary publiczne)",
+      "zalozenia": "Informacja publiczna podlegająca obowiązkowej publikacji w BIP. W przypadku umów z osobami fizycznymi lub przedsiębiorcami należy ocenić zakres prywatności (art. 5 ust. 2) i tajemnicy przedsiębiorcy, z uwzględnieniem jawności gospodarowania środkami publicznymi.",
+      "podstawa_prawna": "Art. 6 ust. 1 pkt 5 lit. a-h, art. 8 ust. 3, art. 5 ust. 2 UDIP",
+      "werdykt": {
+        "czy_mozna": "TAK_Z_ZASTRZEZENIEM_ANONIMIZACJI",
+        "typ": "MOZNA_Z_ANONIMIZACJA",
+        "uwagi": "Anonimizować dane prywatne niezwiązane z umową (np. PESEL, adres zamieszkania, prywatny numer rachunku osoby fizycznej); w przypadku CRU sprawdzić uprzednią publikację (art. 10 ust. 1 pkt 3)."
+      }
+    },
+    {
+      "id": "INF_07",
+      "informacja": "Dostęp do posiedzeń kolegialnych organów władzy publicznej pochodzących z powszechnych wyborów (oraz ich organów pomocniczych i organów jednostek pomocniczych JST) wraz z protokołami, stenogramami lub nagraniami",
+      "zalozenia": "Posiedzenia są jawne i dostępne (dla organów pomocniczych – gdy stanowią tak ustawy, akty wykonawcze lub sam organ tak postanowi). Organy zapewniają warunki lokalowe/techniczne i w miarę potrzeby transmisję. Ograniczenie lokalowe/techniczne nie może faworyzować wybranych podmiotów. Protokoły/stenogramy są obowiązkowe, chyba że udostępniono pełne materiały audiowizualne/teleinformatyczne.",
+      "podstawa_prawna": "Art. 3 ust. 1 pkt 3, art. 7 ust. 1 pkt 3, art. 18, art. 19, art. 20 UDIP",
+      "werdykt": {
+        "czy_mozna": "TAK",
+        "typ": "MOZNA_UDOSTEPNIC",
+        "uwagi": "Ograniczenie jawności posiedzenia tylko na podstawie wyraźnych przepisów ustawowych (art. 5 UDIP)."
+      }
+    },
+    {
+      "id": "INF_08",
+      "informacja": "Informacja o osobach pełniących funkcje publiczne (wynagrodzenie, warunki powierzenia i wykonywania funkcji, wykształcenie/kwalifikacje wymagane na stanowisku, decyzje służbowe)",
+      "zalozenia": "Wyłączenie ochrony prywatności z art. 5 ust. 2 zd. 2 UDIP obejmuje wyłącznie informacje mające związek z pełnieniem funkcji publicznej. Dane spoza tego związku (np. PESEL, stan zdrowia, adres prywatny, sytuacja rodzinna) nadal podlegają ochronie i anonimizacji.",
+      "podstawa_prawna": "Art. 5 ust. 2 zd. 2 UDIP",
+      "werdykt": {
+        "czy_mozna": "TAK_W_ZAKRESIE_FUNKCJI",
+        "typ": "MOZNA_Z_ANONIMIZACJA",
+        "uwagi": "Udostępnić dane związane z funkcją; zanonimizować dane czysto prywatne (PESEL, adres zamieszkania, nr konta, stan zdrowia)."
+      }
+    },
+    {
+      "id": "INF_09",
+      "informacja": "Informacja przetworzona (wymagająca stworzenia jakościowo nowego zbioru, analizy, zestawienia z dużym nakładem pracy)",
+      "zalozenia": "Wymagane jest wykazanie, że uzyskanie informacji przetworzonej jest szczególnie istotne dla interesu publicznego. Organ wzywa wnioskodawcę do wykazania tej przesłanki.",
+      "podstawa_prawna": "Art. 3 ust. 1 pkt 1, art. 16 ust. 1 UDIP; § 11 ust. 7 Zarządzenia Nr 535/2024",
+      "werdykt": {
+        "czy_mozna": "WARUNKOWO",
+        "typ": "MOZNA_WARUNKOWO",
+        "uwagi": "Wykazano szczególnie istotny interes publiczny -> MOŻNA UDOSTĘPNIĆ. Nie wykazano -> NIE MOŻNA (decyzja odmowna z art. 16 UDIP)."
+      }
+    },
+    {
+      "id": "INF_10",
+      "informacja": "Informacja niebędąca informacją publiczną (sprawy prywatne, opinie/wykładnia prawa na żądanie, dokumenty wewnętrzne robocze)",
+      "zalozenia": "Przedmiot wniosku nie dotyczy spraw publicznych w rozumieniu art. 1 ust. 1 UDIP.",
+      "podstawa_prawna": "Art. 1 ust. 1 UDIP; BIP_UMB_Info",
+      "werdykt": {
+        "czy_mozna": "NIE",
+        "typ": "NIE_MOZNA_PISMO_INFORMACYJNE",
+        "uwagi": "Odpowiedź zwykłym pismem informacyjnym (bez decyzji KPA)."
+      }
+    },
+    {
+      "id": "INF_11",
+      "informacja": "Informacja nieistniejąca lub nieznajdująca się w posiadaniu organu",
+      "zalozenia": "Podmiot obowiązany nie posiada żądanej informacji w dacie rozpatrywania wniosku.",
+      "podstawa_prawna": "Art. 4 ust. 3 UDIP; § 11 ust. 3 Zarządzenia Nr 535/2024; BIP_UMB_Info",
+      "werdykt": {
+        "czy_mozna": "NIE",
+        "typ": "NIE_MOZNA_PISMO_INFORMACYJNE",
+        "uwagi": "Odpowiedź zwykłym pismem o nieposiadaniu informacji (ze wskazaniem właściwej jednostki, jeśli jest znana)."
+      }
+    },
+    {
+      "id": "INF_12",
+      "informacja": "Informacja dostępna w odrębnym trybie ustawowym (np. wgląd w akta strony na podstawie art. 73 KPA, rejestry publiczne o własnych zasadach udostępniania)",
+      "zalozenia": "Istnieją przepisy szczególne określające odmienne zasady i tryb dostępu do tej informacji.",
+      "podstawa_prawna": "Art. 1 ust. 2 UDIP; art. 73 KPA; BIP_UMB_Info",
+      "werdykt": {
+        "czy_mozna": "NIE_W_TRYBIE_UDIP",
+        "typ": "NIE_MOZNA_PISMO_INFORMACYJNE",
+        "uwagi": "Poinformować zwykłym pismem o istnieniu i wskazaniu odrębnego trybu ustawowego."
+      }
+    },
+    {
+      "id": "INF_13",
+      "informacja": "Informacja już opublikowana w BIP, portalu danych lub Centralnym Rejestrze Umów",
+      "zalozenia": "Informacja jest aktualnie i kompletnie dostępna w jednym z wymienionych publikatorów.",
+      "podstawa_prawna": "Art. 10 ust. 1 UDIP; § 8 ust. 1 Zarządzenia Nr 535/2024",
+      "werdykt": {
+        "czy_mozna": "NIE_NA_WNIOSEK_ODESLANIE",
+        "typ": "NIE_MOZNA_PISMO_INFORMACYJNE",
+        "uwagi": "Wskazać wnioskodawcy dokładny adres strony BIP / portalu danych / CRU."
+      }
+    },
+    {
+      "id": "INF_14",
+      "informacja": "Informacja o organizacji i pracy organów prowadzących postępowania (czas, tryb, miejsce, kolejność rozpatrywania spraw)",
+      "zalozenia": "Ograniczenia z art. 5 ust. 3 UDIP nigdy nie wyłączają jawności danych organizacyjnych pracy organu.",
+      "podstawa_prawna": "Art. 5 ust. 4, art. 6 ust. 1 pkt 3 lit. e UDIP",
+      "werdykt": {
+        "czy_mozna": "TAK",
+        "typ": "MOZNA_UDOSTEPNIC",
+        "uwagi": "Udostępnić bez ujawniania danych chronionych stron prywatnych."
+      }
+    }
+  ],
+  "katalog_danych_podlegajacych_anonimizacji": {
+    "zasada_ogolna": "Dane wymienione w poniższym katalogu podlegają ochronie prawnej i co do zasady NIE mogą zostać udostępnione w trybie UDIP. Właściwy Wydział ma obowiązek dokonać ich trwałej anonimizacji przed udostępnieniem dokumentu (§ 11 ust. 8 Zarządzenia Nr 535/2024). Jeżeli wniosek dotyczy wyłącznie tych danych lub ich anonimizacja uniemożliwia zachowanie sensu dokumentu, należy wydać decyzję administracyjną o odmowie udostępnienia informacji publicznej (art. 16 ust. 1 w zw. z art. 5 UDIP; § 11 ust. 9 Zarządzenia Nr 535/2024).",
+    "wyjatki_ustawowe_art_5_ust_2": [
+      "Informacje o osobach pełniących funkcje publiczne, mające bezpośredni związek z pełnieniem tych funkcji, w tym o warunkach powierzenia i wykonywania funkcji (art. 5 ust. 2 zd. 2 UDIP).",
+      "Rezygnacja osoby fizycznej z przysługującego jej prawa do prywatności (art. 5 ust. 2 zd. 2 UDIP).",
+      "Rezygnacja przedsiębiorcy z przysługującego mu prawa do tajemnicy przedsiębiorcy (art. 5 ust. 2 zd. 2 UDIP)."
+    ],
+    "pozycje": [
+      {
+        "id": "ANON_01",
+        "kategoria": "dane_identyfikacyjne_osoby_fizycznej",
+        "informacja": "Imię i nazwisko osoby fizycznej (niepełniącej funkcji publicznej)",
+        "zalozenia": "Chronione prawem do prywatności osoby fizycznej. Wyjątek: osoba rezygnuje z prawa do prywatności albo w toku analizy okazuje się osobą pełniącą funkcję publiczną w zakresie związanym z tą funkcją.",
+        "podstawa_prawna": "Art. 5 ust. 2 UDIP; § 11 ust. 8-9 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE_BEZ_ANONIMIZACJI",
+          "akcja": "ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zanonimizować przed udostępnieniem dokumentu; przy wniosku wyłącznie o tożsamość – decyzja odmowna (art. 16 UDIP)."
+        }
+      },
+      {
+        "id": "ANON_02",
+        "kategoria": "dane_identyfikacyjne_osoby_fizycznej",
+        "informacja": "Numer PESEL",
+        "zalozenia": "Dane ściśle prywatne umożliwiające jednoznaczną identyfikację oraz ustalenie daty urodzenia i płci; nie ma związku z pełnieniem funkcji publicznej (podlega anonimizacji nawet u osób pełniących funkcje publiczne).",
+        "podstawa_prawna": "Art. 5 ust. 2 UDIP; § 11 ust. 8 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE",
+          "akcja": "BEZWZGLEDNA_ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zawsze zanonimizować (chyba że osoba fizyczna wyraźnie zrezygnowała z prawa do prywatności)."
+        }
+      },
+      {
+        "id": "ANON_03",
+        "kategoria": "dane_identyfikacyjne_osoby_fizycznej",
+        "informacja": "Numer i seria dowodu osobistego lub innego dokumentu tożsamości",
+        "zalozenia": "Dane identyfikacyjne należące do sfery prywatności, obarczone wysokim ryzykiem nadużyć (kradzież tożsamości); brak związku z pełnieniem funkcji publicznej.",
+        "podstawa_prawna": "Art. 5 ust. 2 UDIP; § 11 ust. 8 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE",
+          "akcja": "BEZWZGLEDNA_ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zawsze usunąć z udostępnianych kopii dokumentów."
+        }
+      },
+      {
+        "id": "ANON_04",
+        "kategoria": "dane_identyfikacyjne_osoby_fizycznej",
+        "informacja": "Numer NIP osoby fizycznej nieprowadzącej działalności gospodarczej",
+        "zalozenia": "Identyfikator podatkowy osoby prywatnej objęty prywatnością osoby fizycznej oraz tajemnicą skarbową.",
+        "podstawa_prawna": "Art. 5 ust. 1 i 2 UDIP; § 11 ust. 8 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE",
+          "akcja": "ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zanonimizować przed udostępnieniem dokumentu."
+        }
+      },
+      {
+        "id": "ANON_05",
+        "kategoria": "dane_identyfikacyjne_osoby_fizycznej",
+        "informacja": "Data i miejsce urodzenia",
+        "zalozenia": "Element sfery prywatności osoby fizycznej; co do zasady niezwiązany z pełnieniem funkcji publicznej.",
+        "podstawa_prawna": "Art. 5 ust. 2 UDIP; § 11 ust. 8 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE_BEZ_ANONIMIZACJI",
+          "akcja": "ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zanonimizować (chyba że odrębny przepis nakazuje jawność lub osoba zrezygnowała z prawa do prywatności)."
+        }
+      },
+      {
+        "id": "ANON_06",
+        "kategoria": "dane_kontaktowe_i_lokalizacyjne",
+        "informacja": "Adres zamieszkania, zameldowania lub korespondencyjny osoby fizycznej",
+        "zalozenia": "Prywatny adres podlega ochronie niezależnie od tego, czy osoba pełni funkcję publiczną (chyba że jest to jawny adres prowadzenia działalności gospodarczej lub osoba zrezygnowała z prywatności).",
+        "podstawa_prawna": "Art. 5 ust. 2 UDIP; § 11 ust. 8 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE",
+          "akcja": "ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zanonimizować wszystkie prywatne adresy w pismach, umowach i decyzjach."
+        }
+      },
+      {
+        "id": "ANON_07",
+        "kategoria": "dane_kontaktowe_i_lokalizacyjne",
+        "informacja": "Prywatny numer telefonu",
+        "zalozenia": "Należy do sfery prywatności osoby fizycznej (w przeciwieństwie do służbowego numeru telefonu urzędnika).",
+        "podstawa_prawna": "Art. 5 ust. 2 UDIP; § 11 ust. 8 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE",
+          "akcja": "ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zanonimizować prywatny numer telefonu przed udostępnieniem."
+        }
+      },
+      {
+        "id": "ANON_08",
+        "kategoria": "dane_kontaktowe_i_lokalizacyjne",
+        "informacja": "Prywatny adres poczty elektronicznej (e-mail)",
+        "zalozenia": "Chroniony prawem do prywatności (w odróżnieniu od służbowych adresów e-mail w domenie urzędu).",
+        "podstawa_prawna": "Art. 5 ust. 2 UDIP; § 11 ust. 8 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE",
+          "akcja": "ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zanonimizować prywatny adres e-mail przed udostępnieniem."
+        }
+      },
+      {
+        "id": "ANON_09",
+        "kategoria": "dane_finansowe_i_majatkowe",
+        "informacja": "Numer rachunku bankowego osoby fizycznej",
+        "zalozenia": "Prywatne dane finansowe osoby fizycznej; nie dotyczy służbowych rachunków urzędu/podmiotu publicznego.",
+        "podstawa_prawna": "Art. 5 ust. 2 UDIP; § 11 ust. 8 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE",
+          "akcja": "ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zanonimizować na umowach, fakturach i potwierdzeniach przelewów."
+        }
+      },
+      {
+        "id": "ANON_10",
+        "kategoria": "dane_biometryczne_i_wizerunkowe",
+        "informacja": "Własnoręczny podpis (parafka) osoby niepełniącej funkcji publicznej",
+        "zalozenia": "Element identyfikujący osobę prywatną oraz jej charakter pisma (sfera prywatności).",
+        "podstawa_prawna": "Art. 5 ust. 2 UDIP; § 11 ust. 8 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE_BEZ_ANONIMIZACJI",
+          "akcja": "ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zanonimizować podpis i parafkę osoby niepełniącej funkcji publicznej na skanach/kopiach."
+        }
+      },
+      {
+        "id": "ANON_11",
+        "kategoria": "dane_biometryczne_i_wizerunkowe",
+        "informacja": "Wizerunek osoby fizycznej niepełniącej funkcji publicznej",
+        "zalozenia": "Chroniony prawem do prywatności (chyba że osoba wyraziła zgodę / zrezygnowała z prywatności).",
+        "podstawa_prawna": "Art. 5 ust. 2 UDIP; § 11 ust. 8 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE_BEZ_ANONIMIZACJI",
+          "akcja": "ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zanonimizować (np. zamazać twarz/cechy rozpoznawcze) przed udostępnieniem zdjęć lub nagrań."
+        }
+      },
+      {
+        "id": "ANON_12",
+        "kategoria": "dane_rodzinne_i_osobiste",
+        "informacja": "Stan cywilny i sytuacja rodzinna (np. liczba dzieci, imiona rodziców)",
+        "zalozenia": "Ścisła sfera prywatności osoby fizycznej (także wobec osób pełniących funkcje publiczne).",
+        "podstawa_prawna": "Art. 5 ust. 2 UDIP; § 11 ust. 8 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE",
+          "akcja": "ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zanonimizować dane o stanie cywilnym i rodzinie."
+        }
+      },
+      {
+        "id": "ANON_13",
+        "kategoria": "dane_wrazliwe_szczegolnej_kategorii",
+        "informacja": "Dane dotyczące stanu zdrowia, niepełnosprawności lub nałogów",
+        "zalozenia": "Dane szczególnie wrażliwe objęte bezwzględną ochroną prywatności (i często tajemnicą lekarską).",
+        "podstawa_prawna": "Art. 5 ust. 1 i 2 UDIP; § 11 ust. 8-9 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE",
+          "akcja": "BEZWZGLEDNA_ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Usunąć z dokumentu; w przypadku wniosku o takie dane – decyzja odmowna."
+        }
+      },
+      {
+        "id": "ANON_14",
+        "kategoria": "dane_finansowe_i_majatkowe",
+        "informacja": "Dane o sytuacji majątkowej, dochodach i zadłużeniu osoby fizycznej",
+        "zalozenia": "Objęte prawem do prywatności, z wyjątkiem jawnych z mocy ustawy oświadczeń majątkowych oraz wynagrodzeń osób pełniących funkcje publiczne finansowanych ze środków publicznych (art. 5 ust. 2 zd. 2 UDIP).",
+        "podstawa_prawna": "Art. 5 ust. 2 UDIP; § 11 ust. 8-9 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE_Z_WYJATKIEM_FUNKCJI_PUBLICZNYCH",
+          "akcja": "ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Dla osób prywatnych (oraz prywatnych długów/alimentów/potrąceń) – zanonimizować lub odmówić decyzją."
+        }
+      },
+      {
+        "id": "ANON_15",
+        "kategoria": "dane_spoleczne_i_wrazliwe",
+        "informacja": "Informacje o korzystaniu ze świadczeń pomocy społecznej",
+        "zalozenia": "Indywidualne dane beneficjentów pomocy społecznej objęte ścisłą prywatnością (jawne mogą być wyłącznie zagregowane dane statystyczne bez możliwości identyfikacji osób).",
+        "podstawa_prawna": "Art. 5 ust. 2 UDIP; § 11 ust. 8-9 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE",
+          "akcja": "ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zanonimizować dane pozwalające zidentyfikować beneficjenta albo wydać decyzję odmowną."
+        }
+      },
+      {
+        "id": "ANON_16",
+        "kategoria": "dane_wrazliwe_szczegolnej_kategorii",
+        "informacja": "Dane dotyczące poglądów politycznych, przekonań religijnych lub światopoglądowych",
+        "zalozenia": "Sfera szczególnej ochrony prywatności osoby fizycznej.",
+        "podstawa_prawna": "Art. 5 ust. 2 UDIP; § 11 ust. 8-9 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE",
+          "akcja": "BEZWZGLEDNA_ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zanonimizować lub odmówić w drodze decyzji administracyjnej."
+        }
+      },
+      {
+        "id": "ANON_17",
+        "kategoria": "dane_wrazliwe_szczegolnej_kategorii",
+        "informacja": "Informacje o przynależności związkowej lub partyjnej",
+        "zalozenia": "Dane wrażliwe dotyczące prywatności osoby fizycznej (z wyłączeniem jawnych funkcji w organach partii/związków objętych art. 4 ust. 2 UDIP lub dobrowolnego upublicznienia).",
+        "podstawa_prawna": "Art. 5 ust. 2 UDIP; § 11 ust. 8-9 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE_BEZ_ANONIMIZACJI",
+          "akcja": "ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zanonimizować dane o przynależności związkowej/partyjnej osób fizycznych (np. listy członków, potrącenia składek)."
+        }
+      },
+      {
+        "id": "ANON_18",
+        "kategoria": "dane_wrazliwe_szczegolnej_kategorii",
+        "informacja": "Dane o pochodzeniu rasowym lub etnicznym",
+        "zalozenia": "Dane szczególnej kategorii podlegające bezwzględnej ochronie prywatności.",
+        "podstawa_prawna": "Art. 5 ust. 2 UDIP; § 11 ust. 8-9 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE",
+          "akcja": "BEZWZGLEDNA_ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zanonimizować w całości lub wydać decyzję odmowną."
+        }
+      },
+      {
+        "id": "ANON_19",
+        "kategoria": "dane_wrazliwe_szczegolnej_kategorii",
+        "informacja": "Dane o orientacji seksualnej",
+        "zalozenia": "Dane szczególnej kategorii podlegające bezwzględnej ochronie prywatności.",
+        "podstawa_prawna": "Art. 5 ust. 2 UDIP; § 11 ust. 8-9 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE",
+          "akcja": "BEZWZGLEDNA_ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zanonimizować w całości lub wydać decyzję odmowną."
+        }
+      },
+      {
+        "id": "ANON_20",
+        "kategoria": "dane_o_naruszeniach_prawa",
+        "informacja": "Informacje o karalności, wyrokach skazujących i naruszeniach prawa",
+        "zalozenia": "Objęte ochroną prywatności osoby fizycznej (z zastrzeżeniem art. 5 ust. 3 UDIP, jeśli postępowanie dotyczy władz publicznych lub osób pełniących funkcje publiczne w zakresie tych funkcji).",
+        "podstawa_prawna": "Art. 5 ust. 1, 2 i 3 UDIP; § 11 ust. 8-9 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE_BEZ_ANONIMIZACJI",
+          "akcja": "ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zanonimizować dane osobowe osób prywatnych w orzeczeniach/informacjach o naruszeniach; dla wniosku o dane indywidualne – decyzja odmowna."
+        }
+      },
+      {
+        "id": "ANON_21",
+        "kategoria": "identyfikatory_majatkowe_posrednie",
+        "informacja": "Numer księgi wieczystej (jeśli pozwala na bezpośrednią identyfikację konkretnej osoby fizycznej)",
+        "zalozenia": "Publiczny dostęp do EKW umożliwia łatwe ustalenie tożsamości prywatnego właściciela na podstawie numeru KW – narusza to prywatność osoby fizycznej (nie dotyczy nieruchomości należących wyłącznie do podmiotów publicznych).",
+        "podstawa_prawna": "Art. 5 ust. 2 UDIP; § 11 ust. 8 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "WARUNKOWO_ANONIMIZACJA_DLA_OSOB_FIZYCZNYCH",
+          "akcja": "ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zanonimizować numer KW, jeżeli w dziale II widnieje osoba fizyczna niepełniąca funkcji publicznej (chyba że zrezygnowała z prywatności)."
+        }
+      },
+      {
+        "id": "ANON_22",
+        "kategoria": "identyfikatory_majatkowe_posrednie",
+        "informacja": "Numer działki ewidencyjnej (w sytuacjach, gdy umożliwia łatwe ustalenie tożsamości prywatnego właściciela)",
+        "zalozenia": "Jeżeli numer działki w powiązaniu z innymi danymi lub rejestrami pozwala łatwo zidentyfikować prywatnego właściciela i narusza jego prywatność, podlega anonimizacji (nie dotyczy nieruchomości publicznych).",
+        "podstawa_prawna": "Art. 5 ust. 2 UDIP; § 11 ust. 8 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "WARUNKOWO_ANONIMIZACJA_GDY_IDENTYFIKUJE",
+          "akcja": "ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Ocenić ryzyko pośredniej identyfikacji osoby fizycznej; w razie wystąpienia – zanonimizować."
+        }
+      },
+      {
+        "id": "ANON_23",
+        "kategoria": "identyfikatory_majatkowe_posrednie",
+        "informacja": "Numer rejestracyjny pojazdu prywatnego",
+        "zalozenia": "Dane pozwalające na identyfikację prywatnego właściciela/użytkownika pojazdu (sfera prywatności; nie dotyczy pojazdów służbowych organów publicznych).",
+        "podstawa_prawna": "Art. 5 ust. 2 UDIP; § 11 ust. 8 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE",
+          "akcja": "ANONIMIZACJA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zanonimizować numery rejestracyjne pojazdów prywatnych w dokumentacji i na zdjęciach/nagraniach."
+        }
+      },
+      {
+        "id": "ANON_24",
+        "kategoria": "tajemnice_przedsiebiorcy_i_ustawowe",
+        "informacja": "Tajemnica przedsiębiorstwa (dane techniczne, technologiczne, organizacyjne lub handlowe firmy)",
+        "zalozenia": "Chroniona na mocy art. 5 ust. 2 UDIP, jeżeli przedsiębiorca podjął działania w celu zachowania poufności, informacje mają wartość gospodarczą i nie są powszechnie znane. Wyjątek: przedsiębiorca rezygnuje z przysługującego mu prawa.",
+        "podstawa_prawna": "Art. 5 ust. 2, art. 16 ust. 1 i ust. 2 pkt 2 UDIP; § 11 ust. 8-9 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE_BEZ_ZGODY_PRZEDSIEBIORCY",
+          "akcja": "ANONIMIZACJA_CZESCIOWA_LUB_DECYZJA_ODMOWNA",
+          "szczegoly": "Zanonimizować zastrzeżone fragmenty lub wydać decyzję odmowną ze wskazaniem w uzasadnieniu oznaczenia przedsiębiorcy, ze względu na którego dobro odmówiono (art. 16 ust. 2 pkt 2 UDIP)."
+        }
+      },
+      {
+        "id": "ANON_25",
+        "kategoria": "tajemnice_przedsiebiorcy_i_ustawowe",
+        "informacja": "Tajemnica skarbowa (indywidualne dane podatników)",
+        "zalozenia": "Tajemnica ustawowo chroniona wyłączająca jawność w trybie art. 5 ust. 1 UDIP.",
+        "podstawa_prawna": "Art. 5 ust. 1, art. 16 ust. 1 UDIP; § 11 ust. 8-9 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE",
+          "akcja": "DECYZJA_ODMOWNA_LUB_ANONIMIZACJA",
+          "szczegoly": "Odmowa w drodze decyzji administracyjnej (art. 16 UDIP) lub trwała anonimizacja danych indywidualnych podatnika."
+        }
+      },
+      {
+        "id": "ANON_26",
+        "kategoria": "tajemnice_przedsiebiorcy_i_ustawowe",
+        "informacja": "Tajemnica bankowa i ubezpieczeniowa",
+        "zalozenia": "Tajemnica ustawowo chroniona podlegająca ograniczeniu na podstawie art. 5 ust. 1 UDIP.",
+        "podstawa_prawna": "Art. 5 ust. 1, art. 16 ust. 1 UDIP; § 11 ust. 8-9 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE",
+          "akcja": "DECYZJA_ODMOWNA_LUB_ANONIMIZACJA",
+          "szczegoly": "Zanonimizować dane objęte tajemnicą bankową/ubezpieczeniową albo wydać decyzję odmowną."
+        }
+      },
+      {
+        "id": "ANON_27",
+        "kategoria": "tajemnice_przedsiebiorcy_i_ustawowe",
+        "informacja": "Dane objęte tajemnicą ustawowo chronioną (np. tajemnica zawodowa, lekarska, adwokacka)",
+        "zalozenia": "Wszystkie tajemnice prawnie chronione ustawami szczególnymi ograniczają prawo do informacji publicznej na mocy art. 5 ust. 1 UDIP (w KPA również art. 83 § 2 i art. 96j – tajemnica mediacji).",
+        "podstawa_prawna": "Art. 5 ust. 1, art. 16 ust. 1 UDIP; art. 96j KPA; § 11 ust. 8-9 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE",
+          "akcja": "DECYZJA_ODMOWNA_LUB_ANONIMIZACJA",
+          "szczegoly": "Wydać decyzję odmowną na podstawie art. 16 w zw. z art. 5 ust. 1 UDIP albo usunąć fragment objęty tajemnicą."
+        }
+      },
+      {
+        "id": "ANON_28",
+        "kategoria": "informacje_niejawne",
+        "informacja": "Informacje niejawne (klauzule poufności: zastrzeżone, poufne, tajne, ściśle tajne)",
+        "zalozenia": "Ograniczenie w zakresie i na zasadach przepisów o ochronie informacji niejawnych (art. 5 ust. 1 UDIP; w KPA także wyłączenie wglądu do akt tajnych i ściśle tajnych – art. 74 § 1 KPA).",
+        "podstawa_prawna": "Art. 5 ust. 1, art. 16 ust. 1 UDIP; art. 74 § 1 KPA; § 11 ust. 9 Zarządzenia Nr 535/2024",
+        "werdykt": {
+          "czy_mozna": "NIE",
+          "akcja": "BEZWZGLEDNA_DECYZJA_ODMOWNA_LUB_WYLACZENIE_CZESCI_NIEJAWNEJ",
+          "szczegoly": "Odmowa udostępnienia w drodze decyzji administracyjnej (art. 16 UDIP); wyłączenie jawności z zachowaniem procedur ochrony informacji niejawnych."
+        }
+      }
+    ]
+  },
+  "procedura_wewnetrzna_urzedu_miasta_bydgoszczy": {
+    "podstawa": "Zarządzenie Nr 535/2024 Prezydenta Miasta Bydgoszczy oraz BIP_UMB_Info",
+    "kanaly_skladania_wnioskow": {
+      "poczta_tradycyjna": "Urząd Miasta Bydgoszczy, ul. Jezuicka 1, 85-102 Bydgoszcz",
+      "osobiscie": "Sekretariat Urzędu Miasta Bydgoszczy",
+      "fax": "(52) 58 58 623",
+      "e_doreczenia": "AE:PL-91453-53730-WDRHC-24",
+      "email": "urzad@um.bydgoszcz.pl"
+    },
+    "role_i_odpowiedzialnosc": {
+      "AIP": "Administrator Informacji Publicznej – rejestruje wpływające wnioski, przekazuje zakres do właściwych Wydziałów, wyznacza termin projektu odpowiedzi, koordynuje i przygotowuje odpowiedzi/decyzje, gromadzi kopie odpowiedzi, decyzji, odwołań i skarg (§ 1 pkt 6, § 9, § 10, § 12 ust. 2).",
+      "Wydzialy": "Przygotowują projekt odpowiedzi (wysyłany na bip@um.bydgoszcz.pl), dokonują koniecznej anonimizacji (§ 11 ust. 8), przygotowują uzasadnienie dla informacji przetworzonej (§ 11 ust. 7), przygotowują projekt decyzji odmownej dla informacji chronionej (§ 11 ust. 9), informują AIP o braku informacji lub przeszkodach technicznych/terminowych (§ 11 ust. 2, 3, 5), organizują wgląd w akta w siedzibie (§ 11 ust. 6).",
+      "Organy_wydajace_decyzje": "Prezydent Miasta Bydgoszczy lub upoważnieni: Zastępcy Prezydenta Miasta, Sekretarz, Skarbnik oraz pracownik Biura Komunikacji Społecznej Urzędu Miasta Bydgoszczy (§ 12 ust. 1).",
+      "Redakcja_BIP": "Redaktor Główny BIP (Biuro Komunikacji Społecznej) + Zespół Redakcyjny BIP + Zespół Redaktorów Wydziałowych (wyznaczanych przez Dyrektorów Wydziałów) – odpowiadają za publikację i aktualizację informacji w www.bip.um.bydgoszcz.pl zgodnie z UDIP, UDCsi i Polityką Bezpieczeństwa Informacji (§ 2-6)."
+    },
+    "organy_odwolawcze_i_sadowe": {
+      "organ_odwolawczy": "Samorządowe Kolegium Odwoławcze w Bydgoszczy",
+      "sad_administracyjny": "Wojewódzki Sąd Administracyjny w Bydgoszczy"
+    },
+    "klauzula_rodo": {
+      "administrator": "Gmina Miasto Bydgoszcz, ul. Jezuicka 1, 85-102 Bydgoszcz",
+      "iod_kontakt": "iod@um.bydgoszcz.pl lub pisemnie: Urząd Miasta Bydgoszczy, Inspektor Ochrony Danych, ul. Wojska Polskiego 65, 85-825 Bydgoszcz",
+      "cel_i_podstawa": "Wypełnienie obowiązku prawnego ciążącego na administratorze – Ustawa z dnia 6 września 2001 r. o dostępie do informacji publicznej; przy wydawaniu decyzji podanie danych jest obowiązkowe na podstawie KPA.",
+      "odbiorcy": "Podmioty uprawnione na podstawie prawa oraz podmioty zewnętrzne na podstawie umów powierzenia (w szczególności firmy IT).",
+      "okres_przechowywania": "Zgodnie z ustawą o narodowym zasobie archiwalnym i archiwach oraz aktami wykonawczymi.",
+      "prawa_wnioskodawcy": [
+        "Dostęp do danych osobowych",
+        "Poprawianie danych osobowych",
+        "Żądanie ograniczenia przetwarzania wyłącznie do przechowywania (przy zakwestionowaniu prawidłowości/podstawy lub w celu ustalenia/dochodzenia/obrony roszczeń)",
+        "Skarga do Prezesa Urzędu Ochrony Danych Osobowych"
+      ],
+      "profilowanie": false
+    }
+  },
+  "przepisy_kpa_stosowane_w_postepowaniu_dip": {
+    "zakres_stosowania": "Na mocy art. 16 ust. 2 UDIP przepisy KPA stosuje się do decyzji o odmowie udostępnienia informacji publicznej oraz decyzji o umorzeniu postępowania z art. 14 ust. 2 UDIP (oraz odpowiednio u podmiotów z art. 17 UDIP), z modyfikacjami wynikającymi z UDIP.",
+    "kluczowe_instytucje_kpa": [
+      {
+        "instytucja": "Zasady ogólne",
+        "artykuly": "Art. 6-16 KPA",
+        "zastosowanie": "Praworządność (art. 6), prawda obiektywna (art. 7), rozstrzyganie wątpliwości prawnych i faktycznych na korzyść strony (art. 7a, 81a), pogłębianie zaufania (art. 8), informowanie stron (art. 9), czynny udział strony (art. 10), przekonywanie (art. 11), szybkość (art. 12), pisemność/elektroniczność (art. 14), dwuinstancyjność (art. 15), trwałość decyzji ostatecznych (art. 16)."
+      },
+      {
+        "instytucja": "Wyłączenie pracownika i organu",
+        "artykuly": "Art. 24-27 KPA",
+        "zastosowanie": "Obowiązek wyłączenia pracownika (np. w sprawie własnej, małżonka, krewnych do II stopnia, udziału w wydaniu zaskarżonej decyzji) oraz wyznaczenia innego pracownika/organu."
+      },
+      {
+        "instytucja": "Strona i pełnomocnictwo",
+        "artykuly": "Art. 28-34 KPA",
+        "zastosowanie": "Zdolność prawna/do czynności prawnych, działanie przez pełnomocnika (pełnomocnictwo na piśmie lub do protokołu, uwierzytelnianie przez adwokata/radcę prawnego)."
+      },
+      {
+        "instytucja": "Doręczenia",
+        "artykuly": "Art. 39-49b KPA",
+        "zastosowanie": "Priorytet adresu do doręczeń elektronicznych (art. 39 § 1), usługa hybrydowa (art. 39 § 2), przesyłka rejestrowana (art. 39 § 3), awizowanie 14-dniowe (art. 44), skutek odmowy przyjęcia (art. 47)."
+      },
+      {
+        "instytucja": "Terminy i ich przywracanie",
+        "artykuly": "Art. 57-60 KPA",
+        "zastosowanie": "Zasady liczenia terminów w dniach/miesiącach, przeniesienie końca terminu z soboty/święta na dzień roboczy (art. 57 § 4), przywrócenie terminu na prośbę złożoną w ciągu 7 dni od ustania przyczyny bez winy strony (art. 58)."
+      },
+      {
+        "instytucja": "Braki formalne podania",
+        "artykuly": "Art. 63-64 KPA",
+        "zastosowanie": "Na etapie decyzyjnym (gdy ma być wydana decyzja odmowna lub umorzeniowa) – wezwanie do usunięcia braków w terminie min. 7 dni pod rygorem pozostawienia podania bez rozpoznania (art. 64 § 2)."
+      },
+      {
+        "instytucja": "Postępowanie dowodowe i akta",
+        "artykuly": "Art. 66a-88a KPA",
+        "zastosowanie": "Metryka sprawy, protokoły, adnotacje, prawo wglądu strony w akta (art. 73-74, z wyłączeniem informacji tajnych i ściśle tajnych), zebranie materiału dowodowego (art. 77), wypowiedzenie się co do dowodów przed decyzją (art. 10, 79a, 81)."
+      },
+      {
+        "instytucja": "Decyzja administracyjna i jej rektyfikacja",
+        "artykuly": "Art. 104-113 KPA",
+        "zastosowanie": "Elementy decyzji (art. 107 § 1 i 3 + art. 16 ust. 2 pkt 2 UDIP), związanie decyzją od doręczenia (art. 110), uzupełnienie decyzji w 14 dni (art. 111), sprostowanie błędów pisarskich i wyjaśnienie wątpliwości (art. 113)."
+      },
+      {
+        "instytucja": "Odwołania i zażalenia",
+        "artykuly": "Art. 127-144 KPA",
+        "zastosowanie": "Odwołanie w 14 dni za pośrednictwem organu I instancji (art. 129), zrzeczenie się odwołania (art. 127a), autokontrola organu w 7 dni (art. 132-133), rozstrzygnięcia organu odwoławczego (art. 138), zakaz reformationis in peius (art. 139), zażalenia w 7 dni (art. 141). Modyfikacja UDIP: termin rozpatrzenia odwołania to 14 dni (art. 16 ust. 2 pkt 1 UDIP)."
+      },
+      {
+        "instytucja": "Tryby nadzwyczajne",
+        "artykuly": "Art. 145-163 KPA",
+        "zastosowanie": "Wznowienie postępowania (art. 145-152), uchylenie lub zmiana decyzji ostatecznej (art. 154-155), stwierdzenie nieważności decyzji (art. 156-159 – m.in. brak podstawy prawnej, rażące naruszenie prawa, naruszenie właściwości), wygaśnięcie decyzji (art. 162)."
+      },
+      {
+        "instytucja": "Upoważnienia pracowników",
+        "artykuly": "Art. 268a KPA",
+        "zastosowanie": "Pisemne (papierowe lub elektroniczne) upoważnienie pracowników do załatwiania spraw i wydawania decyzji w imieniu organu."
+      }
+    ]
+  }
+}
