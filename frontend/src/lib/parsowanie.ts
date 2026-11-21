@@ -1,18 +1,83 @@
 // Odczyt tekstu z pliku PDF w przeglądarce – nic nie opuszcza komputera urzędnika.
+// PDF z warstwą tekstową czytamy bezpośrednio (pdf.js); skan rozpoznajemy przez OCR (tesseract.js).
+import type { PDFDocumentProxy } from 'pdfjs-dist';
 import { dzisIso } from './daty';
+import type { Postep } from './ocr';
 
-export async function odczytajPdf(plik: File): Promise<string> {
+/** Ile stron skanu rozpoznawać – wnioski mają zwykle 1–2 strony, a OCR trwa kilka sekund na stronę. */
+export const MAKS_STRON_OCR = 5;
+/** Rozdzielczość renderowania skanu: 1 jednostka PDF = 1/72 cala, skala 3 ≈ 216 DPI. */
+const SKALA_OCR = 3;
+/** Poniżej tylu znaków uznajemy, że PDF nie ma prawdziwej warstwy tekstowej. */
+const MIN_ZNAKOW_TEKSTU = 30;
+
+export interface WynikOdczytu {
+  tekst: string;
+  zrodlo: 'tekst' | 'ocr';
+  /** średnia pewność OCR 0–100 (tylko dla skanów) */
+  pewnosc?: number;
+  /** ile stron pominięto przy OCR (limit MAKS_STRON_OCR) */
+  pominieteStrony?: number;
+}
+
+export async function odczytajPdf(plik: File, postep?: Postep): Promise<WynikOdczytu> {
   if (!plik.name.toLowerCase().endsWith('.pdf')) throw new Error('Wgraj plik w formacie PDF.');
   const pdfjs = await import('pdfjs-dist');
   const worker = await import('pdfjs-dist/build/pdf.worker.min.mjs?url');
   pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
-  return tekstZPdf(pdfjs, new Uint8Array(await plik.arrayBuffer()));
+  const pdf = await pdfjs.getDocument({ data: new Uint8Array(await plik.arrayBuffer()) }).promise;
+
+  const tekst = await tekstZDokumentu(pdf);
+  if (czyMaTekst(tekst)) return { tekst, zrodlo: 'tekst' };
+
+  postep?.('Plik to skan – przygotowuję strony do rozpoznania');
+  const liczba = Math.min(pdf.numPages, MAKS_STRON_OCR);
+  const strony: HTMLCanvasElement[] = [];
+  for (let i = 1; i <= liczba; i++) strony.push(await renderujStrone(pdf, i));
+  const { rozpoznaj } = await import('./ocr');
+  const ocr = await rozpoznaj(strony, postep);
+  return {
+    tekst: normalizuj(ocr.tekst),
+    zrodlo: 'ocr',
+    pewnosc: ocr.pewnosc,
+    pominieteStrony: pdf.numPages - liczba,
+  };
+}
+
+/**
+ * Poniżej tej średniej pewności OCR wynik to zwykle szum (pismo odręczne, zły skan) –
+ * nie wypełniamy wtedy formularza automatycznie. Przykład z repo: wniosek odręczny ~25%, wydruk ~88%.
+ */
+export const MIN_PEWNOSC_OCR = 60;
+
+export function czyOdczytWiarygodny(w: WynikOdczytu): boolean {
+  return w.zrodlo === 'tekst' || (w.pewnosc ?? 0) >= MIN_PEWNOSC_OCR;
+}
+
+export function czyMaTekst(tekst: string): boolean {
+  return tekst.replace(/\s/g, '').length >= MIN_ZNAKOW_TEKSTU;
+}
+
+async function renderujStrone(pdf: PDFDocumentProxy, nr: number): Promise<HTMLCanvasElement> {
+  const strona = await pdf.getPage(nr);
+  const viewport = strona.getViewport({ scale: SKALA_OCR });
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.ceil(viewport.width);
+  canvas.height = Math.ceil(viewport.height);
+  const ctx = canvas.getContext('2d')!;
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  await strona.render({ canvas, canvasContext: ctx, viewport }).promise;
+  return canvas;
 }
 
 type PdfJs = typeof import('pdfjs-dist');
 
 export async function tekstZPdf(pdfjs: Pick<PdfJs, 'getDocument'>, dane: Uint8Array): Promise<string> {
-  const pdf = await pdfjs.getDocument({ data: dane }).promise;
+  return tekstZDokumentu(await pdfjs.getDocument({ data: dane }).promise);
+}
+
+async function tekstZDokumentu(pdf: PDFDocumentProxy): Promise<string> {
   const strony: string[] = [];
   for (let i = 1; i <= pdf.numPages; i++) {
     const tresc = await (await pdf.getPage(i)).getTextContent();
@@ -29,11 +94,10 @@ export async function tekstZPdf(pdfjs: Pick<PdfJs, 'getDocument'>, dane: Uint8Ar
     if (linia) linie.push(linia);
     strony.push(linie.join('\n'));
   }
-  // Pusty wynik oznacza skan bez warstwy tekstowej – dane wpisuje wtedy urzędnik.
   return normalizuj(strony.join('\n\n'));
 }
 
-function normalizuj(t: string): string {
+export function normalizuj(t: string): string {
   return t.replace(/\r/g, '').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 

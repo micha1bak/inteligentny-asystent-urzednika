@@ -1,35 +1,35 @@
 import { useRef, useState } from 'react';
-import { odczytajPdf } from '../lib/parsowanie';
+import { odczytajPdf, type WynikOdczytu } from '../lib/parsowanie';
 
 interface Props {
   napis: string;
-  onWczytano: (tekst: string, plik: File) => void;
+  onWczytano: (wynik: WynikOdczytu, plik: File) => void;
 }
 
 export default function StrefaPliku({ napis, onWczytano }: Props) {
   const wejscie = useRef<HTMLInputElement>(null);
   const [aktywna, setAktywna] = useState(false);
   const [blad, setBlad] = useState('');
-  const [trwa, setTrwa] = useState(false);
+  const [postep, setPostep] = useState<{ opis: string; ulamek?: number } | null>(null);
 
   async function obsluz(plik: File | undefined) {
-    if (!plik) return;
+    if (!plik || postep) return;
     setBlad('');
-    setTrwa(true);
+    setPostep({ opis: 'Odczytuję plik' });
     try {
-      onWczytano(await odczytajPdf(plik), plik);
+      onWczytano(await odczytajPdf(plik, (opis, ulamek) => setPostep({ opis, ulamek })), plik);
     } catch (e) {
       setBlad(`${plik.name}: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
-      setTrwa(false);
+      setPostep(null);
     }
   }
 
   return (
     <>
       <div
-        className={`strefa-upuszczania ${aktywna ? 'aktywna' : ''}`}
-        onClick={() => wejscie.current?.click()}
+        className={`strefa-upuszczania ${aktywna ? 'aktywna' : ''} ${postep ? 'zajeta' : ''}`}
+        onClick={() => !postep && wejscie.current?.click()}
         onDragOver={(e) => {
           e.preventDefault();
           setAktywna(true);
@@ -41,8 +41,20 @@ export default function StrefaPliku({ napis, onWczytano }: Props) {
           void obsluz(e.dataTransfer.files[0]);
         }}
       >
-        <strong>{trwa ? 'Odczytuję plik…' : napis}</strong>
-        <div className="maly">Plik PDF · przeciągnij tutaj albo kliknij · plik jest czytany lokalnie</div>
+        {postep ? (
+          <>
+            <strong>{postep.opis}…</strong>
+            <div className="postep" role="progressbar" aria-valuenow={Math.round((postep.ulamek ?? 0) * 100)}>
+              <div style={{ width: `${Math.round((postep.ulamek ?? 0) * 100)}%` }} />
+            </div>
+            <div className="maly">Rozpoznawanie odbywa się na tym komputerze – skan nie jest nigdzie wysyłany.</div>
+          </>
+        ) : (
+          <>
+            <strong>{napis}</strong>
+            <div className="maly">Plik PDF (także skan) · przeciągnij tutaj albo kliknij · plik jest czytany lokalnie</div>
+          </>
+        )}
         <input
           ref={wejscie}
           type="file"

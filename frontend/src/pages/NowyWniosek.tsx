@@ -4,7 +4,7 @@ import { useMagazyn } from '../magazyn';
 import StrefaPliku from '../components/StrefaPliku';
 import { dzisIso, formatuj } from '../lib/daty';
 import { terminOdpowiedzi } from '../lib/terminy';
-import { wyciagnijMetadane } from '../lib/parsowanie';
+import { czyOdczytWiarygodny, MAKS_STRON_OCR, wyciagnijMetadane, type WynikOdczytu } from '../lib/parsowanie';
 
 function zapamietaneInicjaly(): string {
   try {
@@ -20,6 +20,7 @@ export default function NowyWniosek() {
   const dzis = dzisIso();
   const [nazwaPliku, setNazwaPliku] = useState<string>();
   const [tresc, setTresc] = useState('');
+  const [odczyt, setOdczyt] = useState<WynikOdczytu>();
   const [dane, setDane] = useState({
     numer: nastepnyNumer(dzis.slice(0, 4)),
     dataWplywu: dzis,
@@ -35,10 +36,12 @@ export default function NowyWniosek() {
       return nowe;
     });
 
-  function wczytano(tekst: string, plik: File) {
+  function wczytano(wynik: WynikOdczytu, plik: File) {
+    const { tekst } = wynik;
     setNazwaPliku(plik.name);
+    setOdczyt(wynik);
     setTresc(tekst);
-    if (!tekst) {
+    if (!tekst || !czyOdczytWiarygodny(wynik)) {
       setDane((d) => ({ ...d, wnioskodawca: '', kontakt: '', temat: '' }));
       return;
     }
@@ -77,10 +80,25 @@ export default function NowyWniosek() {
           </div>
           <div className="karta">
             <h2>Dane wniosku do zatwierdzenia</h2>
-            {nazwaPliku && tresc && <div className="info" style={{ marginBottom: 12 }}>Pola uzupełnione automatycznie – sprawdź je przed zatwierdzeniem.</div>}
+            {odczyt?.zrodlo === 'tekst' && tresc && (
+              <div className="info" style={{ marginBottom: 12 }}>Pola uzupełnione automatycznie – sprawdź je przed zatwierdzeniem.</div>
+            )}
+            {odczyt?.zrodlo === 'ocr' && tresc && !czyOdczytWiarygodny(odczyt) && (
+              <div className="uwaga" style={{ marginBottom: 12 }}>
+                Plik to skan, ale tekstu nie udało się wiarygodnie rozpoznać (pewność OCR {odczyt.pewnosc}%) – najczęściej to pismo
+                odręczne albo słaba jakość skanu. Pola nie zostały wypełnione – wpisz dane wniosku ręcznie.
+              </div>
+            )}
+            {odczyt?.zrodlo === 'ocr' && tresc && czyOdczytWiarygodny(odczyt) && (
+              <div className={odczyt.pewnosc !== undefined && odczyt.pewnosc < 75 ? 'uwaga' : 'info'} style={{ marginBottom: 12 }}>
+                Plik to skan – tekst rozpoznano automatycznie (OCR, pewność {odczyt.pewnosc}%). Pola uzupełnione na tej podstawie;
+                sprawdź je dokładnie, zwłaszcza nazwiska i numery.
+                {odczyt.pominieteStrony ? ` Rozpoznano pierwsze ${MAKS_STRON_OCR} stron, pominięto ${odczyt.pominieteStrony}.` : ''}
+              </div>
+            )}
             {nazwaPliku && !tresc && (
               <div className="uwaga" style={{ marginBottom: 12 }}>
-                Plik to skan bez warstwy tekstowej – nie da się odczytać treści. Wpisz dane wniosku ręcznie.
+                Nie udało się odczytać tekstu z pliku (także przez OCR). Wpisz dane wniosku ręcznie.
               </div>
             )}
             <div className="formularz">
@@ -122,7 +140,7 @@ export default function NowyWniosek() {
           {tresc ? (
             <div className="pole-tekstu" style={{ maxHeight: 560 }}>{tresc}</div>
           ) : (
-            <p className="maly">{nazwaPliku ? 'Brak tekstu w pliku (skan).' : 'Treść pojawi się po wgraniu pliku.'}</p>
+            <p className="maly">{nazwaPliku ? 'Nie udało się odczytać tekstu z pliku.' : 'Treść pojawi się po wgraniu pliku.'}</p>
           )}
         </div>
       </div>

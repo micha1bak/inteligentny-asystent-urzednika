@@ -6,7 +6,7 @@ Działa bez backendu – dane trzyma w `localStorage` przeglądarki, PDF czyta l
 ```powershell
 npm install
 npm run dev      # http://localhost:5173
-npm test         # terminy + odczyt przykładowych wniosków PDF z repo
+npm test         # terminy, odczyt PDF i OCR skanów z repo (~1 min)
 npm run build
 ```
 
@@ -24,5 +24,15 @@ przesunięcie z soboty i dni ustawowo wolnych na najbliższy dzień roboczy (art
 - automatyczne wypełnienie tematu, wnioskodawcy i e-maila; kolejny numer BKS.IV.1431.N.rok; podgląd terminu,
 - urzędnik sprawdza i zatwierdza – wniosek trafia do kalendarza ze statusem „Brak działań”.
 
-**Ograniczenie:** skany PDF bez warstwy tekstowej (2 z 3 przykładowych wniosków PDF w repo) nie są odczytywane –
-aplikacja to sygnalizuje, a dane wpisuje się ręcznie. Do rozwiązania przez OCR (np. tesseract.js lokalnie albo w backendzie).
+## OCR skanów (`src/lib/ocr.ts`)
+Gdy PDF nie ma warstwy tekstowej (skan), strony (maks. 5) są renderowane w ~216 DPI i rozpoznawane przez
+**tesseract.js** z polskim modelem (`pol`, wariant `best_int`, silnik LSTM). Wszystko działa w przeglądarce i **offline**:
+worker, rdzeń WebAssembly i model są kopiowane z `node_modules` do `public/ocr/` skryptem `scripts/kopiuj-ocr.mjs`
+(uruchamia się sam przy `npm install`, `npm run dev` i `npm run build`; katalog jest w `.gitignore`, ok. 23 MB).
+
+- czas: ok. 5–7 s na stronę (pierwsze uruchomienie dodatkowo ładuje model),
+- pewność OCR jest pokazywana urzędnikowi; poniżej 60% (pismo odręczne, zły skan) pola **nie** są wypełniane automatycznie,
+- przykłady z repo: wydruk BKS.IV.1431.543 – pewność 88%, temat odczytany poprawnie; odręczny BKS.IV.1431.16 – 25%, odrzucony
+  (Tesseract nie rozpoznaje pisma odręcznego).
+
+Test `src/lib/ocr.test.ts` uruchamia OCR na skanach z repo (ok. 45 s).

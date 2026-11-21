@@ -135,6 +135,9 @@ tr.p-jutro td:first-child { box-shadow: inset 4px 0 #e0b400; }
 .blad { background: var(--czerwony-tlo); border: 1px solid #f5b5ae; color: var(--czerwony); border-radius: 6px; padding: 8px 12px; font-size: 0.85rem; }
 
 .strefa-upuszczania { border: 2px dashed #b7c0cc; border-radius: var(--promien); padding: 28px; text-align: center; background: #fafbfc; cursor: pointer; }
+.strefa-upuszczania.zajeta { cursor: progress; }
+.postep { height: 8px; background: var(--linia); border-radius: 4px; overflow: hidden; max-width: 360px; margin: 10px auto 6px; }
+.postep > div { height: 100%; background: var(--akcent); transition: width 0.2s; }
 .strefa-upuszczania.aktywna { border-color: var(--akcent); background: var(--akcent-tlo); }
 
 @media (max-width: 1000px) {
