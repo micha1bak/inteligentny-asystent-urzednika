@@ -2,8 +2,8 @@
 
 Wsparcie obsługi wniosków o dostęp do informacji publicznej w Urzędzie Miasta Bydgoszczy (Hacknation).
 
-- `frontend/` – React: kalendarz wniosków z oznaczeniem pilnych, dodawanie wniosku z PDF (z OCR skanów), propozycja odpowiedzi AI. Szczegóły w [frontend/README.md](frontend/README.md).
-- `src/inteligentny_asystent_urzednika/` – backend FastAPI: propozycja odpowiedzi przez Groq.
+- `frontend/` – React: kalendarz wniosków z oznaczeniem pilnych, dodawanie wniosku z PDF/DOCX/skanu, propozycja odpowiedzi AI. Szczegóły w [frontend/README.md](frontend/README.md).
+- `src/inteligentny_asystent_urzednika/` – backend FastAPI: odczyt plików wniosków (`konwersja/`) i propozycja odpowiedzi przez Groq.
 - `ocena_prawna_wniosku_dip_kompletny.json` – model oceny prawnej (UDIP, KPA, Zarządzenie 535/2024, katalog anonimizacji).
 - `werdykty_wniosek_odpowiedz_dip.json` – archiwum spraw z odpowiedziami i werdyktami.
 - `wzory_pism.json` – wzory pism Biura Komunikacji Społecznej (nagłówek, podpis, zasady stylu i 8 wzorów: udostępnienie
@@ -29,7 +29,13 @@ Wsparcie obsługi wniosków o dostęp do informacji publicznej w Urzędzie Miast
 | Metoda | Ścieżka | Opis |
 |---|---|---|
 | GET | `/api/zdrowie` | stan backendu: czy jest klucz, model, liczba spraw i werdyktów |
+| POST | `/api/konwersja` | plik wniosku (multipart, pole `plik`: PDF, DOCX, PNG/JPG/TIFF, maks. 20 MB) → `{tekst, zrodlo, odreczny, strony_odreczne, stron, strony_z_modelu, komunikat}` |
 | POST | `/api/propozycja-odpowiedzi` | `{tresc, temat?, numer?, data_wplywu?, wnioskodawca?}` → propozycja |
+
+`/api/konwersja` używa modułu `konwersja/ocr_llm.py` (ten sam co w CLI `python -m inteligentny_asystent_urzednika.konwersja.ocr_llm`):
+DOCX jest czytany lokalnie bez modelu; każda strona PDF/obrazu jest najpierw klasyfikowana przez model wizyjny Groq
+(pismo odręczne → tekst nie jest odczytywany, urzędnik ocenia dokument sam), a strony bez warstwy tekstowej (skany druku)
+są przepisywane przez model. Plik jest zapisywany tylko w katalogu tymczasowym na czas konwersji.
 
 Do modelu trafia instrukcja systemowa, wiedza z `ocena_prawna_wniosku_dip_kompletny.json` i `werdykty_wniosek_odpowiedz_dip.json`
 oraz treść wniosku (oznaczona jako dane, nie polecenia). Tryb wiedzy (`KONTEKST_PRAWNY`):

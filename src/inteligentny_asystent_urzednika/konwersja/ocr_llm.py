@@ -169,26 +169,56 @@ def _zapisz(cel: Path, tekst: str) -> Path:
     return cel
 
 
-def przetworz(plik: Path, cel: Path | None = None) -> Wynik:
-    """Przetwarza jeden plik. TXT trafia do `cel` (domyślnie KATALOG_TXT/<nazwa>.txt)."""
+@dataclass
+class Konwersja:
+    """Wynik konwersji w pamięci (bez zapisu pliku) – używany przez API backendu."""
+
+    tekst: str
+    odreczny: bool
+    strony_odreczne: list[int]
+    stron: int
+    # numery stron bez warstwy tekstowej, przepisane przez model (skany druku)
+    strony_z_modelu: list[int]
+
+    @property
+    def komunikat(self) -> str | None:
+        if not self.odreczny:
+            return None
+        return f"{KOMUNIKAT_ODRECZNE} (strony: {', '.join(map(str, self.strony_odreczne))})"
+
+
+def sprawdz_format(plik: Path) -> None:
     if plik.suffix.lower() not in ROZSZERZENIA:
-        raise ValueError(f"Nieobsługiwany format: {plik.suffix} (obsługiwane: {', '.join(sorted(ROZSZERZENIA))})")
-    cel = cel or KATALOG_TXT / f"{plik.stem}.txt"
+        raise ValueError(f"Nieobsługiwany format: {plik.suffix or 'brak rozszerzenia'} (obsługiwane: {', '.join(sorted(ROZSZERZENIA))})")
+
+
+def konwertuj(plik: Path) -> Konwersja:
+    """Konwertuje jeden plik na tekst. Dokument z pismem odręcznym zwraca pusty tekst i `odreczny=True`."""
+    sprawdz_format(plik)
     if plik.suffix.lower() == ".docx":
-        return Wynik(plik, False, [], _zapisz(cel, tekst_docx(plik)))
+        return Konwersja(tekst_docx(plik).strip(), False, [], 1, [])
 
     strony = _strony(plik)
     odreczne = [i for i, (obraz, _) in enumerate(strony, 1) if czy_odreczne(obraz)]
     if odreczne:
-        return Wynik(plik, True, odreczne)
+        return Konwersja("", True, odreczne, len(strony), [])
 
-    teksty = []
-    for obraz, warstwa in strony:
+    teksty, z_modelu = [], []
+    for i, (obraz, warstwa) in enumerate(strony, 1):
         if len(re.sub(r"\s", "", warstwa)) >= MIN_ZNAKOW_WARSTWY:
             teksty.append(warstwa.strip())
         else:
             teksty.append(_zapytaj(obraz, PROMPT_ODCZYT))
-    return Wynik(plik, False, [], _zapisz(cel, "\n\n".join(teksty)))
+            z_modelu.append(i)
+    return Konwersja("\n\n".join(teksty).strip(), False, [], len(strony), z_modelu)
+
+
+def przetworz(plik: Path, cel: Path | None = None) -> Wynik:
+    """Przetwarza jeden plik. TXT trafia do `cel` (domyślnie KATALOG_TXT/<nazwa>.txt)."""
+    k = konwertuj(plik)
+    if k.odreczny:
+        return Wynik(plik, True, k.strony_odreczne)
+    return Wynik(plik, False, [], _zapisz(cel or KATALOG_TXT / f"{plik.stem}.txt", k.tekst))
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -2,13 +2,33 @@
 
 from __future__ import annotations
 
-from fastapi import Depends, FastAPI, HTTPException
+import tempfile
+from pathlib import Path
+
+from fastapi import Depends, FastAPI, HTTPException, UploadFile
+from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 from .config import Ustawienia, wczytaj_ustawienia
 from .groq_klient import BladLLM, KlientGroq, KlientLLM
+from .konwersja import ocr_llm
 from .propozycja import ZAPAS_TOKENOW, Propozycja, Wniosek, zaproponuj_odpowiedz
 from .wiedza import Wiedza, wczytaj_wiedze
+
+
+MAKS_ROZMIAR_PLIKU = 20 * 1024 * 1024  # 20 MB
+
+
+class WynikKonwersji(BaseModel):
+    tekst: str
+    # "tekst" – cały tekst z warstwy tekstowej / DOCX; "model" – co najmniej jedna strona przepisana przez model
+    zrodlo: str
+    odreczny: bool
+    strony_odreczne: list[int]
+    stron: int
+    strony_z_modelu: list[int]
+    komunikat: str | None = None
 
 
 def pobierz_ustawienia() -> Ustawienia:
@@ -58,6 +78,42 @@ def utworz_aplikacje() -> FastAPI:
             return await zaproponuj_odpowiedz(wniosek, wiedza, klient, u.groq_model, u.kontekst_prawny, budzet)
         except BladLLM as e:
             raise HTTPException(e.status, e.komunikat) from e
+
+    @app.post("/api/konwersja", response_model=WynikKonwersji)
+    async def konwersja(plik: UploadFile, u: Ustawienia = Depends(pobierz_ustawienia)) -> WynikKonwersji:
+        """Odczyt wniosku (PDF/DOCX/obraz) modułem `konwersja`: filtr pisma odręcznego + tekst.
+
+        Plik trafia do katalogu tymczasowego i jest usuwany po konwersji – nic nie zostaje na dysku.
+        """
+        nazwa = Path(plik.filename or "").name
+        try:
+            ocr_llm.sprawdz_format(Path(nazwa))
+        except ValueError as e:
+            raise HTTPException(415, str(e)) from e
+        dane = await plik.read(MAKS_ROZMIAR_PLIKU + 1)
+        if len(dane) > MAKS_ROZMIAR_PLIKU:
+            raise HTTPException(413, "Plik jest za duży (maks. 20 MB).")
+        if Path(nazwa).suffix.lower() != ".docx" and not u.groq_api_key:
+            raise HTTPException(503, "Brak klucza GROQ_API_KEY w pliku .env – odczyt PDF i skanów wymaga modelu.")
+
+        with tempfile.TemporaryDirectory() as katalog:
+            sciezka = Path(katalog) / f"wniosek{Path(nazwa).suffix.lower()}"
+            sciezka.write_bytes(dane)
+            try:
+                k = await run_in_threadpool(ocr_llm.konwertuj, sciezka)
+            except RuntimeError as e:
+                raise HTTPException(502, f"Błąd odczytu przez model: {e}") from e
+            except Exception as e:
+                raise HTTPException(422, f"Nie udało się odczytać pliku: {e}") from e
+        return WynikKonwersji(
+            tekst=k.tekst,
+            zrodlo="model" if k.strony_z_modelu else "tekst",
+            odreczny=k.odreczny,
+            strony_odreczne=k.strony_odreczne,
+            stron=k.stron,
+            strony_z_modelu=k.strony_z_modelu,
+            komunikat=k.komunikat,
+        )
 
     return app
 

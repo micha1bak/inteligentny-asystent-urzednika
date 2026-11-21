@@ -1,5 +1,6 @@
 import asyncio
 import json
+from dataclasses import replace
 
 import httpx
 import pytest
@@ -231,3 +232,62 @@ def test_ujednolicenie_naglowka_i_podpisu():
 def test_ujednolicenie_dodaje_brakujacy_naglowek():
     wynik = ujednolic_pismo("Bydgoszcz, dnia [[data]] r.\nTreść.", WIEDZA.wzory)
     assert wynik.startswith("URZĄD MIASTA BYDGOSZCZY")
+
+
+# ---------------------------------------------------------------- konwersja plików (/api/konwersja)
+from pathlib import Path
+
+from inteligentny_asystent_urzednika.konwersja import ocr_llm
+
+PRZYKLADY = Path(__file__).resolve().parents[1] / "Przykładowe wnioski i odpowiedzi"
+
+
+def _wyslij(nazwa: str, dane: bytes | None = None):
+    dane = dane if dane is not None else (PRZYKLADY / nazwa).read_bytes()
+    return TestClient(app).post("/api/konwersja", files={"plik": (nazwa, dane)})
+
+
+@pytest.fixture
+def bez_modelu(monkeypatch):
+    """Zastępuje zapytania do modelu: wszystkie strony drukowane, skan „przepisany”."""
+    monkeypatch.setenv("GROQ_API_KEY", "test")
+    monkeypatch.setattr(ocr_llm, "czy_odreczne", lambda obraz: False)
+    monkeypatch.setattr(ocr_llm, "_zapytaj", lambda obraz, prompt, max_tokens=4096: "TEKST ZE SKANU")
+
+
+def test_konwersja_docx_bez_modelu(monkeypatch):
+    monkeypatch.setattr(ocr_llm, "_zapytaj", lambda *a, **k: pytest.fail("DOCX nie może trafiać do modelu"))
+    dane = _wyslij("Wniosek - BKS.IV.1431.15.2026.docx").json()
+    assert dane["zrodlo"] == "tekst" and not dane["odreczny"]
+    assert len(dane["tekst"]) > 50
+
+
+@pytest.mark.parametrize("nazwa", sorted(p.name for p in PRZYKLADY.glob("Wniosek*.pdf")))
+def test_konwersja_pdf(bez_modelu, nazwa):
+    dane = _wyslij(nazwa).json()
+    assert not dane["odreczny"] and dane["stron"] >= 1
+    assert dane["tekst"]
+    if dane["zrodlo"] == "model":
+        assert "TEKST ZE SKANU" in dane["tekst"] and dane["strony_z_modelu"]
+
+
+def test_konwersja_odrzuca_pismo_odreczne(monkeypatch):
+    monkeypatch.setenv("GROQ_API_KEY", "test")
+    monkeypatch.setattr(ocr_llm, "czy_odreczne", lambda obraz: True)
+    dane = _wyslij("Wniosek - BKS.IV.1431.16.2026.pdf").json()
+    assert dane["odreczny"] and dane["tekst"] == "" and dane["strony_odreczne"]
+    assert "odręczne" in dane["komunikat"]
+
+
+def test_konwersja_nieobslugiwany_format():
+    assert _wyslij("wniosek.txt", b"abc").status_code == 415
+
+
+def test_konwersja_pdf_wymaga_klucza():
+    from inteligentny_asystent_urzednika.app import pobierz_ustawienia
+
+    app.dependency_overrides[pobierz_ustawienia] = lambda: replace(U, groq_api_key=None)
+    try:
+        assert _wyslij("Wniosek - BKS.IV.1431.16.2026.pdf").status_code == 503
+    finally:
+        app.dependency_overrides.clear()

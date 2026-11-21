@@ -5,7 +5,7 @@ import StrefaPliku from '../components/StrefaPliku';
 import PropozycjaOdpowiedzi from '../components/PropozycjaOdpowiedzi';
 import { dzisIso, formatuj } from '../lib/daty';
 import { terminOdpowiedzi } from '../lib/terminy';
-import { czyOdczytWiarygodny, MAKS_STRON_OCR, wyciagnijMetadane, type WynikOdczytu } from '../lib/parsowanie';
+import { wyciagnijMetadane, type WynikOdczytu } from '../lib/parsowanie';
 
 function zapamietaneInicjaly(): string {
   try {
@@ -42,7 +42,7 @@ export default function NowyWniosek() {
     setNazwaPliku(plik.name);
     setOdczyt(wynik);
     setTresc(tekst);
-    if (!tekst || !czyOdczytWiarygodny(wynik)) {
+    if (!tekst || wynik.odreczny) {
       setDane((d) => ({ ...d, wnioskodawca: '', kontakt: '', temat: '' }));
       return;
     }
@@ -73,33 +73,32 @@ export default function NowyWniosek() {
   return (
     <>
       <h1>Dodaj wniosek</h1>
-      <p className="podtytul">Wgraj plik PDF z wnioskiem, sprawdź dane wyciągnięte automatycznie i zatwierdź – wniosek trafi do kalendarza.</p>
+      <p className="podtytul">Wgraj plik z wnioskiem (PDF, DOCX lub skan), sprawdź dane wyciągnięte automatycznie i zatwierdź – wniosek trafi do kalendarza.</p>
       <div className="siatka-2">
         <div className="stos">
           <div className="karta">
-            <StrefaPliku napis={nazwaPliku ? `Wczytano: ${nazwaPliku} – kliknij, aby zmienić` : 'Wgraj wniosek (PDF)'} onWczytano={wczytano} />
+            <StrefaPliku napis={nazwaPliku ? `Wczytano: ${nazwaPliku} – kliknij, aby zmienić` : 'Wgraj wniosek (PDF / DOCX)'} onWczytano={wczytano} />
           </div>
           <div className="karta">
             <h2>Dane wniosku do zatwierdzenia</h2>
-            {odczyt?.zrodlo === 'tekst' && tresc && (
+            {odczyt?.odreczny && (
+              <div className="uwaga" style={{ marginBottom: 12 }}>
+                Dokument zawiera pismo odręczne (strony: {odczyt.strony_odreczne.join(', ')}) – tekst nie został odczytany
+                automatycznie. Oceń dokument samodzielnie i wpisz dane wniosku ręcznie.
+              </div>
+            )}
+            {odczyt && !odczyt.odreczny && odczyt.zrodlo === 'tekst' && tresc && (
               <div className="info" style={{ marginBottom: 12 }}>Pola uzupełnione automatycznie – sprawdź je przed zatwierdzeniem.</div>
             )}
-            {odczyt?.zrodlo === 'ocr' && tresc && !czyOdczytWiarygodny(odczyt) && (
+            {odczyt && !odczyt.odreczny && odczyt.zrodlo === 'model' && tresc && (
               <div className="uwaga" style={{ marginBottom: 12 }}>
-                Plik to skan, ale tekstu nie udało się wiarygodnie rozpoznać (pewność OCR {odczyt.pewnosc}%) – najczęściej to pismo
-                odręczne albo słaba jakość skanu. Pola nie zostały wypełnione – wpisz dane wniosku ręcznie.
+                Plik zawiera skan – tekst {odczyt.stron > 1 ? `stron ${odczyt.strony_z_modelu.join(', ')} ` : ''}przepisał model.
+                Pola uzupełnione na tej podstawie; sprawdź je dokładnie, zwłaszcza nazwiska i numery.
               </div>
             )}
-            {odczyt?.zrodlo === 'ocr' && tresc && czyOdczytWiarygodny(odczyt) && (
-              <div className={odczyt.pewnosc !== undefined && odczyt.pewnosc < 75 ? 'uwaga' : 'info'} style={{ marginBottom: 12 }}>
-                Plik to skan – tekst rozpoznano automatycznie (OCR, pewność {odczyt.pewnosc}%). Pola uzupełnione na tej podstawie;
-                sprawdź je dokładnie, zwłaszcza nazwiska i numery.
-                {odczyt.pominieteStrony ? ` Rozpoznano pierwsze ${MAKS_STRON_OCR} stron, pominięto ${odczyt.pominieteStrony}.` : ''}
-              </div>
-            )}
-            {nazwaPliku && !tresc && (
+            {nazwaPliku && !tresc && !odczyt?.odreczny && (
               <div className="uwaga" style={{ marginBottom: 12 }}>
-                Nie udało się odczytać tekstu z pliku (także przez OCR). Wpisz dane wniosku ręcznie.
+                Nie udało się odczytać tekstu z pliku. Wpisz dane wniosku ręcznie.
               </div>
             )}
             <div className="formularz">
@@ -132,7 +131,7 @@ export default function NowyWniosek() {
             </div>
             <div className="rzad" style={{ marginTop: 14 }}>
               <button className="glowny" disabled={!gotowe} onClick={zatwierdz}>Zatwierdź i dodaj do kalendarza</button>
-              {!gotowe && <span className="maly">Wymagane: plik PDF, numer, data wpływu i temat.</span>}
+              {!gotowe && <span className="maly">Wymagane: plik wniosku, numer, data wpływu i temat.</span>}
             </div>
           </div>
         </div>
@@ -142,7 +141,7 @@ export default function NowyWniosek() {
             {tresc ? (
               <div className="pole-tekstu" style={{ maxHeight: 420 }}>{tresc}</div>
             ) : (
-              <p className="maly">{nazwaPliku ? 'Nie udało się odczytać tekstu z pliku.' : 'Treść pojawi się po wgraniu pliku.'}</p>
+              <p className="maly">{!nazwaPliku ? 'Treść pojawi się po wgraniu pliku.' : odczyt?.odreczny ? 'Pismo odręczne – tekst nie jest odczytywany automatycznie.' : 'Nie udało się odczytać tekstu z pliku.'}</p>
             )}
           </div>
           <PropozycjaOdpowiedzi
