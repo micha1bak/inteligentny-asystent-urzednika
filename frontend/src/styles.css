@@ -150,3 +150,6 @@ tr.p-jutro td:first-child { box-shadow: inset 4px 0 #e0b400; }
   .tresc { padding: 16px; }
   .formularz { grid-template-columns: 1fr; }
 }
+.postep-ciagly { max-width: none; margin: 4px 0 12px; }
+.postep-ciagly > div { width: 30%; animation: postep-ciagly 1.4s ease-in-out infinite; }
+@keyframes postep-ciagly { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
