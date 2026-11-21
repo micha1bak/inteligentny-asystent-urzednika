@@ -1,3 +1,5 @@
+import type { StrukturaPisma } from './pismo';
+
 // Klient backendu (FastAPI). W trybie deweloperskim Vite przekierowuje /api na http://127.0.0.1:8000.
 
 const BRAK_BACKENDU = 'Brak połączenia z backendem. Uruchom go poleceniem: uv run inteligentny-asystent-urzednika';
@@ -21,7 +23,10 @@ export interface Propozycja {
   do_weryfikacji: string[];
   wzor: string;
   wzor_nazwa: string;
+  pola_wzoru: Record<string, string | string[]>;
   projekt_odpowiedzi: string;
+  /** struktura pisma do podglądu w układzie strony A4 (null, gdy backend jej nie zwrócił) */
+  pismo: StrukturaPisma | null;
   model: string;
   ostrzezenia: string[];
 }

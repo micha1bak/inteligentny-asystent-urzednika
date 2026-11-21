@@ -1,5 +1,6 @@
 import asyncio
 import json
+import re
 from dataclasses import replace
 
 import httpx
@@ -9,7 +10,8 @@ from fastapi.testclient import TestClient
 from inteligentny_asystent_urzednika.app import app, pobierz_klienta
 from inteligentny_asystent_urzednika.config import wczytaj_ustawienia
 from inteligentny_asystent_urzednika.groq_klient import BladLLM, KlientGroq
-from inteligentny_asystent_urzednika.propozycja import ZAPAS_TOKENOW, Wniosek, szacuj_tokeny, ujednolic_pismo, zbuduj_wiadomosci, zweryfikuj
+from inteligentny_asystent_urzednika.wzor.pismo import POLA_KODU, DanePisma, numer_sprawy, zloz_pismo
+from inteligentny_asystent_urzednika.propozycja import ZAPAS_TOKENOW, Wniosek, szacuj_tokeny, zbuduj_wiadomosci, zweryfikuj
 from inteligentny_asystent_urzednika.wiedza import wczytaj_wiedze
 
 U = wczytaj_ustawienia()
@@ -32,7 +34,15 @@ ODPOWIEDZ_MODELU = {
     ],
     "dane_do_anonimizacji": ["imię i nazwisko wnioskodawcy", "adres e-mail"],
     "do_weryfikacji": ["liczby z wydziału"],
-    "projekt_odpowiedzi": "Bydgoszcz, [[data]]\n…\nZ poważaniem\n[[podpis]]",
+    "wzor": "udostepnienie_punkt_po_punkcie",
+    "forma": "Pan",
+    "adresat": ["jan@example.com"],
+    "pola": {
+        "zakres_wniosku": "liczby psów i kotów przyjętych przez schronisko w 2026 r. oraz kosztu opieki",
+        "odpowiedzi": ["[[do uzupełnienia: liczba psów i kotów]]", "[[do uzupełnienia: koszt opieki]]"],
+        "wymyslone_pole": "nie powinno trafić do pisma",
+    },
+    "zalaczniki": [],
 }
 
 
@@ -191,24 +201,21 @@ def test_plik_wzorow_jest_kompletny():
     assert werdykty_we_wzorach <= set(WIEDZA.slownik_werdyktow)
     for wz in WIEDZA.wzory["wzory"]:
         assert wz["tresc"] and wz["kiedy"] and wz["nazwa"]
-    assert "Jezuicka 1" in WIEDZA.wzory["naglowek"]
+        # każde «pole» w treści jest zdefiniowane albo uzupełniane przez kod
+        uzyte = set(re.findall(r"«([a-z_]+)»", wz["tresc"]))
+        assert uzyte <= set(wz.get("pola", {})) | POLA_KODU, wz["id"]
+    assert WIEDZA.wzory["naglowek"] == "URZĄD MIASTA BYDGOSZCZY\nBiuro Komunikacji Społecznej"
+    assert "Jezuicka 1" in WIEDZA.wzory["stopka"]
     assert WIEDZA.wzory["podpis"].startswith("Łączę wyrazy szacunku")
 
 
 def test_wzory_dobierane_do_sprawy():
     # sprawa jak 543 (schronisko) -> wzory udostępnienia, najpierw punkt po punkcie / w treści
     schronisko = _wzory_w_kontekscie("Ile psów i kotów przyjęło schronisko w 2026 r. i jaki był koszt opieki nad bezdomnymi zwierzętami?")
-    assert schronisko[0].startswith("udostepnienie")
+    assert schronisko[0].startswith(("udostepnienie", "odpowiedz_po_kwerendzie"))
     # sprawa jak 17 (umowa ze spółką, UMB nie jest dysponentem) -> pismo informacyjne
     umowa = _wzory_w_kontekscie("Proszę o pełną dokumentację realizacji umowy nr 102/TT/2019 ze spółką Jakotako, aneksy i faktury.")
     assert umowa[0] in {"nieposiadanie_wskazanie_dysponenta", "brak_danych"}
-
-
-def test_kontekst_wybrany_z_wzorami_miesci_sie_w_limicie():
-    budzet = 8000 - 2000 - ZAPAS_TOKENOW
-    wiadomosci, ostrzezenia = zbuduj_wiadomosci(WNIOSEK, WIEDZA, "wybrany", budzet)
-    assert szacuj_tokeny(wiadomosci) <= budzet and not ostrzezenia
-    assert "Łączę wyrazy szacunku" in wiadomosci[1]["content"]
 
 
 def test_weryfikacja_wzoru():
@@ -216,22 +223,70 @@ def test_weryfikacja_wzoru():
     assert p.wzor_nazwa == "Udostępnienie informacji w treści pisma"
     p = zweryfikuj(json.dumps({**ODPOWIEDZ_MODELU, "wzor": "wymyslony"}), WIEDZA)
     assert p.wzor == "" and p.wzor_nazwa == ""
+    assert any("nieznany wzór" in o for o in p.ostrzezenia)
+    assert "brak pasującego wzoru" in p.projekt_odpowiedzi
 
 
-def test_ujednolicenie_naglowka_i_podpisu():
-    pismo = (
-        "URZĄD MIASTA BYDGOSZCZY\nBiuro Komunikacji Spoleczne\n85-102 Bydgoszcz\ntel. x\ne-mail: bks@um.bydgoszcz.pl\n"
-        "Bydgoszcz, dnia [[data]] r.\nTreść.\nŁączę wyrazy szacunku,\nBiuro Komunikacji Spojalnej\nUrząd Miasta"
-    )
-    wynik = ujednolic_pismo(pismo, WIEDZA.wzory)
-    assert wynik.startswith(WIEDZA.wzory["naglowek"])
-    assert wynik.endswith(WIEDZA.wzory["podpis"])
-    assert "Spojalnej" not in wynik and "Treść." in wynik
+def test_pismo_skladane_przez_kod_ze_wzoru():
+    p = zweryfikuj(json.dumps(ODPOWIEDZ_MODELU), WIEDZA, "m", WNIOSEK)
+    linie = p.projekt_odpowiedzi.splitlines()
+    assert linie[:2] == ["URZĄD MIASTA BYDGOSZCZY", "Biuro Komunikacji Społecznej"]
+    assert re.fullmatch(r"Bydgoszcz, dnia \d{1,2} [a-zźśęó]+ \d{4} r\.", linie[2])
+    assert linie[3] == "BKS.IV.1431.700.2026" and linie[4] == "jan@example.com"
+    # struktura do podglądu A4
+    assert p.pismo["znak"] == "BKS.IV.1431.700.2026" and p.pismo["adresat"] == ["jan@example.com"]
+    assert [b["typ"] for b in p.pismo["tresc"]] == ["akapit", "ad", "akapit", "ad", "akapit"]
+    assert p.pismo["zakonczenie"] == "Łączę wyrazy szacunku," and p.pismo["podpis"][0] == "Biuro Komunikacji Społecznej"
+    # stałe sformułowania wzoru + pola modelu + komórka z oceny
+    assert linie[5].startswith("W odpowiedzi na wystosowany przez Pana wniosek o udostępnienie informacji publicznej w zakresie liczby psów")
+    assert "tj. Wydział Zieleni i Gospodarki Komunalnej Urzędu Miasta Bydgoszczy informuję, co następuje." in linie[5]
+    assert linie[6:10] == ["Ad 1", "[[do uzupełnienia: liczba psów i kotów]]", "Ad 2", "[[do uzupełnienia: koszt opieki]]"]
+    assert "wymyslone_pole" not in p.pola_wzoru and "nie powinno" not in p.projekt_odpowiedzi
+    assert p.projekt_odpowiedzi.endswith(WIEDZA.wzory["podpis"] + "\n\n" + WIEDZA.wzory["stopka"])
 
 
-def test_ujednolicenie_dodaje_brakujacy_naglowek():
-    wynik = ujednolic_pismo("Bydgoszcz, dnia [[data]] r.\nTreść.", WIEDZA.wzory)
-    assert wynik.startswith("URZĄD MIASTA BYDGOSZCZY")
+def test_brakujace_pole_oznaczone_do_uzupelnienia():
+    odp = {**ODPOWIEDZ_MODELU, "wzor": "udostepnienie_w_tresci", "forma": "Pani", "pola": {"zakres_wniosku": "liczby mieszkańców"}}
+    p = zweryfikuj(json.dumps(odp), WIEDZA, "m", WNIOSEK)
+    assert "Szanowna Pani,\nw odpowiedzi na wystosowany przez Panią wniosek" in p.projekt_odpowiedzi
+    assert "informuję, że [[do uzupełnienia: udostępniana informacja]]." in p.projekt_odpowiedzi
+    assert any(w.startswith("Uzupełnij w piśmie: udostępniana informacja") for w in p.do_weryfikacji)
+
+
+def test_pismo_opcjonalne_linie_zalaczniki_i_kropki():
+    wzor = WIEDZA.wzor("wezwanie_do_doprecyzowania")
+    dane = DanePisma(pola={"zakres_wniosku": "budynku", "niejasnosc": "dokumentacji", "co_wskazac": "o jakie akta chodzi."},
+                     forma="Pan", znak_sprawy="BKS.IV.1431.509.2026", komorka_merytoryczna="Wydział Administracji Budowlanej")
+    pismo, braki = zloz_pismo(wzor, WIEDZA.wzory, dane)
+    tekst = pismo.tekst
+    assert pismo.tytul == ["WEZWANIE DO DOPRECYZOWANIA", "ZAKRESU OTRZYMANEGO WNIOSKU"] and pismo.tresc[0].typ == "zwrot"
+    assert not braki and "WEZWANIE DO DOPRECYZOWANIA" in tekst
+    assert "o jakie akta chodzi.\n" in tekst and "chodzi.." not in tekst
+    assert "nowy termin" not in tekst  # opcjonalna linia pominięta bez wartości
+    dane.pola["nowy_termin"] = "18 września br."
+    assert "wskazując dzień 18 września br." in zloz_pismo(wzor, WIEDZA.wzory, dane)[0].tekst
+
+    zal = DanePisma(pola={"zakres_wniosku": "x", "odpowiedzi": ["a"]}, zalaczniki=["Informacja_293", "Uchwała"], forma="Państwo")
+    pismo, _ = zloz_pismo(WIEDZA.wzor("udostepnienie_punkt_po_punkcie"), WIEDZA.wzory, zal)
+    assert "Załączniki:\n1. Informacja_293\n2. Uchwała" in pismo.tekst
+    assert pismo.adresat == []  # brak adresu we wniosku -> brak linii adresata (jak w oryginałach)
+    pismo, _ = zloz_pismo(WIEDZA.wzor("udostepnienie_w_zalaczniku"), WIEDZA.wzory, DanePisma(pola={"zakres_wniosku": "x"}, znak_sprawy="BKS.IV.1431.307.2025"))
+    assert "Załącznik: Informacja_307" in pismo.tekst and "[[Pana / Panią / Państwa]]" in pismo.tekst
+    pismo, _ = zloz_pismo(WIEDZA.wzor("odpowiedz_po_kwerendzie"), WIEDZA.wzory, DanePisma(forma="Pani"))
+    assert pismo.tresc[0].tekst.startswith("w nawiązaniu")  # oryginał 543 nie ma zwrotu
+
+
+def test_numer_sprawy():
+    assert numer_sprawy("BKS.IV.1431.307.2025") == "307" and numer_sprawy("") == ""
+
+
+def test_kontekst_wybrany_z_wzorami_miesci_sie_w_limicie():
+    budzet = 8000 - 2000 - ZAPAS_TOKENOW
+    wiadomosci, ostrzezenia = zbuduj_wiadomosci(WNIOSEK, WIEDZA, "wybrany", budzet)
+    assert szacuj_tokeny(wiadomosci) <= budzet and not ostrzezenia
+    tresc = wiadomosci[1]["content"]
+    assert "zasady_wypelniania" in tresc and "«zakres_wniosku»" in tresc
+    assert "Łączę wyrazy szacunku" not in tresc  # podpis wstawia kod, nie model
 
 
 # ---------------------------------------------------------------- konwersja plików (/api/konwersja)

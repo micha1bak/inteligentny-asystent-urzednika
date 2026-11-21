@@ -16,7 +16,7 @@ JEDNOSTKI_UMB: list[dict] = json.loads(
 )["jednostki"]
 
 # Wzory dobierane, gdy werdykty podobnych spraw nic nie podpowiadają.
-WZORY_DOMYSLNE = ["udostepnienie_w_tresci", "nieposiadanie_wskazanie_dysponenta", "decyzja_odmowna_szkielet"]
+WZORY_DOMYSLNE = ["udostepnienie_w_tresci", "nieposiadanie_wskazanie_dysponenta", "brak_danych"]
 
 
 @dataclass(frozen=True)
@@ -145,13 +145,24 @@ class Wiedza:
         return [w for i in wybrane[:limit] if (w := self.wzor(i))]
 
     def _wzory_do_kontekstu(self, wzory: list[dict]) -> dict:
-        # uwagi tylko przy najlepiej dopasowanym wzorze – oszczędność tokenów
+        # Modelowi wystarczą: id, kiedy, treść (żeby fragmenty pasowały do zdania) i opis pól.
+        # Nagłówek, podpis i stopkę wstawia kod (wzor/pismo.py). Uwagi tylko przy najlepiej dopasowanym wzorze.
         return {
-            "naglowek": self.wzory["naglowek"],
-            "podpis": self.wzory["podpis"],
-            "zasady_stylu": self.wzory["zasady_stylu"],
+            "zasady_wypelniania": self.wzory["zasady_wypelniania"],
             "wzory": [
-                {k: w[k] for k in ("id", "kiedy", "tresc", *(("uwagi",) if i == 0 else ())) if k in w}
+                {
+                    "id": w["id"],
+                    "kiedy": w["kiedy"],
+                    "tresc": w["tresc"],
+                    "pola": {
+                        k: (f"[{p['typ']}] " if p.get("typ", "tekst") != "tekst" else "")
+                        + ("(opcjonalne) " if p.get("opcjonalne") else "")
+                        + p["opis"]
+                        for k, p in w.get("pola", {}).items()
+                    },
+                    **({"zalaczniki": True} if w.get("zalaczniki") else {}),
+                    **({"uwagi": w["uwagi"]} if i == 0 and w.get("uwagi") else {}),
+                }
                 for i, w in enumerate(wzory)
             ],
         }
