@@ -10,8 +10,5 @@ wheels/
 # Virtual environments
 .venv
 
-# Sekrety
-.env
-
 # Wyniki konwersji (dane osobowe z wniosków)
 src/inteligentny_asystent_urzednika/konwersja/pliki_txt/
