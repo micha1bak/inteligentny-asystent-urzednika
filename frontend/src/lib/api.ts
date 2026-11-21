@@ -77,3 +77,45 @@ export async function konwertujPlik(plik: File, sygnal?: AbortSignal): Promise<W
   const odp = await wyslij('/api/konwersja', { method: 'POST', body: dane, signal: sygnal });
   return odp.json();
 }
+
+export interface FragmentPrzepisu {
+  etykieta: string;
+  akt: string;
+  plik: string;
+  strona: number | null;
+  tresc: string;
+  pelny_artykul: string | null;
+  dopasowanie: 'dokladne' | 'artykul' | 'tekstowe';
+}
+
+export interface WynikWyszukiwaniaPrzepisow {
+  zapytanie: string;
+  wyniki: FragmentPrzepisu[];
+  dostepne_pliki: string[];
+}
+
+export interface DokumentPrawnyInfo {
+  plik: string;
+  akt: string;
+  nazwa: string;
+  liczba_jednostek: number;
+}
+
+/** Deterministyczne wyszukiwanie przepisu lub frazy w folderze „Dokumenty i podstawy prawne” (bez modelu AI). */
+export async function szukajPrzepisow(
+  q: string,
+  akt?: string,
+  limit = 8,
+  sygnal?: AbortSignal,
+): Promise<WynikWyszukiwaniaPrzepisow> {
+  const params = new URLSearchParams({ q, limit: String(limit) });
+  if (akt) params.set('akt', akt);
+  const odp = await wyslij(`/api/przepisy/szukaj?${params.toString()}`, { method: 'GET', signal: sygnal });
+  return odp.json();
+}
+
+/** Lista plików zaindeksowanych w folderze „Dokumenty i podstawy prawne”. */
+export async function pobierzDokumentyPrawne(sygnal?: AbortSignal): Promise<DokumentPrawnyInfo[]> {
+  const odp = await wyslij('/api/przepisy/dokumenty', { method: 'GET', signal: sygnal });
+  return odp.json();
+}

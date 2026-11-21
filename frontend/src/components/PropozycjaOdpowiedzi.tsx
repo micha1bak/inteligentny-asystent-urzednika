@@ -1,14 +1,17 @@
 import { useRef, useState } from 'react';
 import { pobierzPropozycje, type Propozycja, type ZapytanieOPropozycje } from '../lib/api';
+import PodstawyPrawne from './PodstawyPrawne';
 
 /** Propozycja odpowiedzi z modelu (Groq) na podstawie modelu oceny prawnej i archiwum werdyktów. */
 export default function PropozycjaOdpowiedzi({ wniosek }: { wniosek: ZapytanieOPropozycje }) {
   const [wynik, setWynik] = useState<Propozycja>();
+  const [podstawy, setPodstawy] = useState<string[]>([]);
   const [projekt, setProjekt] = useState('');
   const [blad, setBlad] = useState('');
   const [trwa, setTrwa] = useState(false);
   const [skopiowano, setSkopiowano] = useState(false);
   const przerwij = useRef<AbortController | null>(null);
+  const projektRef = useRef<HTMLTextAreaElement | null>(null);
 
   const mozna = wniosek.tresc.trim().length >= 20;
 
@@ -21,12 +24,35 @@ export default function PropozycjaOdpowiedzi({ wniosek }: { wniosek: ZapytanieOP
     try {
       const p = await pobierzPropozycje(wniosek, ac.signal);
       setWynik(p);
+      setPodstawy(p.podstawy_prawne);
       setProjekt(p.projekt_odpowiedzi);
     } catch (e) {
       if (!(e instanceof DOMException && e.name === 'AbortError')) setBlad(e instanceof Error ? e.message : String(e));
     } finally {
       if (przerwij.current === ac) setTrwa(false);
     }
+  }
+
+  function dodajPodstawe(etykieta: string) {
+    setPodstawy((prev) => (prev.includes(etykieta) ? prev : [...prev, etykieta]));
+  }
+
+  function wstawDoPisma(fragment: string) {
+    const pole = projektRef.current;
+    if (!pole) {
+      setProjekt((prev) => (prev ? `${prev}\n${fragment}` : fragment));
+      return;
+    }
+    const start = pole.selectionStart ?? projekt.length;
+    const koniec = pole.selectionEnd ?? projekt.length;
+    setProjekt((prev) => {
+      const przed = prev.slice(0, start);
+      const po = prev.slice(koniec);
+      const separatorPrzed = przed && !/[\s(„"]$/.test(przed) ? ' ' : '';
+      const separatorPo = po && !/^[\s.,;:!?)"”]/.test(po) ? ' ' : '';
+      return `${przed}${separatorPrzed}${fragment}${separatorPo}${po}`;
+    });
+    pole.focus();
   }
 
   async function kopiuj() {
@@ -55,6 +81,16 @@ export default function PropozycjaOdpowiedzi({ wniosek }: { wniosek: ZapytanieOP
       {trwa && <div className="postep postep-ciagly"><div /></div>}
       {blad && <div className="blad">{blad}</div>}
 
+      {!wynik && !trwa && (
+        <div style={{ marginTop: 10 }}>
+          <PodstawyPrawne
+            podstawy={podstawy}
+            onDodajPodstawe={dodajPodstawe}
+            tytul="Podstawy prawne – szybki podgląd ustaw (bez AI)"
+          />
+        </div>
+      )}
+
       {wynik && !trwa && (
         <div className="stos" style={{ gap: 12 }}>
           {wynik.ostrzezenia.map((o) => <div key={o} className="uwaga">{o}</div>)}
@@ -73,13 +109,23 @@ export default function PropozycjaOdpowiedzi({ wniosek }: { wniosek: ZapytanieOP
               <div style={{ fontSize: '0.92rem' }}>{wynik.komorka_merytoryczna}</div>
             </div>
           )}
-          <Lista tytul="Podstawy prawne" elementy={wynik.podstawy_prawne} />
+          <PodstawyPrawne
+            podstawy={podstawy}
+            onDodajPodstawe={dodajPodstawe}
+            onWstawDoPisma={wstawDoPisma}
+          />
           <Lista tytul="Podobne sprawy z archiwum" elementy={wynik.podobne_sprawy.map((s) => `${s.sygnatura} – ${s.dlaczego}`)} />
           <Lista tytul="Do anonimizacji" elementy={wynik.dane_do_anonimizacji} />
           <Lista tytul="Do sprawdzenia przez urzędnika" elementy={wynik.do_weryfikacji} />
           <label>
             {wynik.wzor_nazwa ? `Projekt pisma – wzór: ${wynik.wzor_nazwa} (możesz edytować)` : 'Projekt pisma (możesz edytować)'}
-            <textarea rows={16} value={projekt} onChange={(e) => setProjekt(e.target.value)} style={{ fontFamily: "'Times New Roman', serif", fontSize: '0.98rem' }} />
+            <textarea
+              ref={projektRef}
+              rows={16}
+              value={projekt}
+              onChange={(e) => setProjekt(e.target.value)}
+              style={{ fontFamily: "'Times New Roman', serif", fontSize: '0.98rem' }}
+            />
           </label>
           <div className="rzad">
             <button className="maly-p" onClick={() => void kopiuj()}>{skopiowano ? 'Skopiowano' : 'Kopiuj projekt'}</button>
