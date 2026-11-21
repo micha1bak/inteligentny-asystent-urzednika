@@ -329,3 +329,16 @@ pre.json, textarea.json { font-family: Consolas, monospace; font-size: 0.8rem; w
 .v-zaplanowana { background: var(--akcent-tlo); color: var(--akcent); }
 .v-archiwalna, .v-wycofana { background: #eef0f3; color: #4a5565; }
 @media (max-width: 700px) { .roznica-kolumny { grid-template-columns: 1fr; } }
+
+/* anonimizacja: propozycje szare, ukryte czarne (na ekranie tekst widoczny po najechaniu; na wydruku tylko czarny prostokąt) */
+.anon { border-radius: 1px; }
+.anon-proponowane { background: #cfd3d9; }
+.anon-ukryte { background: #000; color: #000; }
+.anon-ukryte:hover { color: #9aa3b2; }
+.tryb-anonimizacji .anon { cursor: pointer; outline: 1px dashed transparent; }
+.tryb-anonimizacji .anon:hover { outline-color: var(--akcent); }
+.tryb-anonimizacji .strona-tresc { cursor: text; user-select: text; }
+@media print {
+  .druk-pisma .anon-proponowane { background: none; }
+  .druk-pisma .anon-ukryte, .druk-pisma .anon-ukryte:hover { background: #000; color: #000; }
+}

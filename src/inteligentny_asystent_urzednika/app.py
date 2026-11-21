@@ -26,6 +26,7 @@ from .baza_wnioskow import (
 from .config import Ustawienia, wczytaj_ustawienia
 from .groq_klient import BladLLM, KlientGroq, KlientLLM
 from .konwersja import ocr_llm
+from .wzor import eksport
 from .propozycja import ZAPAS_TOKENOW, Propozycja, Wniosek, szacuj_tokeny, zaproponuj_odpowiedz, zbuduj_wiadomosci
 from .propozycja_archiwum import PropozycjaWpisu, ZapytanieOWpis, zaproponuj_wpis
 from .przepisy import (
@@ -78,6 +79,16 @@ class WynikZatwierdzenia(BaseModel):
     zaktualizowano_werdykty: bool
     werdykt_nowy_wpis: bool = False
     komunikat_werdykty: str | None = None
+
+
+class EksportPisma(BaseModel):
+    pismo: dict
+    nazwa: str = Field(default="odpowiedz", max_length=120)
+
+
+class ZapytanieOAnonimizacje(BaseModel):
+    tekst: str = Field(max_length=200_000)
+    dodatkowe: list[str] = Field(default=[], max_length=200)
 
 
 class WynikKonwersji(BaseModel):
@@ -482,6 +493,40 @@ def utworz_aplikacje() -> FastAPI:
             return await zaproponuj_wpis(zapytanie, wiedza, klient, u.groq_model)
         except BladLLM as e:
             raise HTTPException(e.status, e.komunikat) from e
+
+    # ------------------------------------------------------------ anonimizacja (lokalnie, bez modelu AI)
+    @app.post("/api/anonimizacja/sugestie")
+    def anonimizacja_sugestie(z: ZapytanieOAnonimizacje) -> list[dict]:
+        """Fragmenty proponowane do anonimizacji (dane osobowe) – urzędnik je akceptuje lub odrzuca."""
+        return [f.jako_slownik() for f in anonimizacja.sugestie(z.tekst, z.dodatkowe)]
+
+    # ------------------------------------------------------------ eksport pisma (DOCX / TXT) z anonimizacją
+    def _naglowek_pliku(nazwa: str, rozszerzenie: str) -> str:
+        """Content-Disposition: nazwa ASCII (polskie litery zamienione) + pełna nazwa UTF-8 (RFC 5987)."""
+        from urllib.parse import quote
+
+        polskie = str.maketrans("ąćęłńóśźżĄĆĘŁŃÓŚŹŻ", "acelnoszzACELNOSZZ")
+        ascii_ = "".join(z if (z.isascii() and z.isalnum()) or z in "._-" else "_" for z in nazwa.translate(polskie))
+        ascii_ = ascii_.strip("._") or "odpowiedz"
+        return f'attachment; filename="{ascii_}.{rozszerzenie}"; filename*=UTF-8\'\'{quote(nazwa)}.{rozszerzenie}'
+
+    @app.post("/api/pismo/docx")
+    def pismo_docx(e: EksportPisma) -> Response:
+        """Pismo w formacie DOCX (układ BKS); fragmenty ukryte przez urzędnika są zastąpione znakami █."""
+        return Response(
+            eksport.pismo_do_docx(e.pismo),
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={"Content-Disposition": _naglowek_pliku(e.nazwa, "docx")},
+        )
+
+    @app.post("/api/pismo/txt")
+    def pismo_txt(e: EksportPisma) -> Response:
+        """Pismo jako zwykły tekst (UTF-8), po anonimizacji."""
+        return Response(
+            eksport.pismo_do_tekstu(e.pismo),
+            media_type="text/plain; charset=utf-8",
+            headers={"Content-Disposition": _naglowek_pliku(e.nazwa, "txt")},
+        )
 
     @app.post("/api/konwersja", response_model=WynikKonwersji)
     async def konwersja(plik: UploadFile, u: Ustawienia = Depends(pobierz_ustawienia)) -> WynikKonwersji:

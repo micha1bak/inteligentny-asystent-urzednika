@@ -1,4 +1,5 @@
 import type { Status, Wniosek, ZatwierdzonaOdpowiedz } from '../types';
+import type { Sugestia } from './anonimizacja';
 import type { StrukturaPisma } from './pismo';
 
 // Klient backendu (FastAPI). W trybie deweloperskim Vite przekierowuje /api na http://127.0.0.1:8000.
@@ -512,4 +513,34 @@ export async function zatwierdzOdpowiedzApi(
     werdykt_nowy_wpis: surowe.werdykt_nowy_wpis,
     komunikat_werdykty: surowe.komunikat_werdykty,
   };
+}
+
+// ---------------------------------------------------------------- anonimizacja i eksport pisma
+
+/** Sugestie danych osobowych do ukrycia (lokalnie, bez AI). */
+export async function sugestieAnonimizacji(tekst: string, dodatkowe: string[] = [], sygnal?: AbortSignal): Promise<Sugestia[]> {
+  const odp = await wyslij('/api/anonimizacja/sugestie', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tekst, dodatkowe }),
+    signal: sygnal,
+  });
+  return odp.json();
+}
+
+/** Pobiera pismo jako plik DOCX albo TXT (ukryte fragmenty zastąpione znakami █) i zapisuje je na dysku. */
+export async function pobierzPlikPisma(pismo: StrukturaPisma, format: 'docx' | 'txt', nazwa: string): Promise<void> {
+  const odp = await wyslij(`/api/pismo/${format}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ pismo, nazwa }),
+  });
+  const url = URL.createObjectURL(await odp.blob());
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${nazwa}.${format}`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

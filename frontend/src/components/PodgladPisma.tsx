@@ -1,6 +1,7 @@
-import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import logo from '../assets/logo-bydgoszcz.png';
+import { podzielNaUkrycia, przelaczUkrycie, type Ukrycie } from '../lib/anonimizacja';
 import {
   fragmentyZnacznikow, przeniesZakres, przesunBlok, rozlozNaStrony, usunBlok, wstawBlok, zakresBloku, type Kawalek, type StrukturaPisma,
 } from '../lib/pismo';
@@ -40,12 +41,24 @@ type Przestawianie = {
   liczba: number;
 };
 
+/** Anonimizacja w podglądzie: propozycje (szare) i ukryte (czarne); w trybie anonimizacji kliknięcie przełącza stan. */
+const KontekstUkryc = createContext<{ ukrycia: Ukrycie[]; tryb: boolean; przelacz: (tekst: string) => void }>({
+  ukrycia: [],
+  tryb: false,
+  przelacz: () => {},
+});
+
 /**
  * Podgląd pisma w układzie oryginalnych pism Biura Komunikacji Społecznej:
  * strona A4, logo i nagłówek, ramka, stopka na każdej stronie, automatyczny podział na strony.
  * Tekst można poprawiać bezpośrednio na podglądzie (zmiany trafiają do `onZmiana`).
  */
-export default function PodgladPisma({ pismo, onZmiana }: { pismo: StrukturaPisma; onZmiana: (p: StrukturaPisma) => void }) {
+export default function PodgladPisma({ pismo, onZmiana, trybAnonimizacji = false }: {
+  pismo: StrukturaPisma;
+  onZmiana: (p: StrukturaPisma) => void;
+  /** tryb anonimizacji: tekst nieedytowalny, kliknięcie fragmentu ukrywa go / przywraca jako propozycję */
+  trybAnonimizacji?: boolean;
+}) {
   const pomiar = useRef<HTMLDivElement>(null);
   const miarka = useRef<HTMLDivElement>(null);
   const kontener = useRef<HTMLDivElement>(null);
@@ -116,8 +129,16 @@ export default function PodgladPisma({ pismo, onZmiana }: { pismo: StrukturaPism
   const uklad: Kawalek[][] =
     strony && strony.every((s) => s.every((k) => k.i < elementy.length)) ? strony : [elementy.map((_, i) => ({ i }))];
 
+  const ukrycia = pismo.ukrycia ?? [];
+  const kontekstUkryc = {
+    ukrycia,
+    tryb: trybAnonimizacji,
+    przelacz: (tekst: string) => onZmiana({ ...pismo, ukrycia: przelaczUkrycie(ukrycia, tekst) }),
+  };
+
   return (
-    <div ref={kontener} className="podglad-pisma">
+    <KontekstUkryc.Provider value={kontekstUkryc}>
+    <div ref={kontener} className={`podglad-pisma${trybAnonimizacji ? ' tryb-anonimizacji' : ''}`}>
       {/* transform (nie zoom): skalowanie nie zmienia łamania linii, więc pomiar wysokości zgadza się z widokiem */}
       <div
         className="podglad-skala"
@@ -145,6 +166,7 @@ export default function PodgladPisma({ pismo, onZmiana }: { pismo: StrukturaPism
         <div ref={miarka} className="p-akapit" />
       </div>
     </div>
+    </KontekstUkryc.Provider>
   );
 }
 
@@ -264,13 +286,29 @@ function Tekst({ tekst, onZmiana, edycja, klasa = '', wieleLinii = false, podpow
   wieleLinii?: boolean;
   podpowiedz?: string;
 }) {
+  const { ukrycia, tryb, przelacz } = useContext(KontekstUkryc);
+  const klikalne = edycja && tryb;
   const zawartosc = tekst.split('\n').map((linia, i) => (
     <span key={i}>
       {i > 0 && <br />}
-      {fragmentyZnacznikow(linia).map((f, j) => (f.znacznik ? <mark key={j} className="p-znacznik">{f.tekst}</mark> : f.tekst))}
+      {podzielNaUkrycia(linia, ukrycia).map((o, j) =>
+        o.ukrycie ? (
+          <span
+            key={j}
+            className={`anon anon-${o.ukrycie.stan}`}
+            title={`${o.ukrycie.rodzaj}${klikalne ? (o.ukrycie.stan === 'ukryte' ? ' – kliknij, aby przywrócić' : ' – kliknij, aby ukryć') : ''}`}
+            onClick={klikalne ? () => przelacz(o.ukrycie!.tekst) : undefined}
+          >
+            {/* wydruk / zapis PDF: ukryty tekst ZASTĄPIONY znakami █ – nie da się go skopiować z pliku */}
+            {!edycja && o.ukrycie.stan === 'ukryte' ? '█'.repeat(o.tekst.length) : o.tekst}
+          </span>
+        ) : (
+          fragmentyZnacznikow(o.tekst).map((f, k) => (f.znacznik ? <mark key={`${j}-${k}`} className="p-znacznik">{f.tekst}</mark> : f.tekst))
+        ),
+      )}
     </span>
   ));
-  if (!edycja) return <div className={klasa}>{tekst ? zawartosc : ' '}</div>;
+  if (!edycja || tryb) return <div className={klasa}>{tekst ? zawartosc : ' '}</div>;
   return (
     <div
       key={tekst /* po zmianie tekstu element jest tworzony od nowa – React nie walczy z contentEditable */}

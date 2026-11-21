@@ -193,6 +193,8 @@ export default function PropozycjaOdpowiedzi({
                   tytul={wynik.wzor_nazwa ? `Projekt pisma – ${wynik.wzor_nazwa}` : undefined}
                   onZatwierdz={onZatwierdz ? () => void zatwierdz() : undefined}
                   trwaZatwierdzanie={trwaZatwierdzanie}
+                  dodatkoweAnonimizacji={[...wynik.dane_do_anonimizacji, ...(wniosek.wnioskodawca ? [wniosek.wnioskodawca] : [])]}
+                  nazwaPliku={`${wniosek.numer || 'projekt'} odpowiedz`}
                 />
               )}
             </div>

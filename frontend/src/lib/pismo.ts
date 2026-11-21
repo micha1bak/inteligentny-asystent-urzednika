@@ -1,3 +1,5 @@
+import type { Ukrycie } from './anonimizacja';
+
 // Struktura pisma BKS zwracana przez backend (wzor/pismo.py: Pismo) i pomocnicze funkcje podglądu A4.
 
 export interface BlokPisma {
@@ -16,6 +18,8 @@ export interface StrukturaPisma {
   zakonczenie: string;
   podpis: string[];
   stopka: string[];
+  /** anonimizacja: propozycje (szare) i fragmenty ukryte przez urzędnika (czarne) */
+  ukrycia?: Ukrycie[];
 }
 
 /** Wersja tekstowa pisma (do schowka) – ta sama kolejność co Pismo.tekst w backendzie. */

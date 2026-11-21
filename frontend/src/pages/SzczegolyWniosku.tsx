@@ -323,6 +323,7 @@ function WidokSzczegolow({
               key={wniosek.zatwierdzonaOdpowiedz.zatwierdzono}
               odpowiedz={wniosek.zatwierdzonaOdpowiedz}
               onZaktualizuj={zatwierdz}
+              numer={dane.numer}
             />
           )}
           <PropozycjaOdpowiedzi
@@ -345,9 +346,11 @@ function WidokSzczegolow({
 function KartaZatwierdzonejOdpowiedzi({
   odpowiedz,
   onZaktualizuj,
+  numer,
 }: {
   odpowiedz: ZatwierdzonaOdpowiedz;
   onZaktualizuj: (dane: ZatwierdzenieOdpowiedziWejscie) => Promise<WynikZatwierdzenia>;
+  numer: string;
 }) {
   const [pismo, setPismo] = useState<StrukturaPisma | null>(odpowiedz.pismo);
   const [podglad, setPodglad] = useState(false);
@@ -447,6 +450,7 @@ function KartaZatwierdzonejOdpowiedzi({
           tytul={odpowiedz.wzorNazwa ? `Zatwierdzona odpowiedź – ${odpowiedz.wzorNazwa}` : 'Zatwierdzona odpowiedź'}
           onZatwierdz={() => void zapiszEdycjePisma()}
           trwaZatwierdzanie={trwaZapis}
+          nazwaPliku={`${numer} odpowiedz`}
         />
       )}
     </div>
