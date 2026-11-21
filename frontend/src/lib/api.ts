@@ -534,6 +534,28 @@ export async function sugestieAnonimizacji(tekst: string, dodatkowe: string[] = 
   return odp.json();
 }
 
+/** Pobiera dowolny dokument jako plik DOCX albo TXT (ukryte fragmenty zastąpione znakami █). */
+export async function pobierzPlikDokumentu(
+  tekst: string,
+  ukryte: string[],
+  format: 'docx' | 'txt',
+  nazwa: string,
+): Promise<void> {
+  const odp = await wyslij(`/api/dokument/${format}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tekst, ukryte, nazwa: `${nazwa} zanonimizowany` }),
+  });
+  const url = URL.createObjectURL(await odp.blob());
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${nazwa}_zanonimizowany.${format}`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 /** Pobiera pismo jako plik DOCX albo TXT (ukryte fragmenty zastąpione znakami █) i zapisuje je na dysku. */
 export async function pobierzPlikPisma(pismo: StrukturaPisma, format: 'docx' | 'txt', nazwa: string): Promise<void> {
   const odp = await wyslij(`/api/pismo/${format}`, {

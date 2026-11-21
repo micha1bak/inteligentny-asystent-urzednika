@@ -190,8 +190,6 @@ def zloz_wiadomosc(
     linie += [
         "",
         f"Projekt odpowiedzi proszę przesłać na adres bip@um.bydgoszcz.pl w terminie do dnia {data_slownie(termin)} r.",
-        "Przed przekazaniem proszę dokonać niezbędnej anonimizacji danych osobowych i informacji prawnie chronionych "
-        "(§ 11 ust. 8 Zarządzenia).",
     ]
     linie += [
         "",

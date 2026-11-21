@@ -41,7 +41,8 @@ def test_wiadomosc_skladana_przez_kod():
     w = zloz_wiadomosc("Wydział Edukacji i Sportu", "BKS.IV.1431.307.2025", "2025-06-24")
     assert "Na co zwrócić uwagę" not in w.tresc and "w zakresie" not in w.tresc
     assert w.termin == "2025-07-01" and w.tresc.startswith("Do: Wydział Edukacji i Sportu")
-    assert "projektu odpowiedzi na ten wniosek" in w.tresc and "bip@um.bydgoszcz.pl" in w.tresc and "§ 11 ust. 8" in w.tresc
+    assert "projektu odpowiedzi na ten wniosek" in w.tresc and "bip@um.bydgoszcz.pl" in w.tresc
+    assert "anonimizacji" not in w.tresc and "§ 11 ust. 8" not in w.tresc
     assert jednostka_po_nazwie("wydział inwestycji miasta")["symbol"] == "WIM"
 
 

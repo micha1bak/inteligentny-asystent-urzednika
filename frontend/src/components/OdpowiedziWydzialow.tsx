@@ -7,13 +7,15 @@ import StrefaPliku from './StrefaPliku';
  * Odpowiedzi z wydziałów (krok 6 instrukcji UMB): urzędnik wgrywa plik PDF/Word z odpowiedzią komórki merytorycznej
  * (albo wkleja tekst). Treść trafia do sprawy i jest podstawą projektu pisma (krok 7).
  */
-export default function OdpowiedziWydzialow({ wniosekId, odpowiedzi, onZmiana }: {
+export default function OdpowiedziWydzialow({ wniosekId, odpowiedzi, wybranyWydzial = '', onZmiana }: {
   wniosekId: string;
   odpowiedzi: OdpowiedzWydzialu[];
+  /** jednostka wybrana wyżej w „Zapytanie do wydziału” dla tego wniosku – ustawiana automatycznie */
+  wybranyWydzial?: string;
   onZmiana: (w: Wniosek) => void;
 }) {
   const [jednostki, setJednostki] = useState<JednostkaUmb[]>([]);
-  const [wydzial, setWydzial] = useState('');
+  const [wydzial, setWydzial] = useState(wybranyWydzial);
   const [wklejony, setWklejony] = useState('');
   const [rozwiniete, setRozwiniete] = useState<string | null>(null);
   const [blad, setBlad] = useState('');
@@ -24,6 +26,13 @@ export default function OdpowiedziWydzialow({ wniosekId, odpowiedzi, onZmiana }:
     pobierzJednostki(ac.signal).then(setJednostki).catch(() => {});
     return () => ac.abort();
   }, []);
+
+  useEffect(() => {
+    if (wybranyWydzial) {
+      setWydzial(wybranyWydzial);
+      setBlad('');
+    }
+  }, [wybranyWydzial]);
 
   async function dodaj(tresc: string, nazwaPliku: string) {
     if (!wydzial) {
@@ -62,9 +71,15 @@ export default function OdpowiedziWydzialow({ wniosekId, odpowiedzi, onZmiana }:
         Wgraj odpowiedź komórki merytorycznej (PDF lub Word). Projekt pisma zostanie oparty na jej treści.
       </p>
       <label>
-        Wydział / jednostka
+        <span>
+          Wydział / jednostka
+          {wybranyWydzial && wydzial === wybranyWydzial && ' (z zapytania do wydziału)'}
+        </span>
         <select value={wydzial} onChange={(e) => setWydzial(e.target.value)}>
           <option value="">— wybierz —</option>
+          {wydzial && !jednostki.some((j) => j.nazwa === wydzial) && (
+            <option value={wydzial}>{wydzial}</option>
+          )}
           {jednostki.map((j) => <option key={j.symbol} value={j.nazwa}>{j.nazwa}</option>)}
         </select>
       </label>

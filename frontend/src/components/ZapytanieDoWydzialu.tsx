@@ -1,35 +1,72 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { zastosujUkrycia, type Sugestia, type Ukrycie } from '../lib/anonimizacja';
 import {
   pobierzJednostki,
+  sugestieAnonimizacji,
   zaproponujWydzial,
   zlozWiadomoscDoWydzialu,
   type JednostkaUmb,
   type PropozycjaWydzialu,
 } from '../lib/api';
+import type { DoAnonimizacji } from '../pages/Anonimizacja';
 import { STATUSY, type Status } from '../types';
+import AnonimizacjaTekstu from './AnonimizacjaTekstu';
+
+interface ZapisanySzkic {
+  propozycja?: PropozycjaWydzialu;
+  termin: string;
+  temat: string;
+  tresc: string;
+  recznie: boolean;
+}
+
+function wczytajSzkic(klucz: string): ZapisanySzkic | null {
+  try {
+    const surowy = sessionStorage.getItem(klucz);
+    return surowy ? (JSON.parse(surowy) as ZapisanySzkic) : null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Zapytanie do wydziału: AI (RAG – zakresy kompetencji jednostek UMB + podobne sprawy z archiwum) proponuje
  * do 3 właściwych jednostek, urzędnik wybiera jedną, a aplikacja składa wiadomość przekazującą wniosek
- * (§ 9–11 Zarządzenia Nr 535/2024). Wiadomość urzędnik kopiuje i wysyła ze swojej poczty.
+ * (§ 9–11 Zarządzenia Nr 535/2024). Wiadomość urzędnik kopiuje lub przekierowuje do anonimizacji (DOCX / TXT).
  */
-export default function ZapytanieDoWydzialu({ wniosek, status, onOznaczWyslane }: {
-  wniosek: { tresc: string; numer: string; data_wplywu: string; temat: string };
+export default function ZapytanieDoWydzialu({
+  wniosekId,
+  wniosek,
+  wybranyWydzial,
+  onWybierzWydzial,
+  status,
+  onOznaczWyslane,
+}: {
+  wniosekId: string;
+  wniosek: { tresc: string; numer: string; data_wplywu: string; temat: string; wnioskodawca?: string; kontakt?: string };
+  wybranyWydzial: string;
+  onWybierzWydzial: (nazwa: string) => void;
   /** aktualny status wniosku – przy „Brak działań” można oznaczyć wysłanie zapytania */
   status: Status;
   onOznaczWyslane: () => Promise<void>;
 }) {
+  const kluczSzkicu = `asystent-urzednika.zapytanie.${wniosekId}`;
+  const szkic = useMemo(() => wczytajSzkic(kluczSzkicu), [kluczSzkicu]);
+
   const [jednostki, setJednostki] = useState<JednostkaUmb[]>([]);
-  const [propozycja, setPropozycja] = useState<PropozycjaWydzialu>();
-  const [wybrana, setWybrana] = useState('');
-  const [termin, setTermin] = useState('');
-  const [temat, setTemat] = useState('');
-  const [tresc, setTresc] = useState('');
-  const [recznie, setRecznie] = useState(false);
+  const [propozycja, setPropozycja] = useState<PropozycjaWydzialu | undefined>(szkic?.propozycja);
+  const [termin, setTermin] = useState(szkic?.termin ?? '');
+  const [temat, setTemat] = useState(szkic?.temat ?? '');
+  const [tresc, setTresc] = useState(szkic?.tresc ?? '');
+  const [recznie, setRecznie] = useState(szkic?.recznie ?? false);
   const [trwa, setTrwa] = useState(false);
   const [blad, setBlad] = useState('');
   const [skopiowano, setSkopiowano] = useState(false);
   const [oznaczanie, setOznaczanie] = useState(false);
+  const [wykryteDane, setWykryteDane] = useState<Sugestia[]>([]);
+  const [trybAnonimizacji, setTrybAnonimizacji] = useState(false);
+  const [ukrycia, setUkrycia] = useState<Ukrycie[]>([]);
   const przerwij = useRef<AbortController | null>(null);
 
   const mozna = wniosek.tresc.trim().length >= 20;
@@ -39,6 +76,16 @@ export default function ZapytanieDoWydzialu({ wniosek, status, onOznaczWyslane }
     pobierzJednostki(ac.signal).then(setJednostki).catch(() => {});
     return () => ac.abort();
   }, []);
+
+  useEffect(() => {
+    if (!propozycja) return;
+    try {
+      const dane: ZapisanySzkic = { propozycja, termin, temat, tresc, recznie };
+      sessionStorage.setItem(kluczSzkicu, JSON.stringify(dane));
+    } catch {
+      /* brak dostępu do sessionStorage */
+    }
+  }, [kluczSzkicu, propozycja, termin, temat, tresc, recznie]);
 
   async function zaproponuj() {
     przerwij.current?.abort();
@@ -52,7 +99,7 @@ export default function ZapytanieDoWydzialu({ wniosek, status, onOznaczWyslane }
         ac.signal,
       );
       setPropozycja(p);
-      setWybrana(p.jednostki[0]?.nazwa ?? '');
+      onWybierzWydzial(p.jednostki[0]?.nazwa ?? '');
       setTermin('');
       setRecznie(false);
     } catch (e) {
@@ -64,12 +111,12 @@ export default function ZapytanieDoWydzialu({ wniosek, status, onOznaczWyslane }
 
   // wiadomość składa backend (bez AI) – po każdej zmianie jednostki lub terminu
   useEffect(() => {
-    if (!wybrana || recznie) return;
+    if (!wybranyWydzial || recznie) return;
     const ac = new AbortController();
     const t = setTimeout(() => {
       zlozWiadomoscDoWydzialu(
         {
-          jednostka: wybrana,
+          jednostka: wybranyWydzial,
           numer: wniosek.numer || undefined,
           data_wplywu: wniosek.data_wplywu || undefined,
           termin: termin || undefined,
@@ -89,11 +136,70 @@ export default function ZapytanieDoWydzialu({ wniosek, status, onOznaczWyslane }
       clearTimeout(t);
       ac.abort();
     };
-  }, [wybrana, termin, recznie, wniosek.numer, wniosek.data_wplywu]);
+  }, [wybranyWydzial, termin, recznie, wniosek.numer, wniosek.data_wplywu]);
+
+  const pelnaWiadomosc = useMemo(
+    () =>
+      [
+        temat ? `Temat: ${temat}` : '',
+        tresc,
+        wniosek.tresc.trim() ? `--- Treść wniosku ---\n${wniosek.tresc}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n\n'),
+    [temat, tresc, wniosek.tresc],
+  );
+
+  const dodatkoweFrazy = useMemo(
+    () => [wniosek.wnioskodawca ?? '', wniosek.kontakt ?? ''].map((s) => s.trim()).filter(Boolean),
+    [wniosek.wnioskodawca, wniosek.kontakt],
+  );
+
+  // lokalne wykrywanie danych wrażliwych w treści wiadomości i załączonego wniosku (bez AI)
+  useEffect(() => {
+    if (!tresc.trim()) {
+      setWykryteDane([]);
+      return;
+    }
+    const ac = new AbortController();
+    const timer = setTimeout(() => {
+      sugestieAnonimizacji(pelnaWiadomosc, dodatkoweFrazy, ac.signal)
+        .then((lista) => {
+          const widziane = new Set<string>();
+          setWykryteDane(
+            lista.filter((s) => {
+              if (widziane.has(s.tekst)) return false;
+              widziane.add(s.tekst);
+              return true;
+            }),
+          );
+        })
+        .catch(() => {});
+    }, 300);
+    return () => {
+      clearTimeout(timer);
+      ac.abort();
+    };
+  }, [pelnaWiadomosc, tresc, dodatkoweFrazy]);
+
+  const nazwaPlikuAnon = wniosek.numer
+    ? `${wniosek.numer.replace(/[\\/:*?"<>|\s]+/g, '_')}_zapytanie`
+    : 'zapytanie_do_wydzialu';
+
+  const stanAnonimizacji: DoAnonimizacji = {
+    tekst: pelnaWiadomosc,
+    nazwa: nazwaPlikuAnon,
+    dodatkowe: dodatkoweFrazy,
+    ukrycia,
+    powrot: `/wnioski/${wniosekId}`,
+    etykietaPowrotu: wniosek.numer ? `← Wróć do wniosku ${wniosek.numer}` : '← Wróć do wniosku',
+  };
+
+  const liczbaUkrytych = ukrycia.filter((u) => u.stan === 'ukryte').length;
 
   async function kopiuj() {
     try {
-      await navigator.clipboard.writeText(`Temat: ${temat}\n\n${tresc}\n\n--- Treść wniosku ---\n${wniosek.tresc}`);
+      await navigator.clipboard.writeText(zastosujUkrycia(pelnaWiadomosc, ukrycia));
       setSkopiowano(true);
       setTimeout(() => setSkopiowano(false), 1500);
     } catch {
@@ -124,16 +230,12 @@ export default function ZapytanieDoWydzialu({ wniosek, status, onOznaczWyslane }
           {trwa ? 'Dobieram wydział…' : propozycja ? 'Zaproponuj ponownie' : 'Zaproponuj wydział'}
         </button>
       </div>
-      <p className="maly" style={{ margin: '8px 0 12px' }}>
-        AI dobiera komórkę, która posiada żądane informacje (zakresy spraw jednostek UMB i podobne sprawy z archiwum).
-        Wybór należy do urzędnika; wiadomość wysyłasz ze swojej poczty.
-      </p>
-      {!mozna && <p className="maly">Najpierw uzupełnij treść wniosku.</p>}
-      {trwa && <div className="postep postep-ciagly"><div /></div>}
-      {blad && <div className="blad">{blad}</div>}
+      {!mozna && <p className="maly" style={{ marginTop: 8 }}>Najpierw uzupełnij treść wniosku.</p>}
+      {trwa && <div className="postep postep-ciagly" style={{ marginTop: 10 }}><div /></div>}
+      {blad && <div className="blad" style={{ marginTop: 10 }}>{blad}</div>}
 
       {propozycja && !trwa && (
-        <div className="stos" style={{ gap: 12 }}>
+        <div className="stos" style={{ gap: 12, marginTop: 12 }}>
           {propozycja.ostrzezenia.map((o) => <div key={o} className="uwaga">{o}</div>)}
           {propozycja.podmiot_poza_umb && (
             <div className="uwaga">
@@ -144,8 +246,16 @@ export default function ZapytanieDoWydzialu({ wniosek, status, onOznaczWyslane }
           <fieldset className="wybor-wydzialu">
             <legend className="maly">Komórka merytoryczna</legend>
             {proponowane.map((j, i) => (
-              <label key={j.symbol} className={`wydzial-opcja${wybrana === j.nazwa ? ' wybrana' : ''}`}>
-                <input type="radio" name="wydzial" checked={wybrana === j.nazwa} onChange={() => { setWybrana(j.nazwa); setRecznie(false); }} />
+              <label key={j.symbol} className={`wydzial-opcja${wybranyWydzial === j.nazwa ? ' wybrana' : ''}`}>
+                <input
+                  type="radio"
+                  name={`wydzial-${wniosekId}`}
+                  checked={wybranyWydzial === j.nazwa}
+                  onChange={() => {
+                    onWybierzWydzial(j.nazwa);
+                    setRecznie(false);
+                  }}
+                />
                 <span>
                   <strong>{i + 1}. {j.nazwa}</strong>
                   {j.uzasadnienie && <span className="maly"> – {j.uzasadnienie}</span>}
@@ -156,8 +266,13 @@ export default function ZapytanieDoWydzialu({ wniosek, status, onOznaczWyslane }
             <label className="maly">
               Inna jednostka
               <select
-                value={proponowane.some((p) => p.nazwa === wybrana) ? '' : wybrana}
-                onChange={(e) => { if (e.target.value) { setWybrana(e.target.value); setRecznie(false); } }}
+                value={proponowane.some((p) => p.nazwa === wybranyWydzial) ? '' : wybranyWydzial}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    onWybierzWydzial(e.target.value);
+                    setRecznie(false);
+                  }
+                }}
               >
                 <option value="">— wybierz z listy —</option>
                 {pozostale.map((j) => <option key={j.symbol} value={j.nazwa}>{j.nazwa}</option>)}
@@ -178,10 +293,55 @@ export default function ZapytanieDoWydzialu({ wniosek, status, onOznaczWyslane }
                 Temat wiadomości
                 <input value={temat} onChange={(e) => { setTemat(e.target.value); setRecznie(true); }} />
               </label>
-              <label>
-                Treść wiadomości {recznie && <span className="maly">(edytowana ręcznie – zmiany pól powyżej jej nie nadpiszą)</span>}
-                <textarea rows={14} value={tresc} onChange={(e) => { setTresc(e.target.value); setRecznie(true); }} />
-              </label>
+              <div>
+                <div className="rzad rozsun" style={{ marginBottom: 4 }}>
+                  <span className="maly">
+                    Treść wiadomości {recznie && '(edytowana ręcznie – zmiany pól powyżej jej nie nadpiszą)'}
+                    {liczbaUkrytych > 0 && ` · ukryto danych: ${liczbaUkrytych}`}
+                  </span>
+                  <div className="rzad" style={{ gap: 6 }}>
+                    <button
+                      type="button"
+                      className={trybAnonimizacji ? 'glowny maly-p' : `maly-p${wykryteDane.length > 0 ? ' podstawa-przycisk' : ''}`}
+                      onClick={() => setTrybAnonimizacji((t) => !t)}
+                    >
+                      {trybAnonimizacji
+                        ? 'Wróć do edycji treści'
+                        : wykryteDane.length > 0
+                          ? `Anonimizuj tutaj (${wykryteDane.length})`
+                          : 'Anonimizuj tutaj'}
+                    </button>
+                    <Link className="przycisk maly-p" to="/anonimizacja" state={stanAnonimizacji}>
+                      Panel anonimizacji →
+                    </Link>
+                  </div>
+                </div>
+                {trybAnonimizacji ? (
+                  <AnonimizacjaTekstu
+                    tekst={pelnaWiadomosc}
+                    nazwa={nazwaPlikuAnon}
+                    dodatkowe={dodatkoweFrazy}
+                    ukrycia={ukrycia}
+                    onZmianaUkryc={setUkrycia}
+                  />
+                ) : (
+                  <textarea rows={14} value={tresc} onChange={(e) => { setTresc(e.target.value); setRecznie(true); }} />
+                )}
+              </div>
+              {!trybAnonimizacji && wykryteDane.length > 0 && (
+                <div className="uwaga">
+                  Wykryto potencjalne dane wrażliwe ({wykryteDane.length}):{' '}
+                  <strong>
+                    {wykryteDane.slice(0, 5).map((d) => `${d.tekst} (${d.rodzaj})`).join(', ')}
+                    {wykryteDane.length > 5 ? '…' : ''}
+                  </strong>
+                  . Możesz je ukryć bezpośrednio tutaj (przycisk <strong>Anonimizuj tutaj</strong>) albo{' '}
+                  <Link to="/anonimizacja" state={stanAnonimizacji}>
+                    w panelu anonimizacji (DOCX / TXT)
+                  </Link>
+                  .
+                </div>
+              )}
               <div className="rzad">
                 <button className="maly-p" onClick={() => void kopiuj()}>{skopiowano ? 'Skopiowano' : 'Kopiuj wiadomość z wnioskiem'}</button>
                 {recznie && <button className="maly-p" onClick={() => setRecznie(false)}>Złóż ponownie z pól</button>}

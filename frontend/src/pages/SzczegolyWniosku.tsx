@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import AnonimizacjaTekstu from '../components/AnonimizacjaTekstu';
 import PelnyPodgladPisma from '../components/PelnyPodgladPisma';
 import OdpowiedziWydzialow from '../components/OdpowiedziWydzialow';
 import ZapytanieDoWydzialu from '../components/ZapytanieDoWydzialu';
@@ -128,6 +129,25 @@ function WidokSzczegolow({
   const [trwaZapis, setTrwaZapis] = useState(false);
   const [blad, setBlad] = useState('');
   const [info, setInfo] = useState('');
+  const [anonimizacjaWniosku, setAnonimizacjaWniosku] = useState(false);
+  const kluczWydzialu = `asystent-urzednika.wydzial.${wniosek.id}`;
+  const [wybranyWydzial, setWybranyWydzial] = useState(() => {
+    try {
+      return sessionStorage.getItem(kluczWydzialu) ?? '';
+    } catch {
+      return '';
+    }
+  });
+
+  function wybierzWydzial(nazwa: string) {
+    setWybranyWydzial(nazwa);
+    try {
+      if (nazwa) sessionStorage.setItem(kluczWydzialu, nazwa);
+      else sessionStorage.removeItem(kluczWydzialu);
+    } catch {
+      /* brak dostępu do sessionStorage */
+    }
+  }
 
   const ustaw = <K extends keyof typeof dane>(k: K, v: (typeof dane)[K]) => {
     setInfo('');
@@ -313,10 +333,33 @@ function WidokSzczegolow({
                   Plik: <strong>{wniosek.nazwaPliku}</strong>
                 </div>
               )}
-              <label className="pelny">
-                Treść wniosku
-                <textarea rows={10} value={dane.tresc} onChange={(e) => ustaw('tresc', e.target.value)} />
-              </label>
+              <div className="pelny">
+                <div className="rzad rozsun" style={{ marginBottom: 4 }}>
+                  <span className="maly">Treść wniosku</span>
+                  {dane.tresc.trim() && (
+                    <button
+                      type="button"
+                      className={anonimizacjaWniosku ? 'glowny maly-p' : 'maly-p'}
+                      onClick={() => setAnonimizacjaWniosku((a) => !a)}
+                    >
+                      {anonimizacjaWniosku ? 'Zakończ anonimizację' : 'Anonimizacja ręczna'}
+                    </button>
+                  )}
+                </div>
+                {anonimizacjaWniosku && dane.tresc.trim() ? (
+                  <AnonimizacjaTekstu
+                    tekst={dane.tresc}
+                    nazwa={dane.numer ? `${dane.numer.replace(/[\\/:*?"<>|\s]+/g, '_')}_wniosek` : 'wniosek'}
+                    dodatkowe={[dane.wnioskodawca, dane.kontakt].map((s) => s.trim()).filter(Boolean)}
+                    onZastosujTekst={(zanonimizowany) => {
+                      ustaw('tresc', zanonimizowany);
+                      setAnonimizacjaWniosku(false);
+                    }}
+                  />
+                ) : (
+                  <textarea rows={10} value={dane.tresc} onChange={(e) => ustaw('tresc', e.target.value)} />
+                )}
+              </div>
             </div>
             {blad && <div className="blad" style={{ marginTop: 12 }}>{blad}</div>}
             {info && <div className="info" style={{ marginTop: 12 }}>{info}</div>}
@@ -345,11 +388,26 @@ function WidokSzczegolow({
           <PodobneSprawy tresc={dane.tresc} pominId={wniosek.id} dataOdniesienia={dane.dataWplywu} />
           <ZapytanieDoWydzialu
             key={`wydzial-${wniosek.id}`}
-            wniosek={{ tresc: dane.tresc, numer: dane.numer, data_wplywu: dane.dataWplywu, temat: dane.temat }}
+            wniosekId={wniosek.id}
+            wniosek={{
+              tresc: dane.tresc,
+              numer: dane.numer,
+              data_wplywu: dane.dataWplywu,
+              temat: dane.temat,
+              wnioskodawca: dane.wnioskodawca,
+              kontakt: dane.kontakt,
+            }}
+            wybranyWydzial={wybranyWydzial}
+            onWybierzWydzial={wybierzWydzial}
             status={dane.status}
             onOznaczWyslane={() => zapisz('zapytania_wyslane')}
           />
-          <OdpowiedziWydzialow wniosekId={wniosek.id} odpowiedzi={wniosek.odpowiedziWydzialow ?? []} onZmiana={onPodmien} />
+          <OdpowiedziWydzialow
+            wniosekId={wniosek.id}
+            odpowiedzi={wniosek.odpowiedziWydzialow ?? []}
+            wybranyWydzial={wybranyWydzial}
+            onZmiana={onPodmien}
+          />
           <PropozycjaOdpowiedzi
             key={wniosek.id}
             wniosek={{

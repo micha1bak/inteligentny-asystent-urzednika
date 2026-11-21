@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import StrefaPliku from '../components/StrefaPliku';
 import {
   dodajUkrycie,
@@ -8,28 +9,45 @@ import {
   zastosujUkrycia,
   type Ukrycie,
 } from '../lib/anonimizacja';
-import { sugestieAnonimizacji } from '../lib/api';
+import { pobierzPlikDokumentu, sugestieAnonimizacji } from '../lib/api';
+
+/** Dane przekazywane przekierowaniem (np. z „Treści wiadomości” w zapytaniu do wydziału). */
+export interface DoAnonimizacji {
+  tekst: string;
+  nazwa?: string;
+  dodatkowe?: string[];
+  ukrycia?: Ukrycie[];
+  powrot?: string;
+  etykietaPowrotu?: string;
+}
 
 /**
- * Anonimizacja dowolnego dokumentu (np. wniosku, odpowiedzi wydziału, załącznika przed publikacją).
+ * Anonimizacja dowolnego dokumentu (np. wniosku, zapytania do wydziału, odpowiedzi wydziału, załącznika).
  * Program proponuje dane osobowe (szare), urzędnik je akceptuje (czarne) albo zaznacza tekst do ukrycia,
- * a pobrany plik zawiera ukryte fragmenty ZASTĄPIONE znakami █. Wykrywanie działa lokalnie, bez AI.
+ * a pobrany plik (DOCX lub TXT) zawiera ukryte fragmenty ZASTĄPIONE znakami █. Wykrywanie działa lokalnie, bez AI.
  */
 export default function Anonimizacja() {
-  const [tekst, setTekst] = useState('');
-  const [nazwa, setNazwa] = useState('dokument');
-  const [ukrycia, setUkrycia] = useState<Ukrycie[]>([]);
+  const zPrzekierowania = (useLocation().state as DoAnonimizacji | null) ?? undefined;
+  const [tekst, setTekst] = useState(zPrzekierowania?.tekst ?? '');
+  const [nazwa, setNazwa] = useState(zPrzekierowania?.nazwa || 'dokument');
+  const [ukrycia, setUkrycia] = useState<Ukrycie[]>(zPrzekierowania?.ukrycia ?? []);
   const [odrzucone, setOdrzucone] = useState<string[]>([]);
-  const [dodatkowe, setDodatkowe] = useState('');
+  const [dodatkowe, setDodatkowe] = useState((zPrzekierowania?.dodatkowe ?? []).filter(Boolean).join('\n'));
   const [trwa, setTrwa] = useState(false);
   const [blad, setBlad] = useState('');
   const [wklejanie, setWklejanie] = useState(false);
+  const [skopiowano, setSkopiowano] = useState(false);
 
-  async function wykryj(t: string, dotychczasowe: Ukrycie[] = ukrycia, odrzuc: string[] = odrzucone) {
+  async function wykryj(
+    t: string,
+    dotychczasowe: Ukrycie[] = ukrycia,
+    odrzuc: string[] = odrzucone,
+    dodatkoweFrazy?: string[],
+  ) {
     setTrwa(true);
     setBlad('');
     try {
-      const frazy = dodatkowe.split('\n').map((l) => l.trim()).filter(Boolean);
+      const frazy = dodatkoweFrazy ?? dodatkowe.split('\n').map((l) => l.trim()).filter(Boolean);
       setUkrycia(scalSugestie(dotychczasowe, await sugestieAnonimizacji(t, frazy), odrzuc));
     } catch (e) {
       setBlad(e instanceof Error ? e.message : String(e));
@@ -37,6 +55,19 @@ export default function Anonimizacja() {
       setTrwa(false);
     }
   }
+
+  useEffect(() => {
+    if (!zPrzekierowania?.tekst) return;
+    const frazy = (zPrzekierowania.dodatkowe ?? []).map((f) => f.trim()).filter(Boolean);
+    const poczatkoweUkrycia = zPrzekierowania.ukrycia ?? [];
+    setTekst(zPrzekierowania.tekst);
+    setNazwa(zPrzekierowania.nazwa || 'dokument');
+    setDodatkowe(frazy.join('\n'));
+    setUkrycia(poczatkoweUkrycia);
+    setOdrzucone([]);
+    void wykryj(zPrzekierowania.tekst, poczatkoweUkrycia, [], frazy);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [zPrzekierowania]);
 
   function wczytaj(t: string, plik?: string) {
     setTekst(t);
@@ -65,22 +96,19 @@ export default function Anonimizacja() {
     setBlad('');
     try {
       const ukryte = ukrycia.filter((u) => u.stan === 'ukryte').map((u) => u.tekst);
-      const odp = await fetch(`/api/dokument/${format}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tekst, ukryte, nazwa: `${nazwa} zanonimizowany` }),
-      });
-      if (!odp.ok) throw new Error(`Błąd backendu (${odp.status}).`);
-      const url = URL.createObjectURL(await odp.blob());
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${nazwa}_zanonimizowany.${format}`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      await pobierzPlikDokumentu(tekst, ukryte, format, nazwa);
     } catch (e) {
       setBlad(e instanceof Error ? e.message : String(e));
+    }
+  }
+
+  async function kopiujTekst() {
+    try {
+      await navigator.clipboard.writeText(zastosujUkrycia(tekst, ukrycia));
+      setSkopiowano(true);
+      setTimeout(() => setSkopiowano(false), 1500);
+    } catch {
+      /* brak uprawnień do schowka */
     }
   }
 
@@ -89,6 +117,13 @@ export default function Anonimizacja() {
 
   return (
     <>
+      {zPrzekierowania?.powrot && (
+        <div className="rzad" style={{ marginBottom: 14 }}>
+          <Link className="przycisk maly-p" to={zPrzekierowania.powrot}>
+            {zPrzekierowania.etykietaPowrotu || '← Wróć do wniosku'}
+          </Link>
+        </div>
+      )}
       <h1>Anonimizacja dokumentu</h1>
       <p className="podtytul">
         Wgraj dokument (PDF, Word) albo wklej tekst. Program podświetli na szaro dane osobowe – kliknij fragment, aby go
@@ -168,8 +203,8 @@ export default function Anonimizacja() {
             {tekst && (
               <div className="rzad" style={{ marginTop: 12 }}>
                 <button className="glowny" onClick={() => void pobierz('docx')}>Pobierz DOCX (zanonimizowany)</button>
-                <button className="maly-p" onClick={() => void pobierz('txt')}>Pobierz TXT</button>
-                <button className="maly-p" onClick={() => void navigator.clipboard.writeText(zastosujUkrycia(tekst, ukrycia))}>Kopiuj tekst</button>
+                <button className="maly-p" onClick={() => void pobierz('txt')}>Pobierz TXT (zanonimizowany)</button>
+                <button className="maly-p" onClick={() => void kopiujTekst()}>{skopiowano ? 'Skopiowano' : 'Kopiuj tekst'}</button>
               </div>
             )}
           </div>
