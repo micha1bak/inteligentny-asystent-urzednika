@@ -5,6 +5,7 @@ import type { Wniosek } from '../types';
 import { dodajDni, doIso, dzisIso, formatuj, zIso } from '../lib/daty';
 import { czyDzienWolny, pilnosc, type Pilnosc } from '../lib/terminy';
 import { Pozostalo, ZnaczekStatusu } from '../components/Znaczki';
+import type { ZWniosku } from './NowaSprawaArchiwum';
 
 type Wiersz = Wniosek & { lp: number; termin: string; pozostalo: number; pilnosc: Pilnosc };
 
@@ -127,7 +128,20 @@ function Tabela({ wiersze }: { wiersze: Wiersz[] }) {
               <td title="Inicjały osoby prowadzącej">{w.inicjaly}</td>
               <td className="nowrap">{formatuj(w.termin)}</td>
               <td className="nowrap"><Pozostalo pilnosc={w.pilnosc} pozostalo={w.pozostalo} /></td>
-              <td><ZnaczekStatusu status={w.status} dniKwerendy={w.dniKwerendy} /></td>
+              <td>
+                <ZnaczekStatusu status={w.status} dniKwerendy={w.dniKwerendy} />
+                {w.status === 'odpowiedz_wyslana' && (
+                  <div>
+                    <Link
+                      className="maly"
+                      to="/archiwum/nowa"
+                      state={{ sygnatura: w.numer, wniosek: w.tresc, dataOdpowiedzi: w.dataOdpowiedzi } satisfies ZWniosku}
+                    >
+                      Dodaj do archiwum
+                    </Link>
+                  </div>
+                )}
+              </td>
               <td className="nowrap">{formatuj(w.dataOdpowiedzi)}</td>
             </tr>
           ))}

@@ -5,15 +5,18 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, HTTPException, Query, UploadFile
+from fastapi import Depends, FastAPI, HTTPException, Query, Response, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from . import archiwum
+from .archiwum import BladArchiwum, SprawaZArchiwum, ZmianaSprawy
 from .config import Ustawienia, wczytaj_ustawienia
 from .groq_klient import BladLLM, KlientGroq, KlientLLM
 from .konwersja import ocr_llm
 from .propozycja import ZAPAS_TOKENOW, Propozycja, Wniosek, zaproponuj_odpowiedz
+from .propozycja_archiwum import PropozycjaWpisu, ZapytanieOWpis, zaproponuj_wpis
 from .przepisy import (
     DokumentPrawnyInfo,
     IndeksPrzepisow,
@@ -21,10 +24,16 @@ from .przepisy import (
     szukaj_przepisow,
     wczytaj_indeks_przepisow,
 )
-from .wiedza import Wiedza, wczytaj_wiedze
+from .wiedza import JEDNOSTKI_UMB, Wiedza, wczytaj_wiedze
 
 
 MAKS_ROZMIAR_PLIKU = 20 * 1024 * 1024  # 20 MB
+
+
+class Archiwum(BaseModel):
+    sprawy: list[SprawaZArchiwum]
+    werdykty: dict[str, str]
+    jednostki: list[str]
 
 
 class WynikKonwersji(BaseModel):
@@ -61,7 +70,7 @@ def utworz_aplikacje() -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=wczytaj_ustawienia().dozwolone_originy,
-        allow_methods=["GET", "POST"],
+        allow_methods=["GET", "POST", "PUT", "DELETE"],
         allow_headers=["Content-Type"],
     )
 
@@ -109,6 +118,57 @@ def utworz_aplikacje() -> FastAPI:
         try:
             budzet = u.groq_limit_tpm - u.groq_max_tokens - ZAPAS_TOKENOW
             return await zaproponuj_odpowiedz(wniosek, wiedza, klient, u.groq_model, u.kontekst_prawny, budzet)
+        except BladLLM as e:
+            raise HTTPException(e.status, e.komunikat) from e
+
+    # ------------------------------------------------------------ archiwum spraw
+
+    @app.get("/api/archiwum", response_model=Archiwum)
+    def archiwum_lista(u: Ustawienia = Depends(pobierz_ustawienia), wiedza: Wiedza = Depends(pobierz_wiedze)) -> Archiwum:
+        return Archiwum(
+            sprawy=archiwum.lista(u.plik_werdyktow),
+            werdykty=wiedza.slownik_werdyktow,
+            jednostki=[j["nazwa"] for j in JEDNOSTKI_UMB],
+        )
+
+    @app.post("/api/archiwum", response_model=SprawaZArchiwum, status_code=201)
+    def archiwum_dodaj(
+        zmiana: ZmianaSprawy, u: Ustawienia = Depends(pobierz_ustawienia), wiedza: Wiedza = Depends(pobierz_wiedze)
+    ) -> SprawaZArchiwum:
+        try:
+            return archiwum.dodaj(u.plik_werdyktow, zmiana, wiedza.slownik_werdyktow)
+        except BladArchiwum as e:
+            raise HTTPException(e.status, e.komunikat) from e
+
+    @app.put("/api/archiwum/{sygnatura}", response_model=SprawaZArchiwum)
+    def archiwum_zmien(
+        sygnatura: str,
+        zmiana: ZmianaSprawy,
+        u: Ustawienia = Depends(pobierz_ustawienia),
+        wiedza: Wiedza = Depends(pobierz_wiedze),
+    ) -> SprawaZArchiwum:
+        try:
+            return archiwum.zmien(u.plik_werdyktow, sygnatura, zmiana, wiedza.slownik_werdyktow)
+        except BladArchiwum as e:
+            raise HTTPException(e.status, e.komunikat) from e
+
+    @app.delete("/api/archiwum/{sygnatura}", status_code=204)
+    def archiwum_usun(sygnatura: str, u: Ustawienia = Depends(pobierz_ustawienia)) -> Response:
+        try:
+            archiwum.usun(u.plik_werdyktow, sygnatura)
+        except BladArchiwum as e:
+            raise HTTPException(e.status, e.komunikat) from e
+        return Response(status_code=204)
+
+    @app.post("/api/archiwum/propozycja", response_model=PropozycjaWpisu)
+    async def archiwum_propozycja(
+        zapytanie: ZapytanieOWpis,
+        u: Ustawienia = Depends(pobierz_ustawienia),
+        wiedza: Wiedza = Depends(pobierz_wiedze),
+        klient: KlientLLM = Depends(pobierz_klienta),
+    ) -> PropozycjaWpisu:
+        try:
+            return await zaproponuj_wpis(zapytanie, wiedza, klient, u.groq_model)
         except BladLLM as e:
             raise HTTPException(e.status, e.komunikat) from e
 
