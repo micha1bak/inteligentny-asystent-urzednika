@@ -1,0 +1,94 @@
+{
+  "metadane": {
+    "nazwa": "werdykty_wniosek_odpowiedz_dip",
+    "wersja": "1.1.0",
+    "powiazanie": "ocena_prawna_wniosku_dip_kompletny.json",
+    "liczba_spraw": 8,
+    "urzad": "Urząd Miasta Bydgoszczy (Biuro Komunikacji Społecznej)"
+  },
+  "sprawy": [
+    {
+      "sygnatura": "BKS.IV.1431.590.2026",
+      "data_odpowiedzi": "2026-09-25",
+      "komorka_merytoryczna": "Wydział Inwestycji Miasta",
+      "wniosek_o_co": "Informacja dot. inwestycji „Budowa kompleksu Astoria” (ul. Królowej Jadwigi 23): czy wskazana osoba pełniła funkcję kierownika robót teletechnicznych/telekomunikacyjnych oraz w jakim okresie (daty wpisu do dziennika budowy).",
+      "jaka_odpowiedz": "Udostępniono informację w piśmie: potwierdzono pełnienie funkcji kierownika robót specjalności telekomunikacyjnej (wprowadzony aneksem nr 6 z 30.12.2019 r.) w okresie od 02.01.2020 r. do 15.10.2020 r. (odbiór końcowy robót).",
+      "werdykt": "MOZNA_Z_ANONIMIZACJA",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna; w udostępnianym wzorze zanonimizowano dane osobowe osoby fizycznej)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1 pkt 4-5, art. 10 ust. 1 UDIP"
+    },
+    {
+      "sygnatura": "BKS.IV.1431.543.2026",
+      "sygnatura_na_odpowiedzi": "BKS.IV.1431.543.2025",
+      "data_wplywu": "2026-08-19",
+      "data_odpowiedzi": "2026-09-22",
+      "komorka_merytoryczna": "Wydział Zieleni i Gospodarki Komunalnej oraz Schronisko dla Zwierząt w Bydgoszczy",
+      "wniosek_o_co": "Dane za 2025 r. dot. zadania „opieka nad bezdomnymi zwierzętami i ich wyłapywanie”: podmioty wykonujące wyłapywanie i opiekę, liczba psów i kotów objętych opieką, faktyczny koszt realizacji zadania oraz treść umów o opiekę.",
+      "jaka_odpowiedz": "Udostępniono odpowiedź punkt po punkcie (Ad 1–5): zadanie wykonuje jednostka budżetowa Schronisko dla Zwierząt w Bydgoszczy (brak zewnętrznych umów na opiekę), w 2025 r. objęto opieką 839 psów i 560 kotów, budżet schroniska wyniósł 3.143.761,14 zł, realizowano Umowę 1/2022/SZ z Kliniką Weterynaryjną [zanonimizowano].",
+      "werdykt": "MOZNA_Z_ANONIMIZACJA",
+      "forma_zalatwienia": "Pismo udostępniające informację punkt po punkcie (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1 pkt 1 lit. c i pkt 5, art. 10 ust. 1 UDIP"
+    },
+    {
+      "sygnatura": "BKS.IV.1431.509.2026",
+      "data_odpowiedzi": "2026-08-10",
+      "komorka_merytoryczna": "Wydział Administracji Budowlanej",
+      "wniosek_o_co": "Przesłanie dokumentacji nowego apartamentowca (teren po budynku Astrum): projekt zagospodarowania terenu i zieleni, wizualizacje, parametry techniczne oraz informacja o uzgodnieniu i podziale kosztów przebudowy bulwarów i drogi dojazdowej.",
+      "jaka_odpowiedz": "Wezwanie do doprecyzowania w terminie 7 dni (wskazanie konkretnych akt sprawy pod rygorem pozostawienia bez rozpoznania), informacja o dostępie do pierwotnego projektu wyłącznie na miejscu (trwale spięty – brak możliwości skanowania), zapowiedź terminu dostępu najwcześniej w połowie września (złożona anonimizacja), brak możliwości udostępnienia najnowszej decyzji zmieniającej (nieustalona data ostateczności) oraz przedłużenie terminu rozpatrzenia wniosku do 18 września br.",
+      "werdykt": "MOZNA_WARUNKOWO",
+      "forma_zalatwienia": "Wezwanie do doprecyzowania + powiadomienie o formie zastępczej (wgląd na miejscu) + przedłużenie terminu (art. 13 ust. 2 UDIP)",
+      "etap_i_podstawa": "Art. 13 ust. 2, art. 14 ust. 1-2 UDIP; § 11 ust. 2, 5, 6, 8 Zarządzenia Nr 535/2024"
+    },
+    {
+      "sygnatura": "BKS.IV.1431.307.2025",
+      "data_odpowiedzi": "2025-07-08",
+      "komorka_merytoryczna": "Wydział Edukacji i Sportu",
+      "wniosek_o_co": "Aktualne zestawienie liczby uczniów w szkołach podstawowych oraz – jeśli dostępne – liczba obcokrajowców w poszczególnych szkołach.",
+      "jaka_odpowiedz": "Udostępniono żądane dane statystyczne w formie gotowego załącznika („Informacja_307”).",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo przewodnie + załącznik z zestawieniem danych (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1 pkt 4 lit. d, art. 10 ust. 1 UDIP"
+    },
+    {
+      "sygnatura": "BKS.IV.1431.17.2026",
+      "data_odpowiedzi": "2026-01-15",
+      "komorka_merytoryczna": "Biuro Komunikacji Społecznej (brak posiadania danych w UMB)",
+      "wniosek_o_co": "Pełna dokumentacja realizacji umowy nr 102/TT/2019 z 27.05.2019 r. ze spółką Jakotako Sp. z o.o. (umowa, aneksy, protokoły konieczności/odbioru, faktury, przelewy, licencje, umowa o dofinansowanie, wnioski o płatność, protokoły pokontrolne) w PDF w osobnych folderach przez e-Doręczenia.",
+      "jaka_odpowiedz": "Pismo informacyjne o nieposiadaniu informacji przez Urząd Miasta Bydgoszczy (brak statusu dysponenta danych z art. 4 ust. 3 UDIP) wraz ze wskazaniem właściwego podmiotu i danych kontaktowych: Zarząd Dróg Miejskich i Komunikacji Publicznej w Bydgoszczy.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 4 ust. 3 UDIP; § 11 ust. 3 Zarządzenia Nr 535/2024"
+    },
+    {
+      "sygnatura": "BKS.IV.1431.18.2026",
+      "data_odpowiedzi": "2026-01-26",
+      "komorka_merytoryczna": "Wydział Gospodarki Odpadami",
+      "wniosek_o_co": "Liczba mieszkańców na podstawie opłat za gospodarowanie odpadami komunalnymi z bloków i posesji prywatnych z wymienionej listy ulic leżących na terenie Parafii św. Maksymiliana Kolbego w Bydgoszczy.",
+      "jaka_odpowiedz": "Udostępniono zagregowaną daną statystyczną: łączna liczba zadeklarowanych mieszkańców z wymienionych we wniosku ulic wynosi 5697 osób.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające zagregowaną informację statystyczną (czynność materialno-techniczna; brak ujawniania indywidualnych danych podatników/mieszkańców)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1 pkt 4 lit. d, art. 10 ust. 1 UDIP"
+    },
+    {
+      "sygnatura": "BKS.IV.1431.16.2026",
+      "data_wplywu": "2026-01-09",
+      "data_odpowiedzi": "2026-01-20",
+      "komorka_merytoryczna": "Wydział Spraw Obywatelskich",
+      "wniosek_o_co": "Informacja, ile punktów sprzedaży alkoholu przybyło w Bydgoszczy od czasu objęcia funkcji Prezydenta przez R. Bruskiego do dnia złożenia wniosku.",
+      "jaka_odpowiedz": "Pismo informacyjne, że Urząd Miasta Bydgoszczy nie prowadzi statystyk, które umożliwiłyby udzielenie odpowiedzi na tak zadane pytanie.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne o nieposiadaniu żądanych statystyk (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 4 ust. 3 UDIP"
+    },
+    {
+      "sygnatura": "BKS.IV.1431.15.2026",
+      "data_odpowiedzi": "2026-01-14",
+      "komorka_merytoryczna": "Biuro Komunikacji Społecznej (brak posiadania danych w UMB)",
+      "wniosek_o_co": "Aktualny stan i lokalizacja przechowywania rzeźby Ludmiły Stehnovej usuniętej z wyspy Ronda Grunwaldzkiego w Bydgoszczy oraz plany dotyczące jej przyszłości.",
+      "jaka_odpowiedz": "Pismo informacyjne o nieposiadaniu danych przez Urząd Miasta Bydgoszczy (brak statusu dysponenta z art. 4 ust. 3 UDIP) wraz ze wskazaniem właściwego dysponenta i danych kontaktowych: Kujawsko-Pomorski Wojewódzki Konserwator Zabytków – Delegatura w Bydgoszczy.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 4 ust. 3 UDIP; § 11 ust. 3 Zarządzenia Nr 535/2024"
+    }
+  ]
+}
