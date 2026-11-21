@@ -1,0 +1,34 @@
+export type Status =
+  | 'brak_dzialan'
+  | 'zapytania_wyslane'
+  | 'kwerenda'
+  | 'odpowiedz_przygotowana'
+  | 'odpowiedz_wyslana';
+
+export const STATUSY: { id: Status; etykieta: string }[] = [
+  { id: 'brak_dzialan', etykieta: 'Brak działań' },
+  { id: 'zapytania_wyslane', etykieta: 'Zapytania do wydziałów' },
+  { id: 'kwerenda', etykieta: 'Kwerenda' },
+  { id: 'odpowiedz_przygotowana', etykieta: 'Odpowiedź przygotowana' },
+  { id: 'odpowiedz_wyslana', etykieta: 'Odpowiedź wysłana' },
+];
+
+export function etykietaStatusu(s: Status): string {
+  return STATUSY.find((x) => x.id === s)?.etykieta ?? s;
+}
+
+export interface Wniosek {
+  id: string;
+  numer: string;
+  dataWplywu: string; // YYYY-MM-DD
+  temat: string;
+  wnioskodawca: string;
+  kontakt?: string;
+  inicjaly: string;
+  tresc: string;
+  status: Status;
+  /** Dodatkowe dni na odpowiedź (art. 13 ust. 2 UDIP), maks. do 2 miesięcy od wpływu. */
+  dniKwerendy?: number;
+  dataOdpowiedzi?: string; // YYYY-MM-DD
+  nazwaPliku?: string;
+}
