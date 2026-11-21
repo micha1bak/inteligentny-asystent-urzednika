@@ -66,7 +66,7 @@ export default function NowyWniosek() {
       <div className="siatka-2">
         <div className="stos">
           <div className="karta">
-            <StrefaPliku napis={nazwaPliku ? `Wczytano: ${nazwaPliku} – kliknij, aby zmienić` : 'Wgraj wniosek (PDF / DOCX)'} onWczytano={wczytano} />
+            <StrefaPliku napis="Wgraj wniosek (PDF / DOCX)" onWczytano={wczytano} />
           </div>
           <div className="karta">
             <h2>Dane wniosku do zatwierdzenia</h2>

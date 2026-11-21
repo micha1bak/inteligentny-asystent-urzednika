@@ -113,7 +113,7 @@ export default function NowaSprawaArchiwum() {
               <div>
                 <h3>Wniosek</h3>
                 <StrefaPliku
-                  napis={wniosek ? `Wczytano: ${wniosek.nazwa} – kliknij, aby zmienić` : 'Wgraj wniosek'}
+                  napis={wniosek ? `Wczytano ${wniosek.nazwa} – kliknij, aby wgrać plik wniosku` : 'Wgraj wniosek'}
                   onWczytano={(w, plik) => setWniosek(dokument(w, plik))}
                 />
                 {wniosek?.uwaga && <div className="uwaga" style={{ marginTop: 8 }}>{wniosek.uwaga}</div>}
@@ -121,7 +121,7 @@ export default function NowaSprawaArchiwum() {
               <div>
                 <h3>Wysłana odpowiedź</h3>
                 <StrefaPliku
-                  napis={odpowiedz ? `Wczytano: ${odpowiedz.nazwa} – kliknij, aby zmienić` : 'Wgraj odpowiedź'}
+                  napis="Wgraj odpowiedź"
                   onWczytano={(w, plik) => setOdpowiedz(dokument(w, plik))}
                 />
                 {odpowiedz?.uwaga && <div className="uwaga" style={{ marginTop: 8 }}>{odpowiedz.uwaga}</div>}
