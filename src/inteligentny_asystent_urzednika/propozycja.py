@@ -7,6 +7,7 @@ import re
 
 from pydantic import BaseModel, Field, ValidationError, field_validator
 
+from .anonimizacja import maskuj_dla_ai
 from .groq_klient import BladLLM, KlientLLM
 from .wzor.pismo import (
     DanePisma,
@@ -52,7 +53,7 @@ def blok_odpowiedzi_wydzialow(wniosek: Wniosek, maks: int = MAKS_ZNAKOW_ODPOWIED
     na_jedna = max(400, maks // len(odpowiedzi))
     czesci = []
     for o in odpowiedzi:
-        tresc = o.tresc.strip()
+        tresc = maskuj_dla_ai(o.tresc.strip())
         if len(tresc) > na_jedna:
             tresc = tresc[:na_jedna].rsplit(" ", 1)[0] + " […]"
         czesci.append(f'<odpowiedz_wydzialu wydzial="{o.wydzial}">\n{tresc}\n</odpowiedz_wydzialu>')
@@ -205,7 +206,11 @@ def zbuduj_wiadomosci(
 ) -> tuple[list[dict[str, str]], list[str]]:
     """Składa rozmowę dla modelu. W trybie „wybrany” zmniejsza kontekst, aż zmieści się w budżecie tokenów."""
     ostrzezenia: list[str] = []
-    tresc = wniosek.tresc
+    # dane zbędne do odpowiedzi (PESEL, konto, telefon, dowód, NIP) nie trafiają do modelu AI
+    tresc = maskuj_dla_ai(wniosek.tresc)
+    wniosek = wniosek.model_copy(update={"odpowiedzi_wydzialow": [
+        o.model_copy(update={"tresc": maskuj_dla_ai(o.tresc)}) for o in wniosek.odpowiedzi_wydzialow
+    ]})
 
     maks_odpowiedzi = [MAKS_ZNAKOW_ODPOWIEDZI]  # zmniejszane w ostateczności, gdy zapytanie się nie mieści
 
@@ -290,7 +295,7 @@ async def _sformuluj_pismo_ai(
             "role": "user",
             "content": (
                 f"USTALENIA SPRAWY:\n{json.dumps(dane, ensure_ascii=False)}\n\n"
-                f"<tresc_wniosku>\n{wniosek.tresc[:4000]}\n</tresc_wniosku>"
+                f"<tresc_wniosku>\n{maskuj_dla_ai(wniosek.tresc[:4000])}\n</tresc_wniosku>"
                 + blok_odpowiedzi_wydzialow(wniosek, 5000)
             ),
         },

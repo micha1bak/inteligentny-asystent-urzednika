@@ -21,6 +21,7 @@ from datetime import date, timedelta
 
 from pydantic import BaseModel, Field
 
+from .anonimizacja import maskuj_dla_ai
 from .groq_klient import BladLLM, KlientLLM
 from .podobienstwo import najpodobniejsze
 from .wiedza import JEDNOSTKI_UMB, Wiedza, _skroc, _zwarty
@@ -113,7 +114,7 @@ def kontekst_wydzialow(wiedza: Wiedza, tresc: str, sprawy: int = 3, z_zakresem: 
     return (
         f"JEDNOSTKI UMB:\n{_zwarty(jednostki)}\n\n"
         f"PODOBNE SPRAWY Z ARCHIWUM (kto przygotował odpowiedź):\n{_zwarty(przyklady)}\n\n"
-        f"<tresc_wniosku>\n{tresc[:MAKS_ZNAKOW_WNIOSKU]}\n</tresc_wniosku>"
+        f"<tresc_wniosku>\n{maskuj_dla_ai(tresc[:MAKS_ZNAKOW_WNIOSKU])}\n</tresc_wniosku>"
     )
 
 

@@ -150,3 +150,16 @@ def zastosuj(tekst: str, frazy: list[str], znak: str = "█") -> str:
     for fraza in sorted({f for f in frazy if f.strip()}, key=len, reverse=True):
         tekst = tekst.replace(fraza, znak * len(fraza))
     return tekst
+
+
+# ---------------------------------------------------------------- maskowanie przed wysłaniem do modelu AI
+# Dane niepotrzebne do oceny wniosku i napisania odpowiedzi nie są wysyłane do modelu (zasada minimalizacji danych).
+# Imię, nazwisko i e-mail zostają – model potrzebuje ich do adresata i zwrotu grzecznościowego.
+_DO_MASKOWANIA_DLA_AI = ("PESEL", "numer konta", "numer telefonu", "numer dowodu osobistego", "NIP")
+
+
+def maskuj_dla_ai(tekst: str) -> str:
+    wzorce = [(r, w) for r, w in WZORCE_SUGESTII if r in _DO_MASKOWANIA_DLA_AI]
+    for rodzaj, wzorzec in wzorce:
+        tekst = wzorzec.sub(lambda m, r=rodzaj: m.group() if any(j in m.group() for j in JAWNE_URZEDU) else f"[{r}]", tekst)
+    return tekst
