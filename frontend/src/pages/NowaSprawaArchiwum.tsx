@@ -30,7 +30,7 @@ export default function NowaSprawaArchiwum() {
   const zWniosku = (useLocation().state as ZWniosku | null) ?? undefined;
   const [archiwum, setArchiwum] = useState<Archiwum>();
   const [wniosek, setWniosek] = useState<Dokument | undefined>(
-    zWniosku?.wniosek ? { nazwa: `treść wniosku ${zWniosku.sygnatura} z kalendarza`, tekst: zWniosku.wniosek } : undefined,
+    zWniosku?.wniosek ? { nazwa: zWniosku.sygnatura, tekst: zWniosku.wniosek } : undefined,
   );
   const [odpowiedz, setOdpowiedz] = useState<Dokument>();
   const [sprawa, setSprawa] = useState<Sprawa>({
@@ -100,11 +100,12 @@ export default function NowaSprawaArchiwum() {
 
   return (
     <>
-      <h1>Dodaj sprawę do archiwum</h1>
-      <p className="podtytul">
-        Wgraj wniosek i wysłaną odpowiedź – model zaproponuje zanonimizowany wpis. Możesz też wypełnić formularz ręcznie.
-        Zatwierdzona sprawa od razu trafia do podpowiedzi podobnych spraw. <Link to="/archiwum">Wróć do archiwum</Link>
-      </p>
+      <div className="rzad rozsun" style={{ marginBottom: 18 }}>
+        <div className="rzad">
+          <Link className="przycisk maly-p" to="/archiwum">← Archiwum</Link>
+          <h1 style={{ margin: 0 }}>Dodaj sprawę do archiwum</h1>
+        </div>
+      </div>
       <div className="siatka-2">
         <div className="stos">
           <div className="karta">
@@ -113,7 +114,7 @@ export default function NowaSprawaArchiwum() {
               <div>
                 <h3>Wniosek</h3>
                 <StrefaPliku
-                  napis={wniosek ? `Wczytano ${wniosek.nazwa} – kliknij, aby wgrać plik wniosku` : 'Wgraj wniosek'}
+                  napis={wniosek ? wniosek.nazwa : 'Wybierz plik'}
                   onWczytano={(w, plik) => setWniosek(dokument(w, plik))}
                 />
                 {wniosek?.uwaga && <div className="uwaga" style={{ marginTop: 8 }}>{wniosek.uwaga}</div>}
@@ -121,7 +122,7 @@ export default function NowaSprawaArchiwum() {
               <div>
                 <h3>Wysłana odpowiedź</h3>
                 <StrefaPliku
-                  napis="Wgraj odpowiedź"
+                  napis="Wybierz plik"
                   onWczytano={(w, plik) => setOdpowiedz(dokument(w, plik))}
                 />
                 {odpowiedz?.uwaga && <div className="uwaga" style={{ marginTop: 8 }}>{odpowiedz.uwaga}</div>}
@@ -129,9 +130,8 @@ export default function NowaSprawaArchiwum() {
             </div>
             <div className="rzad" style={{ marginTop: 14 }}>
               <button className="glowny" disabled={!moznaProponowac} onClick={zaproponuj}>
-                {trwaPropozycja ? 'Model przygotowuje wpis…' : 'Zaproponuj wpis (AI)'}
+                {trwaPropozycja ? 'Analizuję…' : 'Zaproponuj wpis (AI)'}
               </button>
-              <span className="maly">Treść obu dokumentów jest wysyłana do modelu (Groq).</span>
             </div>
             {trwaPropozycja && (
               <div className="postep postep-ciagly" role="progressbar"><div /></div>

@@ -2,77 +2,131 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import type { Wniosek } from './types';
 import { wnioskiTestowe } from './dane/wnioskiTestowe';
 import { dzisIso } from './lib/daty';
+import {
+  dodajWniosekApi,
+  dodajWnioskiWsadowoApi,
+  pobierzWnioski,
+  usunWniosekApi,
+  zastapWnioskiApi,
+  zmienWniosekApi,
+  type WniosekDoZapisu,
+} from './lib/api';
 
-/**
- * Magazyn danych prototypu: trzymany w przeglądarce (localStorage), bez serwera.
- * Interfejs (lista operacji poniżej) jest tym, co później zastąpi API backendu.
- */
-interface Stan {
-  wersja: 2;
+interface Magazyn {
   wnioski: Wniosek[];
+  ladowanie: boolean;
+  blad: string;
+  odswiez: () => Promise<void>;
+  dodajWniosek: (w: WniosekDoZapisu) => Promise<Wniosek>;
+  dodajWnioskiWsadowo: (lista: WniosekDoZapisu[]) => Promise<Wniosek[]>;
+  zmienWniosek: (id: string, w: WniosekDoZapisu) => Promise<Wniosek>;
+  usunWniosek: (id: string) => Promise<void>;
+  nastepnyNumer: (rok: string, przesuniecie?: number) => string;
+  przywrocDaneTestowe: () => Promise<void>;
 }
 
-interface Magazyn extends Stan {
-  dodajWniosek: (w: Omit<Wniosek, 'id' | 'numer'> & { numer?: string }) => Wniosek;
-  nastepnyNumer: (rok: string) => string;
-  przywrocDaneTestowe: () => void;
-}
-
-const KLUCZ = 'asystent-urzednika.v2';
-
-function stanPoczatkowy(): Stan {
-  return { wersja: 2, wnioski: wnioskiTestowe(dzisIso()) };
-}
-
-function wczytaj(): Stan {
-  try {
-    const surowe = localStorage.getItem(KLUCZ);
-    if (surowe) {
-      const s = JSON.parse(surowe) as Stan;
-      if (s.wersja === 2 && Array.isArray(s.wnioski)) return s;
-    }
-  } catch {
-    /* brak dostępu do localStorage – działamy w pamięci */
-  }
-  return stanPoczatkowy();
-}
+const KLUCZ_INIT = 'asystent-urzednika.sqlite-zainicjalizowano';
 
 const Kontekst = createContext<Magazyn | null>(null);
 
 export function DostawcaMagazynu({ children }: { children: ReactNode }) {
-  const [stan, ustaw] = useState<Stan>(wczytaj);
+  const [wnioski, setWnioski] = useState<Wniosek[]>([]);
+  const [ladowanie, setLadowanie] = useState(true);
+  const [blad, setBlad] = useState('');
+
+  const odswiez = useCallback(async (sygnal?: AbortSignal) => {
+    setLadowanie(true);
+    setBlad('');
+    try {
+      let lista = await pobierzWnioski(sygnal);
+      let zainicjalizowano = false;
+      try {
+        zainicjalizowano = localStorage.getItem(KLUCZ_INIT) === '1';
+      } catch {
+        /* brak dostępu do localStorage */
+      }
+      if (lista.length === 0 && !zainicjalizowano) {
+        lista = await dodajWnioskiWsadowoApi(wnioskiTestowe(dzisIso()));
+        try {
+          localStorage.setItem(KLUCZ_INIT, '1');
+        } catch {
+          /* ignorujemy */
+        }
+      }
+      setWnioski(lista);
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'AbortError') return;
+      setBlad(e instanceof Error ? e.message : String(e));
+    } finally {
+      setLadowanie(false);
+    }
+  }, []);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(KLUCZ, JSON.stringify(stan));
-    } catch {
-      /* ignorujemy – dane zostają w pamięci karty */
-    }
-  }, [stan]);
+    const ac = new AbortController();
+    void odswiez(ac.signal);
+    return () => ac.abort();
+  }, [odswiez]);
 
   const nastepnyNumer = useCallback(
-    (rok: string) => {
-      const numery = stan.wnioski
+    (rok: string, przesuniecie = 0) => {
+      const numery = wnioski
         .map((w) => w.numer.match(/^BKS\.IV\.1431\.(\d+)\.(\d{4})$/))
         .filter((m): m is RegExpMatchArray => !!m && m[2] === rok)
         .map((m) => Number(m[1]));
-      return `BKS.IV.1431.${(numery.length ? Math.max(...numery) : 0) + 1}.${rok}`;
+      return `BKS.IV.1431.${(numery.length ? Math.max(...numery) : 0) + 1 + przesuniecie}.${rok}`;
     },
-    [stan.wnioski],
+    [wnioski],
   );
+
+  const dodajWniosek = useCallback(async (w: WniosekDoZapisu) => {
+    const zapisany = await dodajWniosekApi(w);
+    setWnioski((prev) => [...prev, zapisany]);
+    return zapisany;
+  }, []);
+
+  const dodajWnioskiWsadowo = useCallback(async (lista: WniosekDoZapisu[]) => {
+    const zapisane = await dodajWnioskiWsadowoApi(lista);
+    setWnioski((prev) => [...prev, ...zapisane]);
+    return zapisane;
+  }, []);
+
+  const zmienWniosek = useCallback(async (id: string, w: WniosekDoZapisu) => {
+    const zapisany = await zmienWniosekApi(id, w);
+    setWnioski((prev) => prev.map((x) => (x.id === id ? zapisany : x)));
+    return zapisany;
+  }, []);
+
+  const usunWniosek = useCallback(async (id: string) => {
+    await usunWniosekApi(id);
+    setWnioski((prev) => prev.filter((x) => x.id !== id));
+  }, []);
+
+  const przywrocDaneTestowe = useCallback(async () => {
+    setBlad('');
+    const zapisane = await zastapWnioskiApi(wnioskiTestowe(dzisIso()));
+    setWnioski(zapisane);
+    try {
+      localStorage.setItem(KLUCZ_INIT, '1');
+    } catch {
+      /* ignorujemy */
+    }
+  }, []);
 
   const wartosc = useMemo<Magazyn>(
     () => ({
-      ...stan,
-      dodajWniosek: (w) => {
-        const nowy: Wniosek = { ...w, id: crypto.randomUUID(), numer: w.numer || nastepnyNumer(w.dataWplywu.slice(0, 4)) };
-        ustaw((s) => ({ ...s, wnioski: [...s.wnioski, nowy] }));
-        return nowy;
-      },
+      wnioski,
+      ladowanie,
+      blad,
+      odswiez: () => odswiez(),
+      dodajWniosek,
+      dodajWnioskiWsadowo,
+      zmienWniosek,
+      usunWniosek,
       nastepnyNumer,
-      przywrocDaneTestowe: () => ustaw(stanPoczatkowy()),
+      przywrocDaneTestowe,
     }),
-    [stan, nastepnyNumer],
+    [wnioski, ladowanie, blad, odswiez, dodajWniosek, dodajWnioskiWsadowo, zmienWniosek, usunWniosek, nastepnyNumer, przywrocDaneTestowe],
   );
 
   return <Kontekst.Provider value={wartosc}>{children}</Kontekst.Provider>;

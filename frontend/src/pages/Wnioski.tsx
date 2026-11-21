@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useMagazyn } from '../magazyn';
 import type { Wniosek } from '../types';
 import { dodajDni, doIso, dzisIso, formatuj, zIso } from '../lib/daty';
@@ -11,16 +11,19 @@ type Wiersz = Wniosek & { lp: number; termin: string; pozostalo: number; pilnosc
 
 const PILNE: Pilnosc[] = ['po_terminie', 'dzis', 'jutro'];
 
-export default function Kalendarz() {
-  const { wnioski, przywrocDaneTestowe } = useMagazyn();
+export default function Wnioski() {
+  const { wnioski, ladowanie, blad, odswiez, przywrocDaneTestowe } = useMagazyn();
   const dzis = dzisIso();
   const lata = useMemo(
     () => [...new Set([dzis.slice(0, 4), ...wnioski.map((w) => w.dataWplywu.slice(0, 4))])].sort().reverse(),
     [wnioski, dzis],
   );
   const [rok, setRok] = useState(dzis.slice(0, 4));
+  const [fraza, setFraza] = useState('');
   const [tylkoPilne, setTylkoPilne] = useState(false);
   const [widok, setWidok] = useState<'tabela' | 'miesiac'>('tabela');
+  const [trwaReset, setTrwaReset] = useState(false);
+  const [bladAkcji, setBladAkcji] = useState('');
 
   const wiersze: Wiersz[] = useMemo(
     () =>
@@ -33,15 +36,32 @@ export default function Kalendarz() {
 
   const liczba = (p: Pilnosc) => wiersze.filter((w) => w.pilnosc === p).length;
   const pilnych = wiersze.filter((w) => PILNE.includes(w.pilnosc)).length;
-  const widoczne = tylkoPilne ? wiersze.filter((w) => PILNE.includes(w.pilnosc)) : wiersze;
+  const widoczne = useMemo(() => {
+    const f = fraza.trim().toLowerCase();
+    return wiersze.filter((w) => {
+      if (tylkoPilne && !PILNE.includes(w.pilnosc)) return false;
+      if (!f) return true;
+      return [w.numer, w.temat, w.wnioskodawca, w.inicjaly].some((t) => t.toLowerCase().includes(f));
+    });
+  }, [wiersze, tylkoPilne, fraza]);
+
+  async function resetujDane(potwierdz: boolean) {
+    if (potwierdz && !confirm('Usunąć obecne wnioski i wczytać dane testowe?')) return;
+    setTrwaReset(true);
+    setBladAkcji('');
+    try {
+      await przywrocDaneTestowe();
+    } catch (e) {
+      setBladAkcji(e instanceof Error ? e.message : String(e));
+    } finally {
+      setTrwaReset(false);
+    }
+  }
 
   return (
     <>
-      <div className="rzad rozsun">
-        <div>
-          <h1>Kalendarz wniosków</h1>
-          <p className="podtytul">Wnioski od najstarszych. Termin liczony wg art. 13 UDIP z przesunięciem na dzień roboczy (art. 57 § 4 KPA).</p>
-        </div>
+      <div className="rzad rozsun" style={{ marginBottom: 18 }}>
+        <h1>Wnioski</h1>
         <div className="rzad">
           <label style={{ flexDirection: 'row', alignItems: 'center' }}>
             Rok
@@ -53,6 +73,13 @@ export default function Kalendarz() {
         </div>
       </div>
 
+      {(blad || bladAkcji) && (
+        <div className="blad rzad rozsun" style={{ marginBottom: 14 }}>
+          <span>{blad || bladAkcji}</span>
+          {blad && <button className="maly-p" onClick={() => void odswiez()}>Spróbuj ponownie</button>}
+        </div>
+      )}
+
       <div className="kafle">
         <div className="kafel"><span className={`liczba ${liczba('po_terminie') ? 'pil-po_terminie' : ''}`}>{liczba('po_terminie')}</span><span className="maly">Po terminie</span></div>
         <div className="kafel"><span className={`liczba ${liczba('dzis') ? 'pil-dzis' : ''}`}>{liczba('dzis')}</span><span className="maly">Termin dziś</span></div>
@@ -63,11 +90,18 @@ export default function Kalendarz() {
 
       <div className="karta">
         <div className="rzad rozsun" style={{ marginBottom: 12 }}>
-          <div className="rzad">
+          <div className="rzad" style={{ flex: 1 }}>
             <div className="zakladki">
               <button className={widok === 'tabela' ? 'aktywna' : ''} onClick={() => setWidok('tabela')}>Tabela</button>
               <button className={widok === 'miesiac' ? 'aktywna' : ''} onClick={() => setWidok('miesiac')}>Kalendarz</button>
             </div>
+            <input
+              type="search"
+              placeholder="Szukaj: nr, temat, wnioskodawca…"
+              value={fraza}
+              onChange={(e) => setFraza(e.target.value)}
+              style={{ maxWidth: 280 }}
+            />
             <label style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <input type="checkbox" style={{ width: 'auto' }} checked={tylkoPilne} onChange={(e) => setTylkoPilne(e.target.checked)} />
               Tylko pilne ({pilnych})
@@ -80,17 +114,26 @@ export default function Kalendarz() {
           </div>
         </div>
 
-        {widok === 'tabela' ? <Tabela wiersze={widoczne} /> : <Miesiac wiersze={widoczne} dzis={dzis} rok={rok} />}
+        {ladowanie ? (
+          <p className="maly">Wczytuję wnioski…</p>
+        ) : widok === 'tabela' ? (
+          <Tabela wiersze={widoczne} />
+        ) : (
+          <Miesiac wiersze={widoczne} dzis={dzis} rok={rok} />
+        )}
 
-        {wiersze.length === 0 && (
+        {!ladowanie && wiersze.length === 0 && (
           <p className="maly" style={{ marginTop: 16 }}>
             Brak wniosków w {rok} r.{' '}
-            <button className="maly-p" onClick={przywrocDaneTestowe}>Wczytaj 10 wniosków testowych</button>
+            <button className="maly-p" disabled={trwaReset} onClick={() => void resetujDane(false)}>
+              Wczytaj dane testowe
+            </button>
           </p>
         )}
       </div>
+
       <p className="maly" style={{ marginTop: 12 }}>
-        <button className="maly-p" onClick={() => confirm('Usunąć wszystkie zmiany i wczytać od nowa 10 wniosków testowych?') && przywrocDaneTestowe()}>
+        <button className="maly-p" disabled={trwaReset} onClick={() => void resetujDane(true)}>
           Przywróć dane testowe
         </button>
       </p>
@@ -99,6 +142,8 @@ export default function Kalendarz() {
 }
 
 function Tabela({ wiersze }: { wiersze: Wiersz[] }) {
+  const nav = useNavigate();
+
   return (
     <div style={{ overflowX: 'auto' }}>
       <table>
@@ -117,13 +162,24 @@ function Tabela({ wiersze }: { wiersze: Wiersz[] }) {
         </thead>
         <tbody>
           {wiersze.map((w) => (
-            <tr key={w.id} className={`p-${w.pilnosc}`}>
+            <tr
+              key={w.id}
+              className={`p-${w.pilnosc} klikalny`}
+              tabIndex={0}
+              onClick={() => nav(`/wnioski/${encodeURIComponent(w.id)}`)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  nav(`/wnioski/${encodeURIComponent(w.id)}`);
+                }
+              }}
+            >
               <td>{w.lp}</td>
               <td className="numer nowrap">{w.numer}</td>
               <td className="nowrap">{formatuj(w.dataWplywu)}</td>
               <td>
                 <span style={{ fontWeight: 500 }}>{w.temat}</span>
-                <div className="maly">{w.wnioskodawca}</div>
+                {w.wnioskodawca && <div className="maly">{w.wnioskodawca}</div>}
               </td>
               <td title="Inicjały osoby prowadzącej">{w.inicjaly}</td>
               <td className="nowrap">{formatuj(w.termin)}</td>
@@ -135,6 +191,7 @@ function Tabela({ wiersze }: { wiersze: Wiersz[] }) {
                     <Link
                       className="maly"
                       to="/archiwum/nowa"
+                      onClick={(e) => e.stopPropagation()}
                       state={{ sygnatura: w.numer, wniosek: w.tresc, dataOdpowiedzi: w.dataOdpowiedzi } satisfies ZWniosku}
                     >
                       Dodaj do archiwum
@@ -173,7 +230,6 @@ function Miesiac({ wiersze, dzis, rok }: { wiersze: Wiersz[]; dzis: string; rok:
         <button className="maly-p" onClick={() => zmien(-1)}>‹</button>
         <strong style={{ minWidth: 160, textAlign: 'center', textTransform: 'capitalize' }}>{nazwa}</strong>
         <button className="maly-p" onClick={() => zmien(1)}>›</button>
-        <span className="maly">Wnioski pokazane w dniu terminu odpowiedzi.</span>
       </div>
       <div className="miesiac">
         {DNI.map((d) => <div key={d} className="naglowek">{d}</div>)}
@@ -184,9 +240,14 @@ function Miesiac({ wiersze, dzis, rok }: { wiersze: Wiersz[]; dzis: string; rok:
           >
             <span className="nr">{Number(d.slice(8))}</span>
             {(wgTerminu.get(d) ?? []).map((w) => (
-              <span key={w.id} className={`chip p-${w.pilnosc}`} title={`${w.numer} – ${w.temat}`}>
+              <Link
+                key={w.id}
+                to={`/wnioski/${encodeURIComponent(w.id)}`}
+                className={`chip p-${w.pilnosc}`}
+                title={`${w.numer} – ${w.temat}`}
+              >
                 {w.inicjaly} · {w.temat}
-              </span>
+              </Link>
             ))}
           </div>
         ))}

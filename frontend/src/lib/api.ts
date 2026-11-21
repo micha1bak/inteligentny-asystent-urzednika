@@ -1,3 +1,4 @@
+import type { Status, Wniosek } from '../types';
 import type { StrukturaPisma } from './pismo';
 
 // Klient backendu (FastAPI). W trybie deweloperskim Vite przekierowuje /api na http://127.0.0.1:8000.
@@ -77,6 +78,10 @@ export async function pobierzPropozycje(z: ZapytanieOPropozycje, sygnal?: AbortS
 
 const NAZWY_POL: Record<string, string> = {
   tresc: 'treść wniosku',
+  numer: 'numer wniosku',
+  data_wplywu: 'data wpływu',
+  temat: 'temat',
+  dni_kwerendy: 'dni kwerendy',
   sygnatura: 'sygnatura',
   data_odpowiedzi: 'data odpowiedzi',
   wniosek_o_co: 'czego dotyczył wniosek',
@@ -225,4 +230,103 @@ export async function zaproponujWpis(
 ): Promise<PropozycjaWpisu> {
   const odp = await wyslij('/api/archiwum/propozycja', { method: 'POST', headers: JSON_NAGLOWKI, body: JSON.stringify(z), signal: sygnal });
   return odp.json();
+}
+
+// ---------------------------------------------------------------- baza wniosków (SQLite)
+
+interface WniosekApi {
+  id: string;
+  numer: string;
+  data_wplywu: string;
+  temat: string;
+  wnioskodawca: string;
+  kontakt?: string | null;
+  inicjaly: string;
+  tresc: string;
+  status: Status;
+  dni_kwerendy?: number | null;
+  data_odpowiedzi?: string | null;
+  nazwa_pliku?: string | null;
+}
+
+export type WniosekDoZapisu = Omit<Wniosek, 'id' | 'numer'> & { id?: string; numer?: string };
+
+function zApi(w: WniosekApi): Wniosek {
+  return {
+    id: w.id,
+    numer: w.numer,
+    dataWplywu: w.data_wplywu,
+    temat: w.temat,
+    wnioskodawca: w.wnioskodawca,
+    kontakt: w.kontakt ?? undefined,
+    inicjaly: w.inicjaly,
+    tresc: w.tresc,
+    status: w.status,
+    dniKwerendy: w.dni_kwerendy ?? undefined,
+    dataOdpowiedzi: w.data_odpowiedzi ?? undefined,
+    nazwaPliku: w.nazwa_pliku ?? undefined,
+  };
+}
+
+function doApi(w: WniosekDoZapisu) {
+  return {
+    id: w.id || undefined,
+    numer: w.numer || undefined,
+    data_wplywu: w.dataWplywu,
+    temat: w.temat,
+    wnioskodawca: w.wnioskodawca,
+    kontakt: w.kontakt || null,
+    inicjaly: w.inicjaly,
+    tresc: w.tresc,
+    status: w.status,
+    dni_kwerendy: w.dniKwerendy ?? null,
+    data_odpowiedzi: w.dataOdpowiedzi || null,
+    nazwa_pliku: w.nazwaPliku || null,
+  };
+}
+
+export async function pobierzWnioski(sygnal?: AbortSignal): Promise<Wniosek[]> {
+  const dane = (await (await wyslij('/api/wnioski', { signal: sygnal })).json()) as WniosekApi[];
+  return dane.map(zApi);
+}
+
+export async function pobierzWniosek(id: string, sygnal?: AbortSignal): Promise<Wniosek> {
+  const dane = (await (await wyslij(`/api/wnioski/${encodeURIComponent(id)}`, { signal: sygnal })).json()) as WniosekApi;
+  return zApi(dane);
+}
+
+export async function dodajWniosekApi(w: WniosekDoZapisu): Promise<Wniosek> {
+  const odp = await wyslij('/api/wnioski', { method: 'POST', headers: JSON_NAGLOWKI, body: JSON.stringify(doApi(w)) });
+  return zApi((await odp.json()) as WniosekApi);
+}
+
+export async function dodajWnioskiWsadowoApi(lista: WniosekDoZapisu[]): Promise<Wniosek[]> {
+  const odp = await wyslij('/api/wnioski/wsadowo', {
+    method: 'POST',
+    headers: JSON_NAGLOWKI,
+    body: JSON.stringify({ wnioski: lista.map(doApi) }),
+  });
+  return ((await odp.json()) as WniosekApi[]).map(zApi);
+}
+
+export async function zastapWnioskiApi(lista: WniosekDoZapisu[]): Promise<Wniosek[]> {
+  const odp = await wyslij('/api/wnioski/zastap', {
+    method: 'POST',
+    headers: JSON_NAGLOWKI,
+    body: JSON.stringify({ wnioski: lista.map(doApi) }),
+  });
+  return ((await odp.json()) as WniosekApi[]).map(zApi);
+}
+
+export async function zmienWniosekApi(id: string, w: WniosekDoZapisu): Promise<Wniosek> {
+  const odp = await wyslij(`/api/wnioski/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    headers: JSON_NAGLOWKI,
+    body: JSON.stringify(doApi(w)),
+  });
+  return zApi((await odp.json()) as WniosekApi);
+}
+
+export async function usunWniosekApi(id: string): Promise<void> {
+  await wyslij(`/api/wnioski/${encodeURIComponent(id)}`, { method: 'DELETE' });
 }

@@ -63,13 +63,8 @@ export default function Archiwum() {
 
   return (
     <>
-      <div className="rzad rozsun">
-        <div>
-          <h1>Archiwum odpowiedzi</h1>
-          <p className="podtytul">
-            Wcześniejsze sprawy z werdyktami – model korzysta z nich przy propozycji odpowiedzi. Sprawy nieaktualne są pomijane.
-          </p>
-        </div>
+      <div className="rzad rozsun" style={{ marginBottom: 18 }}>
+        <h1>Archiwum odpowiedzi</h1>
         <Link className="przycisk glowny" to="/archiwum/nowa">+ Dodaj sprawę</Link>
       </div>
       {blad && <div className="blad" style={{ marginBottom: 12 }}>{blad}</div>}
@@ -131,7 +126,7 @@ export default function Archiwum() {
           {sprawa && dane ? (
             <Edycja key={sprawa.sygnatura} sprawa={sprawa} dane={dane} onZapisano={podmien} onUsunieto={usunieto} />
           ) : (
-            <div className="karta"><p className="maly">Wybierz sprawę z listy, aby zobaczyć szczegóły, edytować ją albo oznaczyć jako nieaktualną.</p></div>
+            <div className="karta"><p className="maly">Wybierz sprawę z listy.</p></div>
           )}
         </div>
       </div>

@@ -47,8 +47,7 @@ export default function PelnyPodgladPisma({ pismo, onZmiana, onZamknij, tytul }:
       <div className="pelny-podglad-pasek">
         <span className="tytul">{tytul ?? 'Projekt pisma'}</span>
         <span className="maly">
-          Kliknij tekst, aby go poprawić.{' '}
-          {braki > 0 ? `Do uzupełnienia: ${braki} (żółte pola).` : 'Wszystkie pola uzupełnione.'}
+          {braki > 0 ? `Do uzupełnienia: ${braki}` : 'Kompletne'}
         </span>
         <button className="maly-p" onClick={() => void kopiuj()}>{skopiowano ? 'Skopiowano' : 'Kopiuj tekst'}</button>
         <button className="glowny" onClick={() => window.print()}>Drukuj / zapisz PDF</button>

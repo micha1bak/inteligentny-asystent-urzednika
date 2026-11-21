@@ -1,136 +1,312 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import PodgladPliku from '../components/PodgladPliku';
+import { ROZSZERZENIA_WNIOSKU, type WniosekDoZapisu } from '../lib/api';
+import { dzisIso } from '../lib/daty';
+import { zapamietajInicjaly, zapamietaneInicjaly } from '../lib/inicjaly';
+import { odczytajWniosek, wyciagnijMetadane } from '../lib/parsowanie';
 import { useMagazyn } from '../magazyn';
-import StrefaPliku from '../components/StrefaPliku';
-import PropozycjaOdpowiedzi from '../components/PropozycjaOdpowiedzi';
-import { dzisIso, formatuj } from '../lib/daty';
-import { terminOdpowiedzi } from '../lib/terminy';
-import { wyciagnijMetadane, type WynikOdczytu } from '../lib/parsowanie';
-import { zapamietaneInicjaly, zapamietajInicjaly } from '../lib/inicjaly';
+
+interface PozycjaPliku {
+  lokalneId: string;
+  plik: File;
+  stan: 'oczekuje' | 'czyta' | 'gotowy' | 'odreczny' | 'blad';
+  blad?: string;
+  tresc: string;
+  temat: string;
+  wnioskodawca: string;
+  kontakt: string;
+}
+
+function nazwaBezRozszerzenia(nazwa: string): string {
+  return nazwa.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim() || nazwa;
+}
 
 export default function NowyWniosek() {
-  const { dodajWniosek, nastepnyNumer, wnioski } = useMagazyn();
+  const { dodajWniosek, dodajWnioskiWsadowo, nastepnyNumer } = useMagazyn();
   const nav = useNavigate();
-  const dzis = dzisIso();
-  const [nazwaPliku, setNazwaPliku] = useState<string>();
-  const [tresc, setTresc] = useState('');
-  const [odczyt, setOdczyt] = useState<WynikOdczytu>();
-  const [dane, setDane] = useState({
-    numer: nastepnyNumer(dzis.slice(0, 4)),
-    dataWplywu: dzis,
-    inicjaly: zapamietaneInicjaly(),
-    wnioskodawca: '',
-    kontakt: '',
-    temat: '',
-  });
-  const ustaw = (k: keyof typeof dane, v: string) =>
-    setDane((d) => {
-      const nowe = { ...d, [k]: v };
-      if (k === 'dataWplywu' && v.length === 10 && d.numer === nastepnyNumer(d.dataWplywu.slice(0, 4))) nowe.numer = nastepnyNumer(v.slice(0, 4));
-      return nowe;
-    });
+  const wejscie = useRef<HTMLInputElement>(null);
+  const przetwarzane = useRef(false);
+  const przerwij = useRef<AbortController | null>(null);
 
-  function wczytano(wynik: WynikOdczytu, plik: File) {
-    const { tekst } = wynik;
-    setNazwaPliku(plik.name);
-    setOdczyt(wynik);
-    setTresc(tekst);
-    if (!tekst || wynik.odreczny) {
-      setDane((d) => ({ ...d, wnioskodawca: '', kontakt: '', temat: '' }));
-      return;
+  const [dataWplywu, setDataWplywu] = useState(dzisIso);
+  const [inicjaly, setInicjaly] = useState(zapamietaneInicjaly);
+  const [aktywna, setAktywna] = useState(false);
+  const [pozycje, setPozycje] = useState<PozycjaPliku[]>([]);
+  const [podglad, setPodglad] = useState<File | null>(null);
+  const [trwaZapis, setTrwaZapis] = useState(false);
+  const [blad, setBlad] = useState('');
+
+  useEffect(() => () => przerwij.current?.abort(), []);
+
+  useEffect(() => {
+    if (przetwarzane.current) return;
+    const nastepna = pozycje.find((p) => p.stan === 'oczekuje');
+    if (!nastepna) return;
+
+    przetwarzane.current = true;
+    const ac = new AbortController();
+    przerwij.current = ac;
+
+    setPozycje((prev) => prev.map((p) => (p.lokalneId === nastepna.lokalneId ? { ...p, stan: 'czyta' } : p)));
+
+    (async () => {
+      try {
+        const wynik = await odczytajWniosek(nastepna.plik, ac.signal);
+        if (wynik.odreczny) {
+          setPozycje((prev) =>
+            prev.map((p) =>
+              p.lokalneId === nastepna.lokalneId
+                ? { ...p, stan: 'odreczny', tresc: '', temat: nazwaBezRozszerzenia(p.plik.name) }
+                : p,
+            ),
+          );
+          return;
+        }
+        const m = wynik.tekst ? wyciagnijMetadane(wynik.tekst) : null;
+        setPozycje((prev) =>
+          prev.map((p) =>
+            p.lokalneId === nastepna.lokalneId
+              ? {
+                  ...p,
+                  stan: 'gotowy',
+                  tresc: wynik.tekst,
+                  temat: m?.temat || nazwaBezRozszerzenia(p.plik.name),
+                  wnioskodawca: m?.wnioskodawca ?? '',
+                  kontakt: m?.kontakt ?? '',
+                }
+              : p,
+          ),
+        );
+      } catch (e) {
+        if (e instanceof DOMException && e.name === 'AbortError') return;
+        const msg = e instanceof Error ? e.message : String(e);
+        setPozycje((prev) =>
+          prev.map((p) => (p.lokalneId === nastepna.lokalneId ? { ...p, stan: 'blad', blad: msg } : p)),
+        );
+      } finally {
+        if (przerwij.current === ac) przerwij.current = null;
+        przetwarzane.current = false;
+      }
+    })();
+  }, [pozycje]);
+
+  function dodajPliki(lista: FileList | null) {
+    if (!lista || lista.length === 0) return;
+    setBlad('');
+    const nowe: PozycjaPliku[] = Array.from(lista).map((plik) => ({
+      lokalneId: crypto.randomUUID(),
+      plik,
+      stan: 'oczekuje',
+      tresc: '',
+      temat: nazwaBezRozszerzenia(plik.name),
+      wnioskodawca: '',
+      kontakt: '',
+    }));
+    setPozycje((prev) => [...prev, ...nowe]);
+  }
+
+  function usunPozycje(lokalneId: string) {
+    setPozycje((prev) => prev.filter((p) => p.lokalneId !== lokalneId));
+  }
+
+  const wTrakcie = pozycje.some((p) => p.stan === 'oczekuje' || p.stan === 'czyta');
+  const gotowe = pozycje.filter((p) => p.stan === 'gotowy' || p.stan === 'odreczny');
+  const rok = dataWplywu.slice(0, 4) || dzisIso().slice(0, 4);
+
+  async function zapiszWszystkie() {
+    if (!gotowe.length || wTrakcie) return;
+    setTrwaZapis(true);
+    setBlad('');
+    try {
+      const ini = inicjaly.trim().toUpperCase();
+      zapamietajInicjaly(ini);
+      const wsad: WniosekDoZapisu[] = gotowe.map((p) => ({
+        dataWplywu,
+        temat: p.temat,
+        wnioskodawca: p.wnioskodawca,
+        kontakt: p.kontakt || undefined,
+        inicjaly: ini,
+        tresc: p.tresc,
+        status: 'brak_dzialan',
+        nazwaPliku: p.plik.name,
+      }));
+      await dodajWnioskiWsadowo(wsad);
+      nav('/');
+    } catch (e) {
+      setBlad(e instanceof Error ? e.message : String(e));
+      setTrwaZapis(false);
     }
-    const m = wyciagnijMetadane(tekst);
-    setDane((d) => ({ ...d, wnioskodawca: m.wnioskodawca, kontakt: m.kontakt, temat: m.temat }));
   }
 
-  const duplikat = wnioski.some((w) => w.numer === dane.numer);
-  const gotowe = nazwaPliku && dane.numer && dane.dataWplywu && dane.temat && !duplikat;
-
-  function zatwierdz() {
-    zapamietajInicjaly(dane.inicjaly);
-    dodajWniosek({
-      ...dane,
-      inicjaly: dane.inicjaly.toUpperCase(),
-      kontakt: dane.kontakt || undefined,
-      tresc,
-      nazwaPliku,
-      status: 'brak_dzialan',
-    });
-    nav('/');
+  async function dodajBezPliku() {
+    setTrwaZapis(true);
+    setBlad('');
+    try {
+      const ini = inicjaly.trim().toUpperCase();
+      zapamietajInicjaly(ini);
+      const utworzony = await dodajWniosek({
+        dataWplywu,
+        temat: 'Nowy wniosek',
+        wnioskodawca: '',
+        inicjaly: ini,
+        tresc: '',
+        status: 'brak_dzialan',
+      });
+      nav(`/wnioski/${encodeURIComponent(utworzony.id)}`);
+    } catch (e) {
+      setBlad(e instanceof Error ? e.message : String(e));
+      setTrwaZapis(false);
+    }
   }
+
+  let indeksNumeru = 0;
 
   return (
     <>
-      <h1>Dodaj wniosek</h1>
-      <p className="podtytul">Wgraj plik z wnioskiem (PDF, DOCX lub skan), sprawdź dane wyciągnięte automatycznie i zatwierdź – wniosek trafi do kalendarza.</p>
-      <div className="siatka-2">
-        <div className="stos">
-          <div className="karta">
-            <StrefaPliku napis="Wgraj wniosek (PDF / DOCX)" onWczytano={wczytano} />
-            {odczyt?.odreczny && (
-              <div className="uwaga" style={{ marginTop: 10 }}>
-                Dokument zawiera pismo odręczne (strony: {odczyt.strony_odreczne.join(', ')}) – tekst nie został odczytany
-                automatycznie. Oceń dokument samodzielnie i wpisz dane wniosku ręcznie.
-              </div>
-            )}
-            {nazwaPliku && !tresc && !odczyt?.odreczny && (
-              <div className="uwaga" style={{ marginTop: 10 }}>
-                Nie udało się odczytać tekstu z pliku. Wpisz dane wniosku ręcznie.
-              </div>
-            )}
+      <div className="rzad rozsun" style={{ marginBottom: 18 }}>
+        <h1>Dodaj wniosek</h1>
+        <button disabled={trwaZapis} onClick={() => void dodajBezPliku()}>
+          Dodaj bez pliku
+        </button>
+      </div>
+
+      <div className="stos">
+        <div className="karta">
+          <div className="rzad" style={{ marginBottom: 14 }}>
+            <label style={{ width: 170 }}>
+              Data wpływu
+              <input type="date" value={dataWplywu} onChange={(e) => setDataWplywu(e.target.value)} />
+            </label>
+            <label style={{ width: 120 }}>
+              Inicjały
+              <input value={inicjaly} maxLength={4} onChange={(e) => setInicjaly(e.target.value.toUpperCase())} />
+            </label>
           </div>
-          <div className="karta">
-            <h2>Dane wniosku do zatwierdzenia</h2>
-            {odczyt && !odczyt.odreczny && odczyt.zrodlo === 'tekst' && tresc && (
-              <div className="info" style={{ marginBottom: 12 }}>Pola uzupełnione automatycznie – sprawdź je przed zatwierdzeniem.</div>
-            )}
-            {odczyt && !odczyt.odreczny && odczyt.zrodlo === 'model' && tresc && (
-              <div className="uwaga" style={{ marginBottom: 12 }}>
-                Plik zawiera skan – tekst {odczyt.stron > 1 ? `stron ${odczyt.strony_z_modelu.join(', ')} ` : ''}przepisał model.
-                Pola uzupełnione na tej podstawie; sprawdź je dokładnie, zwłaszcza nazwiska i numery.
-              </div>
-            )}
-            <div className="formularz">
-              <label>
-                Nr wniosku
-                <input value={dane.numer} onChange={(e) => ustaw('numer', e.target.value)} />
-                {duplikat && <span style={{ color: 'var(--czerwony)' }}>Taki numer już istnieje</span>}
-              </label>
-              <label>
-                Data wpływu
-                <input type="date" value={dane.dataWplywu} onChange={(e) => ustaw('dataWplywu', e.target.value)} />
-                {dane.dataWplywu && <span>Termin odpowiedzi: <strong>{formatuj(terminOdpowiedzi({ dataWplywu: dane.dataWplywu }))}</strong></span>}
-              </label>
-              <label>
-                Wnioskodawca
-                <input value={dane.wnioskodawca} onChange={(e) => ustaw('wnioskodawca', e.target.value)} />
-              </label>
-              <label>
-                Adres do odpowiedzi (e-mail / adres)
-                <input value={dane.kontakt} onChange={(e) => ustaw('kontakt', e.target.value)} />
-              </label>
-              <label className="pelny">
-                Skrócony opis tematu
-                <input value={dane.temat} onChange={(e) => ustaw('temat', e.target.value)} placeholder="np. Koszt remontu ul. Gdańskiej w 2026 r." />
-              </label>
-              <label>
-                Inicjały osoby prowadzącej
-                <input value={dane.inicjaly} maxLength={4} onChange={(e) => ustaw('inicjaly', e.target.value)} />
-              </label>
-            </div>
-            <div className="rzad" style={{ marginTop: 14 }}>
-              <button className="glowny" disabled={!gotowe} onClick={zatwierdz}>Zatwierdź i dodaj do kalendarza</button>
-              {!gotowe && <span className="maly">Wymagane: plik wniosku, numer, data wpływu i temat.</span>}
-            </div>
+
+          <div
+            className={`strefa-upuszczania ${aktywna ? 'aktywna' : ''} ${wTrakcie ? 'zajeta' : ''}`}
+            role="button"
+            tabIndex={0}
+            aria-label="Wybierz lub upuść pliki"
+            onClick={() => wejscie.current?.click()}
+            onKeyDown={(e) => {
+              if (e.target !== e.currentTarget || (e.key !== 'Enter' && e.key !== ' ')) return;
+              e.preventDefault();
+              wejscie.current?.click();
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setAktywna(true);
+            }}
+            onDragLeave={() => setAktywna(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setAktywna(false);
+              dodajPliki(e.dataTransfer.files);
+            }}
+          >
+            <strong>Wybierz lub upuść pliki</strong>
+            <div className="maly" style={{ marginTop: 4 }}>{ROZSZERZENIA_WNIOSKU.join(', ')}</div>
           </div>
-        </div>
-        <div className="stos">
-          <PropozycjaOdpowiedzi
-            key={nazwaPliku}
-            wniosek={{ tresc, temat: dane.temat, numer: dane.numer, data_wplywu: dane.dataWplywu, wnioskodawca: dane.wnioskodawca }}
+
+          <input
+            ref={wejscie}
+            type="file"
+            multiple
+            hidden
+            accept={ROZSZERZENIA_WNIOSKU.join(',')}
+            onChange={(e) => {
+              dodajPliki(e.target.files);
+              e.target.value = '';
+            }}
           />
         </div>
+
+        {pozycje.length > 0 && (
+          <div className="karta">
+            <div className="rzad rozsun" style={{ marginBottom: 12 }}>
+              <h2 style={{ margin: 0 }}>Pliki do dodania ({pozycje.length})</h2>
+              <button className="maly-p" disabled={trwaZapis || wTrakcie} onClick={() => setPozycje([])}>
+                Wyczyść listę
+              </button>
+            </div>
+
+            <div style={{ overflowX: 'auto' }}>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nr wniosku</th>
+                    <th>Plik</th>
+                    <th>Temat</th>
+                    <th>Wnioskodawca</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pozycje.map((p) => {
+                    const numer = p.stan === 'blad' ? '—' : nastepnyNumer(rok, indeksNumeru++);
+                    return (
+                      <tr key={p.lokalneId}>
+                        <td className="numer nowrap">{numer}</td>
+                        <td className="nowrap">
+                          <span>{p.plik.name}</span>{' '}
+                          <button className="maly-p" onClick={() => setPodglad(p.plik)}>Podgląd</button>
+                        </td>
+                        <td>
+                          {p.temat}
+                          {p.blad && <div className="maly" style={{ color: 'var(--czerwony)' }}>{p.blad}</div>}
+                        </td>
+                        <td>{p.wnioskodawca || <span className="maly">—</span>}</td>
+                        <td className="nowrap">
+                          <StatusPliku stan={p.stan} />
+                        </td>
+                        <td className="nowrap">
+                          <button
+                            className="maly-p"
+                            disabled={p.stan === 'czyta' || trwaZapis}
+                            onClick={() => usunPozycje(p.lokalneId)}
+                            aria-label={`Usuń ${p.plik.name}`}
+                          >
+                            ✕
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {blad && <div className="blad" style={{ marginTop: 12 }}>{blad}</div>}
+
+            <div className="rzad" style={{ marginTop: 14 }}>
+              <button
+                className="glowny"
+                disabled={trwaZapis || wTrakcie || gotowe.length === 0 || !dataWplywu}
+                onClick={() => void zapiszWszystkie()}
+              >
+                {trwaZapis
+                  ? 'Zapisywanie…'
+                  : gotowe.length === 1
+                    ? 'Zapisz wniosek'
+                    : `Zapisz wnioski (${gotowe.length})`}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
+
+      {podglad && <PodgladPliku plik={podglad} onZamknij={() => setPodglad(null)} />}
     </>
   );
+}
+
+function StatusPliku({ stan }: { stan: PozycjaPliku['stan'] }) {
+  if (stan === 'oczekuje') return <span className="znaczek s-brak_dzialan">Oczekuje</span>;
+  if (stan === 'czyta') return <span className="znaczek s-zapytania_wyslane">Odczytywanie…</span>;
+  if (stan === 'gotowy') return <span className="znaczek s-odpowiedz_wyslana">Gotowy</span>;
+  if (stan === 'odreczny') return <span className="znaczek s-odpowiedz_przygotowana">Pismo odręczne</span>;
+  return <span className="znaczek w-nie">Błąd</span>;
 }

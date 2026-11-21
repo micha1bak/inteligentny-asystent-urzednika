@@ -86,6 +86,8 @@ table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
 th { text-align: left; font-weight: 600; color: var(--tekst-2); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.02em; padding: 8px 10px; border-bottom: 1px solid var(--linia); white-space: nowrap; }
 td { padding: 10px; border-bottom: 1px solid var(--linia); vertical-align: top; }
 tbody tr:hover td { background: #f6f8fb; }
+tbody tr.klikalny:hover td { filter: brightness(0.97); }
+tbody tr.klikalny:focus-visible { outline: 2px solid var(--akcent); outline-offset: -2px; }
 tr.p-po_terminie td { background: var(--czerwony-tlo); }
 tr.p-dzis td { background: var(--pomaranczowy-tlo); }
 tr.p-jutro td { background: var(--zolty-tlo); }
