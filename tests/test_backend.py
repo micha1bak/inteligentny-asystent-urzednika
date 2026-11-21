@@ -517,3 +517,10 @@ def test_konfiguracja_lokalnego_modelu(monkeypatch):
     monkeypatch.setenv("LLM_MODEL", "bielik-11b")
     u = wczytaj_ustawienia()
     assert u.groq_url.startswith("http://localhost") and u.groq_model == "bielik-11b" and u.groq_api_key == "lokalny"
+
+
+def test_klient_groq_limit_dzienny():
+    tekst = '{"error":{"message":"Rate limit reached ... on tokens per day (TPD): Limit 200000, Used 199708, Requested 5659. Please try again in 38m38.544s."}}'
+    with pytest.raises(BladLLM) as e:
+        asyncio.run(_groq(lambda req: httpx.Response(429, text=tekst)).czat_json([]))
+    assert "DZIENNY" in e.value.komunikat and "38m38s" in e.value.komunikat

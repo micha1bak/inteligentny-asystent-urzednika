@@ -11,6 +11,37 @@ Wsparcie obsługi wniosków o dostęp do informacji publicznej w Urzędzie Miast
   przedłużenie terminu, szkielet decyzji odmownej) opracowane na podstawie pism z `Przykładowe wnioski i odpowiedzi/`.
   Można je poprawiać bez zmian w kodzie.
 
+## Zgodność z wymaganiami zadania UMB
+
+| Wymaganie / krok instrukcji | Jak jest zrealizowane |
+|---|---|
+| Wgrywanie plików PDF / Word | „Dodaj wniosek” (wiele plików naraz), odczyt Word i PDF lokalnie; skany i pismo odręczne – model wizyjny |
+| Kalendarz wniosków | tabela + widok miesiąca, od najstarszych, Lp., nr, temat, inicjały, data wpływu, termin (z dniami wolnymi), data odpowiedzi, wybór roku; podświetlenie: po terminie, termin dziś, termin w następny dzień roboczy |
+| Statusy na każdym kroku | brak działań → zapytania do wydziałów (po oznaczeniu wysłania prośby) → kwerenda + dni → odpowiedź przygotowana (po zatwierdzeniu pisma) → odpowiedź wysłana + data |
+| Podobne wnioski z ostatniego roku / przeszukiwanie archiwum | karta „Podobne sprawy i wnioski” po wgraniu i w szczegółach sprawy (TF-IDF, lokalnie) |
+| Wskazywanie ścieżki – wydziały z BIP | karta „Zapytanie do wydziału”: 3 propozycje jednostek z uzasadnieniem, wybór urzędnika, treść prośby wg Zarządzenia 535/2024 |
+| Odpowiedzi z wydziałów → projekt pisma | karta „Odpowiedzi z wydziałów” (wgranie PDF/Word), model opiera na nich pola pisma; pismo składa kod ze wzorów BKS |
+| Anonimizacja (szare → czarne po akceptacji) | w podglądzie pisma (tryb anonimizacji) i na stronie „Anonimizacja dokumentu”; wykrywanie lokalne (imiona i nazwiska, adresy, PESEL, NIP, dowód, telefon, e-mail, konto); ukryte dane nie trafiają do pliku |
+| Odpowiedź w pliku DOC / TXT | „Pobierz DOCX / TXT” w podglądzie pisma (układ BKS), druk / PDF |
+| Brak automatycznej wysyłki, brak integracji | program niczego nie wysyła – urzędnik kopiuje prośbę / odpowiedź i oznacza status |
+| „Uczenie się” na danych urzędu | Baza wiedzy (wgranie ustaw i aktualizacji – wersje), Archiwum odpowiedzi (dodawanie spraw z dokumentów) |
+| Docelowo zamknięty model bez internetu | `LLM_URL` / `OCR_URL` – lokalny serwer zgodny z API OpenAI (np. Ollama); bez modelu działają wszystkie funkcje poza oceną prawną i odczytem skanów |
+
+### Tryb lokalny (docelowo w urzędzie, bez internetu)
+
+Na Hacknation używany jest Groq (otwarte modele w chmurze, tylko dane testowe). Docelowo:
+
+```env
+LLM_URL=http://<serwer-umb>:11434/v1/chat/completions      # Ollama lub vLLM w sieci urzędu
+LLM_MODEL=SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M        # polski model (alternatywy: qwen3:14b, gpt-oss:20b)
+OCR_URL=http://<serwer-umb>:11434/v1/chat/completions
+OCR_MODEL=qwen2.5vl:7b                                       # model wizyjny: skany i pismo odręczne
+```
+
+Lokalny serwer nie wymaga klucza. Dane (SQLite `wnioski.db`, archiwum i baza wiedzy w JSON) są przechowywane lokalnie.
+Bez żadnego modelu działają: kalendarz, podobne sprawy, propozycja wydziałów (archiwum + zakresy jednostek),
+anonimizacja, eksport DOCX/TXT, odczyt Word i PDF z warstwą tekstową.
+
 ## Uruchomienie
 
 1. Klucz Groq: skopiuj `.envexample` do `.env` i wpisz `GROQ_API_KEY`.
@@ -41,6 +72,15 @@ Wsparcie obsługi wniosków o dostęp do informacji publicznej w Urzędzie Miast
 | GET | `/api/baza-wiedzy/analizy/{id}` | postęp i wynik analizy: zmienione przepisy i proponowane zmiany bazy |
 | POST | `/api/baza-wiedzy/analizy/{id}/zastosuj` | `{decyzje: [{id, zatwierdz, po?}], autor}` → nowa wersja bazy |
 | POST | `/api/baza-wiedzy/wersje/{id}/wycofaj` | `{autor}` → wycofanie wersji (powrót do poprzedniej) |
+| POST | `/api/podobne` | `{tresc, pomin_id?, data_odniesienia?}` → podobne sprawy z archiwum i wnioski z ostatniego roku (bez AI) |
+| GET | `/api/jednostki` | wydziały i biura UMB (nazwy z BIP, zakres spraw) |
+| POST | `/api/wydzial/propozycja` | `{tresc, numer?, data_wplywu?}` → do 3 właściwych jednostek z uzasadnieniem, pytania do wydziału (AI; bez klucza – archiwum + zakresy) |
+| POST | `/api/wydzial/wiadomosc` | `{jednostka, pytania, uwagi, numer?, data_wplywu?, termin?}` → treść prośby do wydziału (do skopiowania – program nic nie wysyła) |
+| POST | `/api/wnioski/{id}/odpowiedzi-wydzialow` | `{wydzial, nazwa_pliku, tresc}` → odpowiedź wydziału zapisana przy wniosku (podstawa projektu pisma) |
+| DELETE | `/api/wnioski/{id}/odpowiedzi-wydzialow/{id_odp}` | usunięcie odpowiedzi wydziału |
+| POST | `/api/anonimizacja/sugestie` | `{tekst, dodatkowe?}` → fragmenty z danymi osobowymi do ukrycia (lokalnie, bez AI) |
+| POST | `/api/pismo/docx`, `/api/pismo/txt` | `{pismo, nazwa}` → plik odpowiedzi; fragmenty ukryte przez urzędnika zastąpione znakami █ |
+| POST | `/api/dokument/docx`, `/api/dokument/txt` | `{tekst, ukryte, nazwa}` → dowolny dokument po anonimizacji |
 
 `/api/konwersja` używa modułu `konwersja/ocr_llm.py` (ten sam co w CLI `python -m inteligentny_asystent_urzednika.konwersja.ocr_llm`):
 DOCX jest czytany lokalnie bez modelu; każda strona PDF/obrazu jest najpierw klasyfikowana przez model wizyjny Groq

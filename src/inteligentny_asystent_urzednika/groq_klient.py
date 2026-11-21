@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Protocol
 
+import re
+
 import httpx
 
 
@@ -66,6 +68,16 @@ class KlientGroq:
                 502,
             )
         if odp.status_code == 429:
+            komunikat = _komunikat_bledu(odp)
+            if "per day" in komunikat.lower() or "TPD" in komunikat or "RPD" in komunikat:
+                czas = re.search(r"try again in ([0-9hms.]+)", komunikat)
+                raise BladLLM(
+                    "Wyczerpano DZIENNY limit modelu w darmowym planie Groq"
+                    + (f" – ponowna próba możliwa za ok. {czas.group(1).split('.')[0]}s" if czas else "")
+                    + ". Funkcje bez AI (kalendarz, podobne sprawy, wydziały, anonimizacja, eksport) działają dalej. "
+                    "Docelowo: lokalny model w urzędzie (LLM_URL) – bez limitów i bez internetu.",
+                    429,
+                )
             raise BladLLM(
                 "Wykorzystano limit tokenów/zapytań Groq na tę minutę (darmowy plan mieści ok. jedno zapytanie na minutę). "
                 "Odczekaj minutę i spróbuj ponownie.",
