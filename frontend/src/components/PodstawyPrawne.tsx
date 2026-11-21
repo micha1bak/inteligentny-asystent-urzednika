@@ -125,7 +125,7 @@ export default function PodstawyPrawne({
 
                 {otwarty && (
                   <div className="podstawa-podglad">
-                    {stan?.trwa && <div className="maly">Wyszukuję w folderze „Dokumenty i podstawy prawne”…</div>}
+                    {stan?.trwa && <div className="maly">Wyszukuję…</div>}
                     {stan?.blad && <div className="blad">{stan.blad}</div>}
                     {stan?.dane && stan.dane.wyniki.length === 0 && (
                       <div className="maly">
@@ -153,9 +153,6 @@ export default function PodstawyPrawne({
 
       {wyszukiwarkaOtwarta && (
         <div className="wyszukiwarka-przepisow">
-          <div className="maly" style={{ marginBottom: 6 }}>
-            Deterministyczne wyszukiwanie po lokalnych plikach w folderze <strong>Dokumenty i podstawy prawne</strong> (bez AI).
-          </div>
           <form className="wyszukiwarka-pasek" onSubmit={(e) => void wykonajSzukanie(e)}>
             <input
               value={zapytanie}

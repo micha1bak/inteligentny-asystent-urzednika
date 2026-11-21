@@ -221,10 +221,27 @@ def test_wzory_dobierane_do_sprawy():
 def test_weryfikacja_wzoru():
     p = zweryfikuj(json.dumps({**ODPOWIEDZ_MODELU, "wzor": "udostepnienie_w_tresci"}), WIEDZA)
     assert p.wzor_nazwa == "Udostępnienie informacji w treści pisma"
-    p = zweryfikuj(json.dumps({**ODPOWIEDZ_MODELU, "wzor": "wymyslony"}), WIEDZA)
-    assert p.wzor == "" and p.wzor_nazwa == ""
+
+    p = zweryfikuj(json.dumps({**ODPOWIEDZ_MODELU, "wzor": "wymyslony"}), WIEDZA, "m", WNIOSEK)
+    assert p.wzor == "odpowiedz_uniwersalna" and p.wzor_nazwa == "Uniwersalny wzór odpowiedzi"
     assert any("nieznany wzór" in o for o in p.ostrzezenia)
-    assert "brak pasującego wzoru" in p.projekt_odpowiedzi
+    assert "brak pasującego wzoru" not in p.projekt_odpowiedzi
+    assert "liczby psów i kotów" in p.projekt_odpowiedzi
+    assert "Art. 6 ust. 1 pkt 5 UDIP" in p.projekt_odpowiedzi
+
+    p_pusty = zweryfikuj(
+        json.dumps({**ODPOWIEDZ_MODELU, "werdykt": "NIE_MOZNA_DECYZJA_ODMOWNA", "wzor": "", "pola": {}}),
+        WIEDZA,
+        "m",
+        WNIOSEK,
+    )
+    assert p_pusty.wzor == "odpowiedz_uniwersalna"
+    assert "brak pasującego wzoru" not in p_pusty.projekt_odpowiedzi
+    assert ODPOWIEDZ_MODELU["uzasadnienie"] in p_pusty.projekt_odpowiedzi
+    assert "decyzja administracyjna" in p_pusty.projekt_odpowiedzi
+
+    pismo_none, _ = zloz_pismo(None, WIEDZA.wzory, DanePisma(pola={"zakres_wniosku": "testu", "tresc_odpowiedzi": "Treść."}))
+    assert "brak pasującego wzoru" not in pismo_none.tekst and "Treść." in pismo_none.tekst
 
 
 def test_pismo_skladane_przez_kod_ze_wzoru():

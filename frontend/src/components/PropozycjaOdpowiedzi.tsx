@@ -82,17 +82,13 @@ export default function PropozycjaOdpowiedzi({ wniosek }: { wniosek: ZapytanieOP
 
   return (
     <div className="karta">
-      <div className="rzad rozsun">
+      <div className="rzad rozsun" style={{ marginBottom: 12 }}>
         <h2 style={{ margin: 0 }}>Propozycja odpowiedzi (AI)</h2>
         <button className={wynik ? 'maly-p' : 'glowny'} disabled={!mozna || trwa} onClick={() => void generuj()}>
-          {trwa ? 'Analizuję wniosek…' : wynik ? 'Wygeneruj ponownie' : 'Zaproponuj odpowiedź'}
+          {trwa ? 'Analizuję…' : wynik ? 'Wygeneruj ponownie' : 'Zaproponuj odpowiedź'}
         </button>
       </div>
-      <p className="maly" style={{ margin: '8px 0 12px' }}>
-        Treść wniosku, model oceny prawnej (UDIP, KPA, Zarządzenie 535/2024) i archiwum werdyktów są wysyłane do modelu w Groq.
-        Używaj tylko danych testowych. To projekt – decyzję podejmuje urzędnik.
-      </p>
-      {!mozna && <p className="maly">Najpierw wgraj wniosek z czytelną treścią.</p>}
+      {!mozna && <p className="maly">Uzupełnij treść wniosku (min. 20 znaków).</p>}
       {trwa && <div className="postep postep-ciagly"><div /></div>}
       {blad && <div className="blad">{blad}</div>}
 
@@ -101,7 +97,7 @@ export default function PropozycjaOdpowiedzi({ wniosek }: { wniosek: ZapytanieOP
           <PodstawyPrawne
             podstawy={podstawy}
             onDodajPodstawe={dodajPodstawe}
-            tytul="Podstawy prawne – szybki podgląd ustaw (bez AI)"
+            tytul="Podstawy prawne"
           />
         </div>
       )}
@@ -140,8 +136,7 @@ export default function PropozycjaOdpowiedzi({ wniosek }: { wniosek: ZapytanieOP
               </div>
               {wstawiono && (
                 <div className="maly">
-                  Wstawiono do pisma jako nowy akapit na końcu treści: „{wstawiono.length > 80 ? `${wstawiono.slice(0, 80)}…` : wstawiono}”.
-                  Otwórz pismo, aby przestawić go we właściwe miejsce (⋮⋮ lub ↑ ↓ na marginesie).
+                  Wstawiono do pisma: „{wstawiono.length > 80 ? `${wstawiono.slice(0, 80)}…` : wstawiono}”.
                 </div>
               )}
               {podglad && (

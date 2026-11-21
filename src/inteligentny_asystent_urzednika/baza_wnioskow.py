@@ -1,0 +1,278 @@
+"""Baza SQLite dla wniosków o dostęp do informacji publicznej i ich metadanych."""
+
+from __future__ import annotations
+
+import re
+import sqlite3
+import uuid
+from contextlib import contextmanager
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Iterator, Literal
+
+from pydantic import BaseModel, Field
+
+StatusWniosku = Literal[
+    "brak_dzialan",
+    "zapytania_wyslane",
+    "kwerenda",
+    "odpowiedz_przygotowana",
+    "odpowiedz_wyslana",
+]
+
+_WZOR_NUMERU = re.compile(r"^BKS\.IV\.1431\.(\d+)\.(\d{4})$")
+_WZOR_DATY = r"^\d{4}-\d{2}-\d{2}$"
+
+
+class BladBazy(Exception):
+    def __init__(self, status: int, komunikat: str):
+        super().__init__(komunikat)
+        self.status = status
+        self.komunikat = komunikat
+
+
+class WniosekWejscie(BaseModel):
+    id: str | None = None
+    numer: str | None = Field(default=None, max_length=120)
+    data_wplywu: str = Field(..., pattern=_WZOR_DATY)
+    temat: str = Field(..., min_length=1, max_length=500)
+    wnioskodawca: str = Field(default="", max_length=300)
+    kontakt: str | None = Field(default=None, max_length=300)
+    inicjaly: str = Field(default="", max_length=16)
+    tresc: str = Field(default="", max_length=100_000)
+    status: StatusWniosku = "brak_dzialan"
+    dni_kwerendy: int | None = Field(default=None, ge=0, le=62)
+    data_odpowiedzi: str | None = Field(default=None, pattern=_WZOR_DATY)
+    nazwa_pliku: str | None = Field(default=None, max_length=300)
+
+
+class WniosekZapisany(BaseModel):
+    id: str
+    numer: str
+    data_wplywu: str
+    temat: str
+    wnioskodawca: str
+    kontakt: str | None = None
+    inicjaly: str
+    tresc: str
+    status: StatusWniosku
+    dni_kwerendy: int | None = None
+    data_odpowiedzi: str | None = None
+    nazwa_pliku: str | None = None
+    utworzono: str
+    zaktualizowano: str
+
+
+class WniosekWsad(BaseModel):
+    wnioski: list[WniosekWejscie]
+
+
+_SCHEMAT = """
+CREATE TABLE IF NOT EXISTS wnioski (
+    id TEXT PRIMARY KEY,
+    numer TEXT UNIQUE NOT NULL,
+    data_wplywu TEXT NOT NULL,
+    temat TEXT NOT NULL,
+    wnioskodawca TEXT NOT NULL DEFAULT '',
+    kontakt TEXT,
+    inicjaly TEXT NOT NULL DEFAULT '',
+    tresc TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT 'brak_dzialan',
+    dni_kwerendy INTEGER,
+    data_odpowiedzi TEXT,
+    nazwa_pliku TEXT,
+    utworzono TEXT NOT NULL,
+    zaktualizowano TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_wnioski_data_wplywu ON wnioski(data_wplywu);
+"""
+
+
+def _teraz_iso() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+@contextmanager
+def _polaczenie(sciezka: Path) -> Iterator[sqlite3.Connection]:
+    sciezka.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(sciezka, timeout=15)
+    conn.row_factory = sqlite3.Row
+    try:
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.executescript(_SCHEMAT)
+        yield conn
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+def _wiersz_na_model(wiersz: sqlite3.Row) -> WniosekZapisany:
+    return WniosekZapisany(
+        id=wiersz["id"],
+        numer=wiersz["numer"],
+        data_wplywu=wiersz["data_wplywu"],
+        temat=wiersz["temat"],
+        wnioskodawca=wiersz["wnioskodawca"],
+        kontakt=wiersz["kontakt"],
+        inicjaly=wiersz["inicjaly"],
+        tresc=wiersz["tresc"],
+        status=wiersz["status"],
+        dni_kwerendy=wiersz["dni_kwerendy"],
+        data_odpowiedzi=wiersz["data_odpowiedzi"],
+        nazwa_pliku=wiersz["nazwa_pliku"],
+        utworzono=wiersz["utworzono"],
+        zaktualizowano=wiersz["zaktualizowano"],
+    )
+
+
+def _nastepny_numer(conn: sqlite3.Connection, rok: str) -> str:
+    maks = 0
+    for wiersz in conn.execute("SELECT numer FROM wnioski"):
+        m = _WZOR_NUMERU.match(wiersz["numer"])
+        if m and m.group(2) == rok:
+            maks = max(maks, int(m.group(1)))
+    return f"BKS.IV.1431.{maks + 1}.{rok}"
+
+
+def _oczyszczone(dane: WniosekWejscie) -> dict:
+    kontakt = dane.kontakt.strip() if dane.kontakt else None
+    nazwa_pliku = dane.nazwa_pliku.strip() if dane.nazwa_pliku else None
+    data_odpowiedzi = dane.data_odpowiedzi or None
+    dni_kwerendy = dane.dni_kwerendy if dane.status == "kwerenda" and dane.dni_kwerendy else None
+    return {
+        "data_wplywu": dane.data_wplywu,
+        "temat": dane.temat.strip(),
+        "wnioskodawca": dane.wnioskodawca.strip(),
+        "kontakt": kontakt or None,
+        "inicjaly": dane.inicjaly.strip().upper(),
+        "tresc": dane.tresc,
+        "status": dane.status,
+        "dni_kwerendy": dni_kwerendy,
+        "data_odpowiedzi": data_odpowiedzi if dane.status == "odpowiedz_wyslana" else None,
+        "nazwa_pliku": nazwa_pliku or None,
+    }
+
+
+def _wstaw(conn: sqlite3.Connection, dane: WniosekWejscie, teraz: str) -> WniosekZapisany:
+    id_wniosku = (dane.id or "").strip() or str(uuid.uuid4())
+    numer = (dane.numer or "").strip() or _nastepny_numer(conn, dane.data_wplywu[:4])
+    pola = _oczyszczone(dane)
+    try:
+        conn.execute(
+            """
+            INSERT INTO wnioski (
+                id, numer, data_wplywu, temat, wnioskodawca, kontakt, inicjaly,
+                tresc, status, dni_kwerendy, data_odpowiedzi, nazwa_pliku, utworzono, zaktualizowano
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                id_wniosku,
+                numer,
+                pola["data_wplywu"],
+                pola["temat"],
+                pola["wnioskodawca"],
+                pola["kontakt"],
+                pola["inicjaly"],
+                pola["tresc"],
+                pola["status"],
+                pola["dni_kwerendy"],
+                pola["data_odpowiedzi"],
+                pola["nazwa_pliku"],
+                teraz,
+                teraz,
+            ),
+        )
+    except sqlite3.IntegrityError as e:
+        raise BladBazy(409, f"Wniosek o numerze {numer} już istnieje w bazie.") from e
+    wiersz = conn.execute("SELECT * FROM wnioski WHERE id = ?", (id_wniosku,)).fetchone()
+    assert wiersz is not None
+    return _wiersz_na_model(wiersz)
+
+
+def lista(sciezka: Path) -> list[WniosekZapisany]:
+    with _polaczenie(sciezka) as conn:
+        wiersze = conn.execute("SELECT * FROM wnioski ORDER BY data_wplywu ASC, numer ASC").fetchall()
+        return [_wiersz_na_model(w) for w in wiersze]
+
+
+def liczba(sciezka: Path) -> int:
+    with _polaczenie(sciezka) as conn:
+        wiersz = conn.execute("SELECT COUNT(*) AS n FROM wnioski").fetchone()
+        return int(wiersz["n"]) if wiersz else 0
+
+
+def pobierz(sciezka: Path, id_wniosku: str) -> WniosekZapisany:
+    with _polaczenie(sciezka) as conn:
+        wiersz = conn.execute("SELECT * FROM wnioski WHERE id = ?", (id_wniosku,)).fetchone()
+        if wiersz is None:
+            raise BladBazy(404, "Nie znaleziono wniosku.")
+        return _wiersz_na_model(wiersz)
+
+
+def dodaj(sciezka: Path, dane: WniosekWejscie) -> WniosekZapisany:
+    teraz = _teraz_iso()
+    with _polaczenie(sciezka) as conn:
+        return _wstaw(conn, dane, teraz)
+
+
+def dodaj_wsadowo(sciezka: Path, pozycje: list[WniosekWejscie]) -> list[WniosekZapisany]:
+    teraz = _teraz_iso()
+    with _polaczenie(sciezka) as conn:
+        return [_wstaw(conn, p, teraz) for p in pozycje]
+
+
+def zmien(sciezka: Path, id_wniosku: str, dane: WniosekWejscie) -> WniosekZapisany:
+    teraz = _teraz_iso()
+    with _polaczenie(sciezka) as conn:
+        istniejacy = conn.execute("SELECT * FROM wnioski WHERE id = ?", (id_wniosku,)).fetchone()
+        if istniejacy is None:
+            raise BladBazy(404, "Nie znaleziono wniosku.")
+        numer = (dane.numer or "").strip() or istniejacy["numer"]
+        pola = _oczyszczone(dane)
+        try:
+            conn.execute(
+                """
+                UPDATE wnioski
+                SET numer = ?, data_wplywu = ?, temat = ?, wnioskodawca = ?, kontakt = ?,
+                    inicjaly = ?, tresc = ?, status = ?, dni_kwerendy = ?, data_odpowiedzi = ?,
+                    nazwa_pliku = ?, zaktualizowano = ?
+                WHERE id = ?
+                """,
+                (
+                    numer,
+                    pola["data_wplywu"],
+                    pola["temat"],
+                    pola["wnioskodawca"],
+                    pola["kontakt"],
+                    pola["inicjaly"],
+                    pola["tresc"],
+                    pola["status"],
+                    pola["dni_kwerendy"],
+                    pola["data_odpowiedzi"],
+                    pola["nazwa_pliku"],
+                    teraz,
+                    id_wniosku,
+                ),
+            )
+        except sqlite3.IntegrityError as e:
+            raise BladBazy(409, f"Wniosek o numerze {numer} już istnieje w bazie.") from e
+        wiersz = conn.execute("SELECT * FROM wnioski WHERE id = ?", (id_wniosku,)).fetchone()
+        assert wiersz is not None
+        return _wiersz_na_model(wiersz)
+
+
+def usun(sciezka: Path, id_wniosku: str) -> None:
+    with _polaczenie(sciezka) as conn:
+        kursor = conn.execute("DELETE FROM wnioski WHERE id = ?", (id_wniosku,))
+        if kursor.rowcount == 0:
+            raise BladBazy(404, "Nie znaleziono wniosku.")
+
+
+def zastap_wszystkie(sciezka: Path, pozycje: list[WniosekWejscie]) -> list[WniosekZapisany]:
+    teraz = _teraz_iso()
+    with _polaczenie(sciezka) as conn:
+        conn.execute("DELETE FROM wnioski")
+        return [_wstaw(conn, p, teraz) for p in pozycje]

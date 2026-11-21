@@ -12,10 +12,11 @@ from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from . import analiza_aktu, archiwum, baza_wiedzy
+from . import analiza_aktu, archiwum, baza_wiedzy, baza_wnioskow
 from .analiza_aktu import ROZSZERZENIA_AKTU, Analiza
 from .archiwum import BladArchiwum, SprawaZArchiwum, ZmianaSprawy
 from .baza_wiedzy import BladBazyWiedzy, Wersja, WersjaZeStatusem
+from .baza_wnioskow import BladBazy, WniosekWejscie, WniosekWsad, WniosekZapisany
 from .config import Ustawienia, wczytaj_ustawienia
 from .groq_klient import BladLLM, KlientGroq, KlientLLM
 from .konwersja import ocr_llm
@@ -157,7 +158,59 @@ def utworz_aplikacje() -> FastAPI:
             "spraw_w_archiwum": len(wiedza.sygnatury),
             "werdyktow": len(wiedza.slownik_werdyktow),
             "dokumentow_prawnych": len(indeks.dokumenty),
+            "wnioskow_w_bazie": baza_wnioskow.liczba(u.plik_bazy),
         }
+
+    # ------------------------------------------------------------ baza wniosków (SQLite)
+
+    @app.get("/api/wnioski", response_model=list[WniosekZapisany])
+    def wnioski_lista(u: Ustawienia = Depends(pobierz_ustawienia)) -> list[WniosekZapisany]:
+        return baza_wnioskow.lista(u.plik_bazy)
+
+    @app.get("/api/wnioski/{id_wniosku}", response_model=WniosekZapisany)
+    def wnioski_pobierz(id_wniosku: str, u: Ustawienia = Depends(pobierz_ustawienia)) -> WniosekZapisany:
+        try:
+            return baza_wnioskow.pobierz(u.plik_bazy, id_wniosku)
+        except BladBazy as e:
+            raise HTTPException(e.status, e.komunikat) from e
+
+    @app.post("/api/wnioski", response_model=WniosekZapisany, status_code=201)
+    def wnioski_dodaj(dane: WniosekWejscie, u: Ustawienia = Depends(pobierz_ustawienia)) -> WniosekZapisany:
+        try:
+            return baza_wnioskow.dodaj(u.plik_bazy, dane)
+        except BladBazy as e:
+            raise HTTPException(e.status, e.komunikat) from e
+
+    @app.post("/api/wnioski/wsadowo", response_model=list[WniosekZapisany], status_code=201)
+    def wnioski_dodaj_wsadowo(wsad: WniosekWsad, u: Ustawienia = Depends(pobierz_ustawienia)) -> list[WniosekZapisany]:
+        try:
+            return baza_wnioskow.dodaj_wsadowo(u.plik_bazy, wsad.wnioski)
+        except BladBazy as e:
+            raise HTTPException(e.status, e.komunikat) from e
+
+    @app.post("/api/wnioski/zastap", response_model=list[WniosekZapisany])
+    def wnioski_zastap(wsad: WniosekWsad, u: Ustawienia = Depends(pobierz_ustawienia)) -> list[WniosekZapisany]:
+        try:
+            return baza_wnioskow.zastap_wszystkie(u.plik_bazy, wsad.wnioski)
+        except BladBazy as e:
+            raise HTTPException(e.status, e.komunikat) from e
+
+    @app.put("/api/wnioski/{id_wniosku}", response_model=WniosekZapisany)
+    def wnioski_zmien(
+        id_wniosku: str, dane: WniosekWejscie, u: Ustawienia = Depends(pobierz_ustawienia)
+    ) -> WniosekZapisany:
+        try:
+            return baza_wnioskow.zmien(u.plik_bazy, id_wniosku, dane)
+        except BladBazy as e:
+            raise HTTPException(e.status, e.komunikat) from e
+
+    @app.delete("/api/wnioski/{id_wniosku}", status_code=204)
+    def wnioski_usun(id_wniosku: str, u: Ustawienia = Depends(pobierz_ustawienia)) -> Response:
+        try:
+            baza_wnioskow.usun(u.plik_bazy, id_wniosku)
+        except BladBazy as e:
+            raise HTTPException(e.status, e.komunikat) from e
+        return Response(status_code=204)
 
     @app.get("/api/przepisy/dokumenty", response_model=list[DokumentPrawnyInfo])
     def dokumenty_prawne(

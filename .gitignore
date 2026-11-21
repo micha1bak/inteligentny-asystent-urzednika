@@ -12,3 +12,8 @@ wheels/
 
 # Wyniki konwersji (dane osobowe z wniosków)
 src/inteligentny_asystent_urzednika/konwersja/pliki_txt/
+
+# Lokalna baza SQLite
+*.db
+*.db-wal
+*.db-shm

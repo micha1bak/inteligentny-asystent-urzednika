@@ -26,6 +26,28 @@ FORMY = {
 }
 FORMA_NIEZNANA = ("[[do uzupełnienia: Szanowny Panie / Szanowna Pani / Szanowni Państwo]],", "[[Pana / Panią / Państwa]]")
 POLA_KODU = {"przez_kogo", "komorka_merytoryczna", "numer_sprawy"}
+ID_WZORU_UNIWERSALNEGO = "odpowiedz_uniwersalna"
+
+WZOR_UNIWERSALNY: dict = {
+    "id": ID_WZORU_UNIWERSALNEGO,
+    "nazwa": "Uniwersalny wzór odpowiedzi",
+    "zwrot": True,
+    "zalaczniki": True,
+    "tresc": (
+        "w odpowiedzi na wystosowany przez «przez_kogo» wniosek o udostępnienie informacji publicznej "
+        "dotyczący «zakres_wniosku», po analizie sprawy we współpracy z komórką merytoryczną, "
+        "tj. «komorka_merytoryczna» Urzędu Miasta Bydgoszczy, informuję, co następuje.\n"
+        "«tresc_odpowiedzi»\n"
+        "?podstawa_prawna Podstawa prawna: «podstawa_prawna».\n"
+        "?dalsze_kroki «dalsze_kroki»"
+    ),
+    "pola": {
+        "zakres_wniosku": {"opis": "czego dotyczy wniosek", "typ": "tekst"},
+        "tresc_odpowiedzi": {"opis": "główna treść odpowiedzi", "typ": "tekst"},
+        "podstawa_prawna": {"opis": "podstawa prawna rozstrzygnięcia", "typ": "tekst", "opcjonalne": True},
+        "dalsze_kroki": {"opis": "dalsze kroki lub pouczenie", "typ": "tekst", "opcjonalne": True},
+    },
+}
 
 _POLE = re.compile(r"«([a-z_]+)»")
 _OPCJONALNA = re.compile(r"^\?([a-z_]+) (.*)$")
@@ -157,17 +179,15 @@ def zloz_tresc(wzor: dict, dane: DanePisma) -> tuple[list[Blok], list[str]]:
 
 def zloz_pismo(wzor: dict | None, wzory: dict, dane: DanePisma) -> tuple[Pismo, list[str]]:
     """Całe pismo: nagłówek, data, znak sprawy, adresat, [tytuł], treść, zakończenie, podpis, stopka."""
-    if wzor is None:
-        tresc, braki = [Blok("akapit", do_uzupelnienia("treść pisma – brak pasującego wzoru"))], ["treść pisma (brak wzoru)"]
-    else:
-        tresc, braki = zloz_tresc(wzor, dane)
+    uzyty_wzor = wzor if wzor is not None else WZOR_UNIWERSALNY
+    tresc, braki = zloz_tresc(uzyty_wzor, dane)
     zakonczenie, *podpis = wzory["podpis"].splitlines()
     pismo = Pismo(
         naglowek=wzory["naglowek"].splitlines(),
         data=f"Bydgoszcz, dnia {data_slownie(dane.data or date.today())} r.",
         znak=dane.znak_sprawy.strip() or do_uzupelnienia("znak sprawy"),
         adresat=_linie(dane.adresat),
-        tytul=(wzor or {}).get("tytul", "").splitlines(),
+        tytul=uzyty_wzor.get("tytul", "").splitlines(),
         tresc=tresc,
         zakonczenie=zakonczenie,
         podpis=podpis,

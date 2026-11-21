@@ -78,14 +78,10 @@ export default function StrefaPliku({ napis, onWczytano }: Props) {
             <div className="postep postep-ciagly" role="progressbar" style={{ maxWidth: 360, margin: '10px auto 6px' }}>
               <div />
             </div>
-            <div className="maly">
-              Backend sprawdza, czy pismo nie jest odręczne, i odczytuje tekst. Skan może potrwać do minuty na stronę.
-            </div>
           </>
         ) : plik ? (
           <>
-            <strong>Wczytano: {plik.name} – kliknij, aby podejrzeć</strong>
-            <div className="maly">Plik wyświetli się tak, jak został wgrany · przeciągnij tutaj inny plik, aby go zastąpić</div>
+            <strong>{plik.name}</strong>
             <div className="strefa-akcje">
               <button
                 className="maly-p"
@@ -110,9 +106,7 @@ export default function StrefaPliku({ napis, onWczytano }: Props) {
         ) : (
           <>
             <strong>{napis}</strong>
-            <div className="maly">
-              PDF (także skan), DOCX lub zdjęcie · przeciągnij tutaj albo kliknij · strony PDF i skany są analizowane przez model (Groq)
-            </div>
+            <div className="maly" style={{ marginTop: 4 }}>{ROZSZERZENIA_WNIOSKU.join(', ')}</div>
           </>
         )}
       </div>

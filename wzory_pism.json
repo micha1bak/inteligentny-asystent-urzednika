@@ -244,6 +244,43 @@
           "typ": "tekst"
         }
       }
+    },
+    {
+      "id": "odpowiedz_uniwersalna",
+      "nazwa": "Uniwersalny wzór odpowiedzi",
+      "kiedy": "Gdy żaden ze szczegółowych wzorów nie pasuje dokładnie do sprawy lub rozstrzygnięcia (np. decyzja odmowna, umorzenie, nietypowe pismo informacyjne lub sprawa mieszana).",
+      "werdykty": [
+        "MOZNA_UDOSTEPNIC",
+        "MOZNA_Z_ANONIMIZACJA",
+        "MOZNA_WARUNKOWO",
+        "NIE_MOZNA_DECYZJA_ODMOWNA",
+        "NIE_MOZNA_UMORZENIE_DECYZJA",
+        "NIE_MOZNA_PISMO_INFORMACYJNE",
+        "POZOSTAWIENIE_BEZ_ROZPOZNANIA"
+      ],
+      "zwrot": true,
+      "zalaczniki": true,
+      "tresc": "w odpowiedzi na wystosowany przez «przez_kogo» wniosek o udostępnienie informacji publicznej dotyczący «zakres_wniosku», po analizie sprawy we współpracy z komórką merytoryczną, tj. «komorka_merytoryczna» Urzędu Miasta Bydgoszczy, informuję, co następuje.\n«tresc_odpowiedzi»\n?podstawa_prawna Podstawa prawna: «podstawa_prawna».\n?dalsze_kroki «dalsze_kroki»",
+      "pola": {
+        "zakres_wniosku": {
+          "opis": "czego dotyczy wniosek – fraza w dopełniaczu, pasująca po „dotyczący” / „w zakresie”, np. „kosztu remontu ul. Gdańskiej”",
+          "typ": "tekst"
+        },
+        "tresc_odpowiedzi": {
+          "opis": "główna treść odpowiedzi dostosowana do werdyktu i uzasadnienia; nieznane dane z wydziału jako [[do uzupełnienia: …]]",
+          "typ": "tekst"
+        },
+        "podstawa_prawna": {
+          "opis": "właściwe podstawy prawne rozstrzygnięcia (np. art. 16 ust. 1 w zw. z art. 5 ust. 2 UDIP)",
+          "typ": "tekst",
+          "opcjonalne": true
+        },
+        "dalsze_kroki": {
+          "opis": "dodatkowe pouczenie lub informacja o dalszym trybie postępowania (np. termin, pouczenie o decyzji)",
+          "typ": "tekst",
+          "opcjonalne": true
+        }
+      }
     }
   ]
 }

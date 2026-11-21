@@ -107,8 +107,9 @@ w miejsce «pole» w treści wzoru – trzymaj się zasad_wypelniania. Pole typu
 pytań (bez „Ad”), „linie” – lista linii. Pól przez_kogo, komorka_merytoryczna i numer_sprawy nie podawaj.
 - forma: „Pan”, „Pani” albo „Państwo” – zgodnie z wnioskodawcą (instytucja/kilka osób: „Państwo”).
 - zalaczniki: lista nazw załączników tylko, gdy wzór na nie pozwala i faktycznie są; inaczej [].
-- Wzoru decyzji administracyjnej nie ma – przy werdykcie wymagającym decyzji podaj wzor "" i dodaj \
-do do_weryfikacji „decyzję przygotowuje prawnik”.
+- Gdy żaden ze szczegółowych wzorów nie pasuje do sprawy (np. przy decyzji odmownej lub umorzeniowej), \
+wybierz wzór „odpowiedz_uniwersalna” i wypełnij jego pola (przy decyzji dodaj do do_weryfikacji „decyzję przygotowuje prawnik”). \
+Nie zostawiaj pustego pola „wzor”.
 - To jest projekt dla urzędnika – ostateczną decyzję podejmuje urzędnik.
 
 Odpowiedz WYŁĄCZNIE obiektem JSON o polach:
@@ -212,9 +213,19 @@ def zweryfikuj(surowa: str, wiedza: Wiedza, model: str = "", wniosek: Wniosek | 
         ostrzezenia.append(f"Pominięto sprawy spoza archiwum: {', '.join(odrzucone)}.")
 
     wzor = wiedza.wzor(odp.wzor)
-    if odp.wzor and not wzor:
-        ostrzezenia.append(f"Model wskazał nieznany wzór „{odp.wzor}” – treść pisma do uzupełnienia.")
-    pola = {k: v for k, v in odp.pola.items() if wzor and k in wzor.get("pola", {})}
+    uzyto_uniwersalnego = False
+    if not wzor:
+        if odp.wzor:
+            ostrzezenia.append(
+                f"Model wskazał nieznany wzór „{odp.wzor}” – zastosowano uniwersalny wzór odpowiedzi."
+            )
+        wzor = wiedza.wzor_uniwersalny()
+        uzyto_uniwersalnego = True
+
+    pola = {k: v for k, v in odp.pola.items() if k in wzor.get("pola", {})}
+    if uzyto_uniwersalnego:
+        pola = _uzupelnij_pola_uniwersalne(pola, odp, wniosek)
+
     pismo, braki = zloz_pismo(wzor, wiedza.wzory, DanePisma(
         pola=pola,
         forma=odp.forma,
@@ -233,14 +244,45 @@ def zweryfikuj(surowa: str, wiedza: Wiedza, model: str = "", wniosek: Wniosek | 
         podobne_sprawy=[s for s in odp.podobne_sprawy if s.sygnatura in znane],
         dane_do_anonimizacji=odp.dane_do_anonimizacji,
         do_weryfikacji=odp.do_weryfikacji + [f"Uzupełnij w piśmie: {b}" for b in braki],
-        wzor=wzor["id"] if wzor else "",
-        wzor_nazwa=wzor["nazwa"] if wzor else "",
+        wzor=wzor["id"],
+        wzor_nazwa=wzor["nazwa"],
         pola_wzoru=pola,
         projekt_odpowiedzi=pismo.tekst,
         pismo=pismo.jako_slownik(),
         model=model,
         ostrzezenia=ostrzezenia,
     )
+
+
+def _uzupelnij_pola_uniwersalne(
+    pola: dict[str, str | list[str]], odp: OdpowiedzModelu, wniosek: Wniosek | None
+) -> dict[str, str | list[str]]:
+    """Wypełnia pola uniwersalnego wzoru z dostępnych danych modelu i wniosku, aby pismo nigdy nie było puste."""
+    wynik = dict(pola)
+    if not wynik.get("zakres_wniosku"):
+        zakres = odp.pola.get("zakres_wniosku") or (wniosek.temat if wniosek and wniosek.temat else "")
+        if isinstance(zakres, list):
+            zakres = "; ".join(zakres)
+        if zakres and str(zakres).strip():
+            wynik["zakres_wniosku"] = str(zakres).strip()
+
+    if not wynik.get("tresc_odpowiedzi"):
+        kandydat = odp.pola.get("tresc_informacji") or odp.pola.get("odpowiedzi") or odp.uzasadnienie
+        if isinstance(kandydat, list):
+            kandydat = " ".join(str(x).strip() for x in kandydat if str(x).strip())
+        if kandydat and str(kandydat).strip():
+            wynik["tresc_odpowiedzi"] = str(kandydat).strip()
+
+    if not wynik.get("podstawa_prawna") and odp.podstawy_prawne:
+        wynik["podstawa_prawna"] = ", ".join(odp.podstawy_prawne)
+
+    if not wynik.get("dalsze_kroki") and odp.werdykt in ("NIE_MOZNA_DECYZJA_ODMOWNA", "NIE_MOZNA_UMORZENIE_DECYZJA"):
+        wynik["dalsze_kroki"] = (
+            "W sprawie zostanie wydana formalna decyzja administracyjna w trybie art. 16 ustawy "
+            "z dnia 6 września 2001 r. o dostępie do informacji publicznej."
+        )
+
+    return wynik
 
 
 def _wytnij_json(tekst: str) -> str:
