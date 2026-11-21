@@ -6,15 +6,17 @@ import {
   type JednostkaUmb,
   type PropozycjaWydzialu,
 } from '../lib/api';
+import { STATUSY, type Status } from '../types';
 
 /**
  * Zapytanie do wydziału: AI (RAG – zakresy kompetencji jednostek UMB + podobne sprawy z archiwum) proponuje
  * do 3 właściwych jednostek, urzędnik wybiera jedną, a aplikacja składa wiadomość przekazującą wniosek
  * (§ 9–11 Zarządzenia Nr 535/2024). Wiadomość urzędnik kopiuje i wysyła ze swojej poczty.
  */
-export default function ZapytanieDoWydzialu({ wniosek, wyslane, onOznaczWyslane }: {
+export default function ZapytanieDoWydzialu({ wniosek, status, onOznaczWyslane }: {
   wniosek: { tresc: string; numer: string; data_wplywu: string; temat: string };
-  wyslane: boolean;
+  /** aktualny status wniosku – przy „Brak działań” można oznaczyć wysłanie zapytania */
+  status: Status;
   onOznaczWyslane: () => Promise<void>;
 }) {
   const [jednostki, setJednostki] = useState<JednostkaUmb[]>([]);
@@ -197,9 +199,15 @@ export default function ZapytanieDoWydzialu({ wniosek, wyslane, onOznaczWyslane 
               <div className="rzad">
                 <button className="maly-p" onClick={() => void kopiuj()}>{skopiowano ? 'Skopiowano' : 'Kopiuj wiadomość z wnioskiem'}</button>
                 {recznie && <button className="maly-p" onClick={() => setRecznie(false)}>Złóż ponownie z pól</button>}
-                <button className="glowny" disabled={wyslane || oznaczanie} onClick={() => void oznacz()}>
-                  {wyslane ? 'Status: zapytania wysłane' : oznaczanie ? 'Zapisuję…' : 'Oznacz: zapytanie wysłane'}
-                </button>
+                {status === 'brak_dzialan' ? (
+                  <button className="glowny" disabled={oznaczanie} onClick={() => void oznacz()}>
+                    {oznaczanie ? 'Zapisuję…' : 'Oznacz: zapytanie wysłane'}
+                  </button>
+                ) : (
+                  <span className="info-statusu" title="Status zmienisz w karcie „Dane wniosku”">
+                    ✓ Status wniosku: {STATUSY.find((s) => s.id === status)?.etykieta ?? status}
+                  </span>
+                )}
                 <span className="maly">model: {propozycja.model}</span>
               </div>
             </div>

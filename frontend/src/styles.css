@@ -361,3 +361,4 @@ pre.json, textarea.json { font-family: Consolas, monospace; font-size: 0.8rem; w
 .wydzial-opcja.wybrana { background: var(--akcent-tlo); }
 .wydzial-opcja input { width: auto; margin-top: 3px; }
 .wydzial-zakres { display: block; margin-top: 2px; }
+.info-statusu { font-size: 0.85rem; color: var(--zielony); background: var(--zielony-tlo); border-radius: 6px; padding: 4px 10px; }

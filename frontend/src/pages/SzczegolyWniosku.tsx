@@ -346,7 +346,7 @@ function WidokSzczegolow({
           <ZapytanieDoWydzialu
             key={`wydzial-${wniosek.id}`}
             wniosek={{ tresc: dane.tresc, numer: dane.numer, data_wplywu: dane.dataWplywu, temat: dane.temat }}
-            wyslane={dane.status !== 'brak_dzialan'}
+            status={dane.status}
             onOznaczWyslane={() => zapisz('zapytania_wyslane')}
           />
           <OdpowiedziWydzialow wniosekId={wniosek.id} odpowiedzi={wniosek.odpowiedziWydzialow ?? []} onZmiana={onPodmien} />
