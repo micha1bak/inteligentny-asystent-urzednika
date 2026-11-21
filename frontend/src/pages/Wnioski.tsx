@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useMagazyn } from '../magazyn';
 import type { Wniosek } from '../types';
 import { dodajDni, doIso, dzisIso, formatuj, zIso } from '../lib/daty';
-import { czyDzienWolny, pilnosc, type Pilnosc } from '../lib/terminy';
+import { czyDzienWolny, pilnosc, type Pilnosc, porownajWgCzasuNaOdpowiedz } from '../lib/terminy';
 import { Pozostalo, ZnaczekStatusu } from '../components/Znaczki';
 import type { ZWniosku } from './NowaSprawaArchiwum';
 
@@ -21,6 +21,24 @@ export default function Wnioski() {
   const [rok, setRok] = useState(dzis.slice(0, 4));
   const [fraza, setFraza] = useState('');
   const [tylkoPilne, setTylkoPilne] = useState(false);
+  // wnioski z odpowiedzią odesłaną do wnioskodawcy – wybór zapamiętany w przeglądarce
+  const [pokazWyslane, setPokazWyslane] = useState(() => {
+    try {
+      return localStorage.getItem('pokazWyslane') !== '0';
+    } catch {
+      return true;
+    }
+  });
+  function przelaczWyslane() {
+    setPokazWyslane((p) => {
+      try {
+        localStorage.setItem('pokazWyslane', p ? '0' : '1');
+      } catch {
+        /* brak dostępu do pamięci przeglądarki – wybór tylko do odświeżenia strony */
+      }
+      return !p;
+    });
+  }
   const [widok, setWidok] = useState<'tabela' | 'miesiac'>('tabela');
   const [trwaReset, setTrwaReset] = useState(false);
   const [bladAkcji, setBladAkcji] = useState('');
@@ -29,8 +47,9 @@ export default function Wnioski() {
     () =>
       wnioski
         .filter((w) => w.dataWplywu.startsWith(rok))
-        .sort((a, b) => a.dataWplywu.localeCompare(b.dataWplywu) || a.numer.localeCompare(b.numer, 'pl', { numeric: true }))
-        .map((w, i) => ({ ...w, lp: i + 1, ...pilnosc(w, dzis) })),
+        .map((w) => ({ ...w, ...pilnosc(w, dzis) }))
+        .sort(porownajWgCzasuNaOdpowiedz)
+        .map((w, i) => ({ ...w, lp: i + 1 })),
     [wnioski, rok, dzis],
   );
 
@@ -40,10 +59,11 @@ export default function Wnioski() {
     const f = fraza.trim().toLowerCase();
     return wiersze.filter((w) => {
       if (tylkoPilne && !PILNE.includes(w.pilnosc)) return false;
+      if (!pokazWyslane && w.status === 'odpowiedz_wyslana') return false;
       if (!f) return true;
       return [w.numer, w.temat, w.wnioskodawca, w.inicjaly].some((t) => t.toLowerCase().includes(f));
     });
-  }, [wiersze, tylkoPilne, fraza]);
+  }, [wiersze, tylkoPilne, pokazWyslane, fraza]);
 
   async function resetujDane(potwierdz: boolean) {
     if (potwierdz && !confirm('Usunąć obecne wnioski i wczytać dane testowe?')) return;
@@ -106,6 +126,10 @@ export default function Wnioski() {
               <input type="checkbox" style={{ width: 'auto' }} checked={tylkoPilne} onChange={(e) => setTylkoPilne(e.target.checked)} />
               Tylko pilne ({pilnych})
             </label>
+            <button className="maly-p" onClick={przelaczWyslane} aria-pressed={!pokazWyslane}
+              title="Wnioski, na które odpowiedź została już wysłana do wnioskodawcy">
+              {pokazWyslane ? 'Ukryj' : 'Pokaż'} odesłane do wnioskodawcy ({wiersze.filter((w) => w.status === 'odpowiedz_wyslana').length})
+            </button>
           </div>
           <div className="legenda">
             <span className="l-po">po terminie</span>
