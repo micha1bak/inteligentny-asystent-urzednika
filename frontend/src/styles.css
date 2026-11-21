@@ -350,3 +350,7 @@ pre.json, textarea.json { font-family: Consolas, monospace; font-size: 0.8rem; w
 .lista-odpowiedzi { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .lista-odpowiedzi > li { border: 1px solid var(--linia); border-radius: 6px; padding: 8px 10px; }
 .pole-tekstu { white-space: pre-wrap; background: #f8f9fb; border: 1px solid var(--linia); border-radius: 6px; padding: 10px; font-size: 0.88rem; line-height: 1.5; max-height: 260px; overflow: auto; }
+.lista-podobnych { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; }
+.podobienstwo { display: inline-block; min-width: 38px; text-align: center; font-size: 0.75rem; font-weight: 600; color: var(--akcent);
+  background: var(--akcent-tlo); border-radius: 10px; padding: 0 6px; }
+.podobne-kompakt { border-top: 1px dashed var(--linia); margin-top: 10px; padding-top: 8px; }

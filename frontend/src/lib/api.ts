@@ -580,3 +580,18 @@ export interface JednostkaUmb {
 export async function pobierzJednostki(sygnal?: AbortSignal): Promise<JednostkaUmb[]> {
   return (await wyslij('/api/jednostki', { signal: sygnal })).json();
 }
+
+// ---------------------------------------------------------------- podobne sprawy i wnioski (bez AI)
+
+export interface WynikPodobnych {
+  sprawy: { sygnatura: string; wniosek_o_co: string; jaka_odpowiedz: string; werdykt: string; komorka_merytoryczna: string; podobienstwo: number }[];
+  wnioski: { id: string; numer: string; data_wplywu: string; temat: string; status: Status; podobienstwo: number }[];
+}
+
+export async function pobierzPodobne(
+  z: { tresc: string; pomin_id?: string; data_odniesienia?: string },
+  sygnal?: AbortSignal,
+): Promise<WynikPodobnych> {
+  const odp = await wyslij('/api/podobne', { method: 'POST', headers: JSON_NAGLOWKI, body: JSON.stringify(z), signal: sygnal });
+  return odp.json();
+}

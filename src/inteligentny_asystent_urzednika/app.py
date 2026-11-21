@@ -27,6 +27,7 @@ from .baza_wnioskow import (
 from .config import Ustawienia, wczytaj_ustawienia
 from .groq_klient import BladLLM, KlientGroq, KlientLLM
 from .konwersja import ocr_llm
+from .podobne import WynikPodobnych, ZapytanieOPodobne, znajdz as znajdz_podobne
 from .wzor import eksport
 from .propozycja import ZAPAS_TOKENOW, Propozycja, Wniosek, szacuj_tokeny, zaproponuj_odpowiedz, zbuduj_wiadomosci
 from .propozycja_archiwum import PropozycjaWpisu, ZapytanieOWpis, zaproponuj_wpis
@@ -338,6 +339,17 @@ def utworz_aplikacje() -> FastAPI:
     ) -> WynikWyszukiwaniaPrzepisow:
         """Deterministyczne wyszukiwanie ustępów, artykułów i paragrafów w folderze dokumentów (bez AI)."""
         return szukaj_przepisow(indeks, q, akt=akt, limit=limit)
+
+    @app.post("/api/podobne", response_model=WynikPodobnych)
+    def podobne(
+        z: ZapytanieOPodobne, u: Ustawienia = Depends(pobierz_ustawienia), wiedza: Wiedza = Depends(pobierz_wiedze)
+    ) -> WynikPodobnych:
+        """Podobne sprawy z archiwum odpowiedzi i podobne wnioski z ostatniego roku (bez AI)."""
+        try:
+            wnioski = baza_wnioskow.lista(u.plik_bazy)
+        except BladBazy:
+            wnioski = []
+        return znajdz_podobne(z, wiedza.sprawy, wnioski)
 
     @app.get("/api/jednostki")
     def jednostki() -> list[dict]:

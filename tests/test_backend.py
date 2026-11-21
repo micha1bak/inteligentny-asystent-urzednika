@@ -481,3 +481,27 @@ def test_odpowiedzi_wydzialow_trafiaja_do_modelu_i_mieszcza_sie_w_limicie():
     assert szacuj_tokeny(wiadomosci) <= budzet + 50
     assert "ODPOWIEDZI WYDZIAŁÓW" in wiadomosci[0]["content"]  # reguła w poleceniu systemowym
     assert "ODPOWIEDZI WYDZIAŁÓW" not in zbuduj_wiadomosci(WNIOSEK, WIEDZA, "wybrany", budzet)[0][1]["content"]
+
+
+def test_podobne_sprawy_i_wnioski_z_ostatniego_roku():
+    from inteligentny_asystent_urzednika.baza_wnioskow import WniosekZapisany
+    from inteligentny_asystent_urzednika.podobne import ZapytanieOPodobne, znajdz
+
+    def w(id_, data, temat):
+        return WniosekZapisany(id=id_, numer=f"N{id_}", data_wplywu=data, temat=temat, wnioskodawca="", inicjaly="",
+                               tresc=temat, status="brak_dzialan", utworzono="", zaktualizowano="")
+
+    wnioski = [w("1", "2026-05-01", "Koszt opieki nad bezdomnymi psami i kotami w schronisku"),
+               w("2", "2024-01-10", "Koszt opieki nad bezdomnymi psami w schronisku"),  # starszy niż rok
+               w("3", "2026-06-01", "Wycinka drzew przy ul. Fordońskiej")]
+    z = ZapytanieOPodobne(tresc="Ile psów i kotów przyjęło schronisko i jaki był koszt opieki nad zwierzętami?",
+                          data_odniesienia="2026-11-21", pomin_id="9")
+    wynik = znajdz(z, WIEDZA.sprawy, wnioski)
+    assert wynik.sprawy[0].sygnatura == "BKS.IV.1431.543.2026" and 0 < wynik.sprawy[0].podobienstwo <= 1
+    assert [x.id for x in wynik.wnioski] == ["1"]  # z ostatniego roku i podobny; „3” niepodobny, „2” za stary
+    assert znajdz(ZapytanieOPodobne(tresc=z.tresc, pomin_id="1", data_odniesienia="2026-11-21"), [], wnioski).wnioski == []
+
+
+def test_endpoint_podobnych():
+    odp = TestClient(app).post("/api/podobne", json={"tresc": "Liczba uczniów w szkołach podstawowych i obcokrajowców"})
+    assert odp.status_code == 200 and odp.json()["sprawy"][0]["sygnatura"] == "BKS.IV.1431.307.2025"

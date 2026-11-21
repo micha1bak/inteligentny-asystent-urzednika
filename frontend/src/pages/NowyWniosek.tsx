@@ -5,6 +5,7 @@ import { ROZSZERZENIA_WNIOSKU, type WniosekDoZapisu } from '../lib/api';
 import { dzisIso } from '../lib/daty';
 import { zapamietajInicjaly, zapamietaneInicjaly } from '../lib/inicjaly';
 import { odczytajWniosek, wyciagnijMetadane } from '../lib/parsowanie';
+import PodobneSprawy from '../components/PodobneSprawy';
 import { useMagazyn } from '../magazyn';
 
 interface PozycjaPliku {
@@ -278,6 +279,11 @@ export default function NowyWniosek() {
                 </tbody>
               </table>
             </div>
+
+            {pozycje.filter((p) => p.stan === 'gotowy' && p.tresc.trim()).map((p) => (
+              <PodobneSprawy key={`podobne-${p.lokalneId}`} tresc={p.tresc} kompaktowo dataOdniesienia={dataWplywu}
+                tytul={`Podobne do: ${p.plik.name}`} />
+            ))}
 
             {blad && <div className="blad" style={{ marginTop: 12 }}>{blad}</div>}
 

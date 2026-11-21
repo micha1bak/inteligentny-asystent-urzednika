@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import PelnyPodgladPisma from '../components/PelnyPodgladPisma';
 import OdpowiedziWydzialow from '../components/OdpowiedziWydzialow';
+import PodobneSprawy from '../components/PodobneSprawy';
 import PropozycjaOdpowiedzi from '../components/PropozycjaOdpowiedzi';
 import { Pozostalo, ZnaczekStatusu } from '../components/Znaczki';
 import {
@@ -333,6 +334,7 @@ function WidokSzczegolow({
               numer={dane.numer}
             />
           )}
+          <PodobneSprawy tresc={dane.tresc} pominId={wniosek.id} dataOdniesienia={dane.dataWplywu} />
           <OdpowiedziWydzialow wniosekId={wniosek.id} odpowiedzi={wniosek.odpowiedziWydzialow ?? []} onZmiana={onPodmien} />
           <PropozycjaOdpowiedzi
             key={wniosek.id}

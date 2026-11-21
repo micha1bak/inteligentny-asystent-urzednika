@@ -31,6 +31,11 @@ def rdzenie(tekst: str) -> list[str]:
 
 def najpodobniejsze(zapytanie: str, elementy: Sequence[T], teksty: Sequence[str], limit: int) -> list[T]:
     """Zwraca do `limit` elementów najbardziej podobnych do zapytania (z dodatnim podobieństwem)."""
+    return [el for _, el in z_wynikiem(zapytanie, elementy, teksty, limit)]
+
+
+def z_wynikiem(zapytanie: str, elementy: Sequence[T], teksty: Sequence[str], limit: int) -> list[tuple[float, T]]:
+    """Jak `najpodobniejsze`, ale z miarą podobieństwa (cosinus TF-IDF, 0–1)."""
     dokumenty = [Counter(rdzenie(t)) for t in teksty]
     df = Counter(r for d in dokumenty for r in d)
     n = len(dokumenty) + 1
@@ -51,4 +56,4 @@ def najpodobniejsze(zapytanie: str, elementy: Sequence[T], teksty: Sequence[str]
             if wynik > 0:
                 wyniki.append((wynik, el))
     wyniki.sort(key=lambda w: w[0], reverse=True)
-    return [el for _, el in wyniki[:limit]]
+    return wyniki[:limit]
