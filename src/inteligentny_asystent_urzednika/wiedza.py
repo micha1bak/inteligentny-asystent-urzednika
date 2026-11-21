@@ -9,6 +9,7 @@ from pathlib import Path
 
 from .archiwum import POLA_SPRAWY
 from .podobienstwo import najpodobniejsze
+from .wzor.pismo import ID_WZORU_UNIWERSALNEGO, WZOR_UNIWERSALNY
 
 # Wydziały i biura Urzędu Miasta Bydgoszczy (nazwy z BIP: /artykuly/198/wydzialy, /artykuly/1158/biura).
 JEDNOSTKI_UMB: list[dict] = json.loads(
@@ -16,7 +17,7 @@ JEDNOSTKI_UMB: list[dict] = json.loads(
 )["jednostki"]
 
 # Wzory dobierane, gdy werdykty podobnych spraw nic nie podpowiadają.
-WZORY_DOMYSLNE = ["udostepnienie_w_tresci", "nieposiadanie_wskazanie_dysponenta", "brak_danych"]
+WZORY_DOMYSLNE = ["udostepnienie_w_tresci", "nieposiadanie_wskazanie_dysponenta", "brak_danych", ID_WZORU_UNIWERSALNEGO]
 
 
 @dataclass(frozen=True)
@@ -68,6 +69,9 @@ class Wiedza:
 
     def wzor(self, id_wzoru: str) -> dict | None:
         return next((w for w in self.wzory["wzory"] if w["id"] == id_wzoru), None)
+
+    def wzor_uniwersalny(self) -> dict:
+        return self.wzor(ID_WZORU_UNIWERSALNEGO) or WZOR_UNIWERSALNY
 
     # --- tryb „pelny”: wszystko (ok. 25 tys. tokenów – wymaga planu Groq z wyższym limitem) ---
 
@@ -136,6 +140,8 @@ class Wiedza:
         punkty: dict[str, float] = {}
         for pozycja, sprawa in enumerate(podobne):
             for w in wszystkie:
+                if w["id"] == ID_WZORU_UNIWERSALNEGO:
+                    continue
                 if sprawa.get("werdykt") in w["werdykty"]:
                     punkty[w["id"]] = punkty.get(w["id"], 0) + (len(podobne) - pozycja)
         wybrane = sorted(punkty, key=lambda i: (-punkty[i], ranga_opisu.get(i, 99)))
