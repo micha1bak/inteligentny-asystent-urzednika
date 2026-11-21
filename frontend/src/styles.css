@@ -128,8 +128,7 @@ tr.p-jutro td:first-child { box-shadow: inset 4px 0 #e0b400; }
 .chip.p-jutro { background: var(--zolty-tlo); color: var(--zolty); }
 .chip.p-zakonczony { background: #eef0f3; color: #8a93a2; text-decoration: line-through; }
 
-/* treść wniosku */
-.pole-tekstu { white-space: pre-wrap; background: #f8f9fb; border: 1px solid var(--linia); border-radius: 6px; padding: 12px; font-size: 0.9rem; line-height: 1.5; max-height: 320px; overflow: auto; }
+/* komunikaty */
 .uwaga { background: var(--zolty-tlo); border: 1px solid #f0d97a; color: #5c4a00; border-radius: 6px; padding: 8px 12px; font-size: 0.85rem; }
 .info { background: var(--akcent-tlo); border: 1px solid #bcd5f0; color: #0a3d73; border-radius: 6px; padding: 8px 12px; font-size: 0.85rem; }
 .blad { background: var(--czerwony-tlo); border: 1px solid #f5b5ae; color: var(--czerwony); border-radius: 6px; padding: 8px 12px; font-size: 0.85rem; }
