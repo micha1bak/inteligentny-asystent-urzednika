@@ -1,33 +1,17 @@
 [project]
 name = "inteligentny-asystent-urzednika"
 version = "0.1.0"
-description = "Asystent urzędnika UMB: kalendarz wniosków UDIP, wyszukiwanie archiwum, projekty odpowiedzi i anonimizacja"
+description = "Add your description here"
 readme = "README.md"
 authors = [
     { name = "Michał Bąk", email = "michalbak000@gmail.com" }
 ]
 requires-python = ">=3.15"
-dependencies = [
-    "fastapi>=0.115",
-    "groq>=1.7.0",
-    "pydantic-settings>=2.6",
-    "python-multipart>=0.0.20",
-    "sqlmodel>=0.0.22",
-    "uvicorn[standard]>=0.32",
-]
+dependencies = []
 
 [project.scripts]
 inteligentny-asystent-urzednika = "inteligentny_asystent_urzednika:main"
 
-[dependency-groups]
-dev = [
-    "httpx2>=2.16.2",
-    "pytest>=8.3",
-]
-
 [build-system]
 requires = ["uv_build>=0.13.6,<0.14.0"]
 build-backend = "uv_build"
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
