@@ -1,8 +1,6 @@
 import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
 import Kalendarz from './pages/Kalendarz';
 import NowyWniosek from './pages/NowyWniosek';
-import Sprawa from './pages/Sprawa';
-import BazaWiedzy from './pages/BazaWiedzy';
 
 export default function App() {
   return (
@@ -14,11 +12,10 @@ export default function App() {
         </div>
         <nav>
           <NavLink to="/" end>Kalendarz wniosków</NavLink>
-          <NavLink to="/nowy">Nowy wniosek</NavLink>
-          <NavLink to="/baza">Baza wiedzy</NavLink>
+          <NavLink to="/nowy">Dodaj wniosek</NavLink>
         </nav>
         <div className="stopka">
-          Narzędzie pomocnicze – nic nie wysyła samodzielnie. Ostateczną decyzję zawsze podejmuje urzędnik.
+          Narzędzie pomocnicze – ostateczną decyzję zawsze podejmuje urzędnik.
           <br />Dane przechowywane lokalnie w tej przeglądarce.
         </div>
       </aside>
@@ -26,8 +23,6 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Kalendarz />} />
           <Route path="/nowy" element={<NowyWniosek />} />
-          <Route path="/sprawa/:id" element={<Sprawa />} />
-          <Route path="/baza" element={<BazaWiedzy />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

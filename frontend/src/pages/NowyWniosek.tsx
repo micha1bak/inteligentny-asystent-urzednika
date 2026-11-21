@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMagazyn } from '../magazyn';
 import StrefaPliku from '../components/StrefaPliku';
-import { PodobneSprawy, ProponowaneWydzialy } from '../components/Podpowiedzi';
 import { dzisIso, formatuj } from '../lib/daty';
 import { terminOdpowiedzi } from '../lib/terminy';
 import { wyciagnijMetadane } from '../lib/parsowanie';
@@ -29,7 +28,6 @@ export default function NowyWniosek() {
     kontakt: '',
     temat: '',
   });
-  const [wydzialy, setWydzialy] = useState<string[]>([]);
   const ustaw = (k: keyof typeof dane, v: string) =>
     setDane((d) => {
       const nowe = { ...d, [k]: v };
@@ -37,22 +35,19 @@ export default function NowyWniosek() {
       return nowe;
     });
 
-  const [uzupelniono, setUzupelniono] = useState(false);
-
-  function uzupelnijZTresci(tekst: string) {
-    setUzupelniono(true);
+  function wczytano(tekst: string, plik: File) {
+    setNazwaPliku(plik.name);
+    setTresc(tekst);
+    if (!tekst) {
+      setDane((d) => ({ ...d, wnioskodawca: '', kontakt: '', temat: '' }));
+      return;
+    }
     const m = wyciagnijMetadane(tekst);
     setDane((d) => ({ ...d, wnioskodawca: m.wnioskodawca, kontakt: m.kontakt, temat: m.temat }));
   }
 
-  function wczytano(tekst: string, plik: File) {
-    setNazwaPliku(plik.name);
-    setTresc(tekst);
-    uzupelnijZTresci(tekst);
-  }
-
   const duplikat = wnioski.some((w) => w.numer === dane.numer);
-  const gotowe = dane.numer && dane.dataWplywu && dane.temat && tresc.trim() && !duplikat;
+  const gotowe = nazwaPliku && dane.numer && dane.dataWplywu && dane.temat && !duplikat;
 
   function zatwierdz() {
     try {
@@ -60,31 +55,34 @@ export default function NowyWniosek() {
     } catch {
       /* bez znaczenia */
     }
-    const w = dodajWniosek({
+    dodajWniosek({
       ...dane,
       inicjaly: dane.inicjaly.toUpperCase(),
       kontakt: dane.kontakt || undefined,
       tresc,
       nazwaPliku,
-      status: wydzialy.length ? 'zapytania_wyslane' : 'brak_dzialan',
-      wydzialy,
-      odpowiedzi: [],
+      status: 'brak_dzialan',
     });
-    nav(`/sprawa/${w.id}`);
+    nav('/');
   }
 
   return (
     <>
-      <h1>Nowy wniosek</h1>
-      <p className="podtytul">Wgraj plik z wnioskiem, sprawdź dane wyciągnięte automatycznie i zatwierdź – wniosek trafi do kalendarza.</p>
+      <h1>Dodaj wniosek</h1>
+      <p className="podtytul">Wgraj plik PDF z wnioskiem, sprawdź dane wyciągnięte automatycznie i zatwierdź – wniosek trafi do kalendarza.</p>
       <div className="siatka-2">
         <div className="stos">
           <div className="karta">
-            <StrefaPliku napis={nazwaPliku ? `Wczytano: ${nazwaPliku} – kliknij, aby zmienić` : 'Wgraj wniosek (PDF lub Word)'} onWczytano={wczytano} />
+            <StrefaPliku napis={nazwaPliku ? `Wczytano: ${nazwaPliku} – kliknij, aby zmienić` : 'Wgraj wniosek (PDF)'} onWczytano={wczytano} />
           </div>
           <div className="karta">
             <h2>Dane wniosku do zatwierdzenia</h2>
-            {uzupelniono && <div className="info" style={{ marginBottom: 12 }}>Pola uzupełnione automatycznie – sprawdź je przed zatwierdzeniem.</div>}
+            {nazwaPliku && tresc && <div className="info" style={{ marginBottom: 12 }}>Pola uzupełnione automatycznie – sprawdź je przed zatwierdzeniem.</div>}
+            {nazwaPliku && !tresc && (
+              <div className="uwaga" style={{ marginBottom: 12 }}>
+                Plik to skan bez warstwy tekstowej – nie da się odczytać treści. Wpisz dane wniosku ręcznie.
+              </div>
+            )}
             <div className="formularz">
               <label>
                 Nr wniosku
@@ -112,25 +110,20 @@ export default function NowyWniosek() {
                 Inicjały osoby prowadzącej
                 <input value={dane.inicjaly} maxLength={4} onChange={(e) => ustaw('inicjaly', e.target.value)} />
               </label>
-              <label className="pelny">
-                Treść wniosku
-                <textarea rows={10} value={tresc} onChange={(e) => setTresc(e.target.value)} placeholder="Treść pojawi się po wgraniu pliku – możesz też wkleić ją tutaj." />
-              </label>
-              {tresc.trim() && !nazwaPliku && (
-                <div className="pelny">
-                  <button className="maly-p" onClick={() => uzupelnijZTresci(tresc)}>Uzupełnij dane z treści</button>
-                </div>
-              )}
             </div>
             <div className="rzad" style={{ marginTop: 14 }}>
               <button className="glowny" disabled={!gotowe} onClick={zatwierdz}>Zatwierdź i dodaj do kalendarza</button>
-              {!gotowe && <span className="maly">Wymagane: numer, data wpływu, temat i treść.</span>}
+              {!gotowe && <span className="maly">Wymagane: plik PDF, numer, data wpływu i temat.</span>}
             </div>
           </div>
         </div>
-        <div className="stos">
-          <ProponowaneWydzialy tekst={`${dane.temat} ${tresc}`} wybrane={wydzialy} onZmien={setWydzialy} />
-          <PodobneSprawy tekst={`${dane.temat} ${tresc}`} />
+        <div className="karta">
+          <h2>Treść wniosku</h2>
+          {tresc ? (
+            <div className="pole-tekstu" style={{ maxHeight: 560 }}>{tresc}</div>
+          ) : (
+            <p className="maly">{nazwaPliku ? 'Brak tekstu w pliku (skan).' : 'Treść pojawi się po wgraniu pliku.'}</p>
+          )}
         </div>
       </div>
     </>

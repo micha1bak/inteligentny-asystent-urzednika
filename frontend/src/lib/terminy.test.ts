@@ -4,7 +4,7 @@ import type { Wniosek } from '../types';
 
 const wniosek = (p: Partial<Wniosek>): Wniosek => ({
   id: 'x', numer: 'BKS.IV.1431.1.2026', dataWplywu: '2026-11-02', temat: '', wnioskodawca: '',
-  inicjaly: '', tresc: '', status: 'brak_dzialan', wydzialy: [], odpowiedzi: [], ...p,
+  inicjaly: '', tresc: '', status: 'brak_dzialan', ...p,
 });
 
 describe('terminy UDIP', () => {

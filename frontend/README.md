@@ -1,27 +1,28 @@
 # Frontend – Asystent urzędnika (React + Vite + TypeScript)
 
-Samodzielny prototyp interfejsu: działa bez backendu, dane trzyma w `localStorage` przeglądarki.
+Prototyp interfejsu z dwiema funkcjami: **dodawanie wniosku z pliku PDF** i **kalendarz wniosków z oznaczeniem pilnych**.
+Działa bez backendu – dane trzyma w `localStorage` przeglądarki, PDF czyta lokalnie (pdf.js).
 
 ```powershell
 npm install
 npm run dev      # http://localhost:5173
-npm test         # testy terminów, anonimizacji i parsowania przykładowych wniosków
+npm test         # terminy + odczyt przykładowych wniosków PDF z repo
 npm run build
 ```
 
-## Widoki
-- **Kalendarz wniosków** (`/`) – tabela od najstarszych, wybór roku, filtry, widok miesiąca; podświetlenie: po terminie / termin dziś / termin jutro.
-- **Nowy wniosek** (`/nowy`) – wgranie PDF/DOCX/TXT (odczyt w przeglądarce), automatyczne wypełnienie pól do zatwierdzenia, podpowiedź wydziałów i podobnych spraw.
-- **Sprawa** (`/sprawa/:id`) – statusy (brak działań → zapytania → kwerenda z liczbą dni → przygotowana → wysłana), odpowiedzi wydziałów, projekt pisma, anonimizacja (szare = propozycja, czarne = zaakceptowane, ręczne zaznaczanie), eksport DOCX/TXT, ocena prawna wg `ocena_prawna_wniosku_dip_kompletny.json`.
-- **Baza wiedzy** (`/baza`) – archiwum (z `werdykty_wniosek_odpowiedz_dip.json` + dodane ręcznie), akty prawne, katalog anonimizacji.
+## Kalendarz wniosków (`/`)
+- tabela od najstarszych: Lp., nr wniosku, data wpływu, temat, inicjały, termin, pozostało dni, status, data odpowiedzi,
+- podświetlenie: **po terminie** (czerwony), **termin dziś** (pomarańczowy), **termin jutro** (żółty),
+- liczniki pilnych, filtr „tylko pilne”, wybór roku, widok miesiąca z wnioskami w dniu terminu,
+- 10 wniosków testowych z datami liczonymi od dziś („Przywróć dane testowe”).
 
-## Co jest tymczasowe (do zastąpienia przez backend)
-| Moduł | Teraz | Docelowo |
-|---|---|---|
-| `src/magazyn.tsx` | `localStorage` | API backendu (te same operacje) |
-| `src/lib/podobienstwo.ts` | TF-IDF na rdzeniach słów | embeddingi z lokalnego modelu |
-| `src/lib/anonimizacja.ts` | reguły (PESEL z sumą kontrolną, dowód, telefon, e-mail, IBAN, adresy, imię+nazwisko) | reguły + lokalny model NER |
-| `src/lib/pismo.ts` | szablon z odpowiedzi wydziałów | redakcja przez lokalny LLM |
-| `src/lib/parsowanie.ts` | pdf.js / mammoth w przeglądarce | + OCR skanów po stronie serwera |
+Termin (`src/lib/terminy.ts`): 14 dni od dnia po wpływie (art. 13 ust. 1 UDIP), kwerenda do 2 miesięcy (art. 13 ust. 2),
+przesunięcie z soboty i dni ustawowo wolnych na najbliższy dzień roboczy (art. 57 § 4 KPA).
 
-Terminy (`src/lib/terminy.ts`): 14 dni od dnia po wpływie (art. 13 ust. 1 UDIP), kwerenda do 2 miesięcy (art. 13 ust. 2), przesunięcie z soboty i dni ustawowo wolnych na najbliższy dzień roboczy (art. 57 § 4 KPA).
+## Dodaj wniosek (`/nowy`)
+- wgranie PDF (przeciągnij lub kliknij), odczyt tekstu w przeglądarce,
+- automatyczne wypełnienie tematu, wnioskodawcy i e-maila; kolejny numer BKS.IV.1431.N.rok; podgląd terminu,
+- urzędnik sprawdza i zatwierdza – wniosek trafia do kalendarza ze statusem „Brak działań”.
+
+**Ograniczenie:** skany PDF bez warstwy tekstowej (2 z 3 przykładowych wniosków PDF w repo) nie są odczytywane –
+aplikacja to sygnalizuje, a dane wpisuje się ręcznie. Do rozwiązania przez OCR (np. tesseract.js lokalnie albo w backendzie).

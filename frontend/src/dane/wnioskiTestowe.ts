@@ -12,23 +12,20 @@ interface Szablon {
   terminZaDni: number;
   inicjaly: string;
   status: Status;
-  wydzialy?: string[];
   dniKwerendy?: number;
   wnioskodawca: string;
   tresc: string;
-  odpowiedz?: { wydzial: string; tresc: string };
 }
 
 const SZABLONY: Szablon[] = [
   {
     temat: 'Koszt remontu ul. Gdańskiej w 2026 r.', terminZaDni: -1, inicjaly: 'AK', status: 'zapytania_wyslane',
-    wydzialy: ['WIM'], wnioskodawca: 'Jan Nowicki',
+    wnioskodawca: 'Jan Nowicki',
     tresc: 'Szanowni Państwo,\nna podstawie art. 2 ust. 1 ustawy o dostępie do informacji publicznej wnoszę o udostępnienie informacji o całkowitym koszcie remontu ul. Gdańskiej przeprowadzonego w 2026 r., z podziałem na etapy, oraz o nazwie wykonawcy.\nOdpowiedź proszę przesłać na adres e-mail: jan.nowicki@example.com\nZ poważaniem\nJan Nowicki',
-    odpowiedz: { wydzial: 'WIM', tresc: 'W odpowiedzi na zapytanie BKS informujemy, że remont ul. Gdańskiej w 2026 r. kosztował łącznie 12 300 000 zł brutto: etap I – 5 100 000 zł, etap II – 7 200 000 zł. Wykonawcą była firma Drogbud Sp. z o.o. wybrana w przetargu nieograniczonym. Sprawę prowadzi inspektor Krzysztof Malinowski, tel. 601 222 333.' },
   },
   {
     temat: 'Wynagrodzenia kadry kierowniczej urzędu', terminZaDni: 0, inicjaly: 'AK', status: 'zapytania_wyslane',
-    wydzialy: ['WOA'], wnioskodawca: 'Fundacja Przejrzyste Miasto',
+    wnioskodawca: 'Fundacja Przejrzyste Miasto',
     tresc: 'Fundacja Przejrzyste Miasto wnosi o udostępnienie informacji o wysokości wynagrodzeń (brutto, łącznie z nagrodami) Prezydenta Miasta, zastępców Prezydenta, Sekretarza i Skarbnika Miasta za rok 2025.\nOdpowiedź w formie elektronicznej na adres: biuro@przejrzyste-miasto.example.org',
   },
   {
@@ -38,14 +35,13 @@ const SZABLONY: Szablon[] = [
   },
   {
     temat: 'Wydatki na promocję miasta w mediach', terminZaDni: 1, inicjaly: 'MW', status: 'kwerenda', dniKwerendy: 14,
-    wydzialy: ['BP', 'BPR'], wnioskodawca: 'Redakcja Gazety Bydgoskiej',
+    wnioskodawca: 'Redakcja Gazety Bydgoskiej',
     tresc: 'Proszę o zestawienie umów zawartych przez Urząd Miasta Bydgoszczy w 2026 r. na promocję miasta w mediach (prasa, radio, telewizja, internet), z podaniem kontrahenta, przedmiotu i kwoty każdej umowy.',
   },
   {
     temat: 'Liczba uczniów w szkołach podstawowych', terminZaDni: 3, inicjaly: 'PB', status: 'zapytania_wyslane',
-    wydzialy: ['WE'], wnioskodawca: 'Tomasz Lewandowski',
+    wnioskodawca: 'Tomasz Lewandowski',
     tresc: 'Wnoszę o udostępnienie danych o liczbie uczniów w poszczególnych szkołach podstawowych prowadzonych przez Miasto Bydgoszcz w roku szkolnym 2026/2027 oraz o liczbie oddziałów w każdej szkole.',
-    odpowiedz: { wydzial: 'WE', tresc: 'Wydział Edukacji i Sportu informuje, że w roku szkolnym 2026/2027 do szkół podstawowych prowadzonych przez Miasto uczęszcza 24 870 uczniów w 1 112 oddziałach. Dane dla poszczególnych szkół w załączonej tabeli.' },
   },
   {
     temat: 'Realizacja projektów budżetu obywatelskiego 2025', terminZaDni: 5, inicjaly: 'PB', status: 'brak_dzialan',
@@ -64,9 +60,8 @@ const SZABLONY: Szablon[] = [
   },
   {
     temat: 'Diety radnych Rady Miasta', terminZaDni: 11, inicjaly: 'PB', status: 'odpowiedz_przygotowana',
-    wydzialy: ['BRM'], wnioskodawca: 'Piotr Mazur',
+    wnioskodawca: 'Piotr Mazur',
     tresc: 'Proszę o informację o wysokości diet wypłaconych poszczególnym radnym Rady Miasta Bydgoszczy w 2025 r.',
-    odpowiedz: { wydzial: 'BRM', tresc: 'Biuro Rady Miasta przekazuje zestawienie diet wypłaconych radnym w 2025 r. Łączna kwota diet wyniosła 1 845 000 zł. Wysokość diety miesięcznej określa uchwała nr XII/245/24 Rady Miasta Bydgoszczy. Zestawienie imienne w załączniku.' },
   },
   {
     temat: 'Liczba wydanych pozwoleń na budowę', terminZaDni: 13, inicjaly: 'AK', status: 'brak_dzialan',
@@ -99,7 +94,9 @@ function dodajDniRobocze(iso: string, n: number): string {
 export function wnioskiTestowe(dzis: string): Wniosek[] {
   const rok = dzis.slice(0, 4);
   return SZABLONY.map((s, i) => {
-    const dataWplywu = dataWplywuDlaTerminu(dodajDniRobocze(dzis, s.terminZaDni), s.dniKwerendy);
+    const wyliczona = dataWplywuDlaTerminu(dodajDniRobocze(dzis, s.terminZaDni), s.dniKwerendy);
+    // wniosek nie może wpłynąć w przyszłości
+    const dataWplywu = wyliczona > dzis ? dzis : wyliczona;
     const numer = `BKS.IV.1431.${601 + i}.${rok}`;
     return {
       id: `test-${i + 1}`,
@@ -112,10 +109,6 @@ export function wnioskiTestowe(dzis: string): Wniosek[] {
       tresc: s.tresc,
       status: s.status,
       dniKwerendy: s.dniKwerendy,
-      wydzialy: s.wydzialy ?? [],
-      odpowiedzi: s.odpowiedz
-        ? [{ id: `odp-${i + 1}`, wydzial: s.odpowiedz.wydzial, tresc: s.odpowiedz.tresc, dodano: dataWplywu }]
-        : [],
     };
   });
 }

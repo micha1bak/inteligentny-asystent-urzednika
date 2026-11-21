@@ -1,7 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { DokumentBazy, SprawaArchiwalna, Wniosek } from './types';
+import type { Wniosek } from './types';
 import { wnioskiTestowe } from './dane/wnioskiTestowe';
-import { ARCHIWUM_BAZOWE } from './dane/referencje';
 import { dzisIso } from './lib/daty';
 
 /**
@@ -9,28 +8,20 @@ import { dzisIso } from './lib/daty';
  * Interfejs (lista operacji poniżej) jest tym, co później zastąpi API backendu.
  */
 interface Stan {
-  wersja: 1;
+  wersja: 2;
   wnioski: Wniosek[];
-  archiwumDodane: SprawaArchiwalna[];
-  dokumenty: DokumentBazy[];
 }
 
 interface Magazyn extends Stan {
-  archiwum: SprawaArchiwalna[];
   dodajWniosek: (w: Omit<Wniosek, 'id' | 'numer'> & { numer?: string }) => Wniosek;
-  aktualizujWniosek: (id: string, zmiany: Partial<Wniosek>) => void;
-  usunWniosek: (id: string) => void;
-  dodajDoArchiwum: (s: Omit<SprawaArchiwalna, 'id' | 'zrodlo'>) => void;
-  dodajDokument: (d: Omit<DokumentBazy, 'id' | 'dodano'>) => void;
-  usunDokument: (id: string) => void;
   nastepnyNumer: (rok: string) => string;
   przywrocDaneTestowe: () => void;
 }
 
-const KLUCZ = 'asystent-urzednika.v1';
+const KLUCZ = 'asystent-urzednika.v2';
 
 function stanPoczatkowy(): Stan {
-  return { wersja: 1, wnioski: wnioskiTestowe(dzisIso()), archiwumDodane: [], dokumenty: [] };
+  return { wersja: 2, wnioski: wnioskiTestowe(dzisIso()) };
 }
 
 function wczytaj(): Stan {
@@ -38,7 +29,7 @@ function wczytaj(): Stan {
     const surowe = localStorage.getItem(KLUCZ);
     if (surowe) {
       const s = JSON.parse(surowe) as Stan;
-      if (s.wersja === 1 && Array.isArray(s.wnioski)) return s;
+      if (s.wersja === 2 && Array.isArray(s.wnioski)) return s;
     }
   } catch {
     /* brak dostępu do localStorage – działamy w pamięci */
@@ -47,8 +38,6 @@ function wczytaj(): Stan {
 }
 
 const Kontekst = createContext<Magazyn | null>(null);
-
-const id = () => crypto.randomUUID();
 
 export function DostawcaMagazynu({ children }: { children: ReactNode }) {
   const [stan, ustaw] = useState<Stan>(wczytaj);
@@ -75,20 +64,11 @@ export function DostawcaMagazynu({ children }: { children: ReactNode }) {
   const wartosc = useMemo<Magazyn>(
     () => ({
       ...stan,
-      archiwum: [...ARCHIWUM_BAZOWE, ...stan.archiwumDodane],
       dodajWniosek: (w) => {
-        const nowy: Wniosek = { ...w, id: id(), numer: w.numer || nastepnyNumer(w.dataWplywu.slice(0, 4)) };
+        const nowy: Wniosek = { ...w, id: crypto.randomUUID(), numer: w.numer || nastepnyNumer(w.dataWplywu.slice(0, 4)) };
         ustaw((s) => ({ ...s, wnioski: [...s.wnioski, nowy] }));
         return nowy;
       },
-      aktualizujWniosek: (wid, zmiany) =>
-        ustaw((s) => ({ ...s, wnioski: s.wnioski.map((w) => (w.id === wid ? { ...w, ...zmiany } : w)) })),
-      usunWniosek: (wid) => ustaw((s) => ({ ...s, wnioski: s.wnioski.filter((w) => w.id !== wid) })),
-      dodajDoArchiwum: (a) =>
-        ustaw((s) => ({ ...s, archiwumDodane: [...s.archiwumDodane, { ...a, id: id(), zrodlo: 'dodane' }] })),
-      dodajDokument: (d) =>
-        ustaw((s) => ({ ...s, dokumenty: [...s.dokumenty, { ...d, id: id(), dodano: dzisIso() }] })),
-      usunDokument: (did) => ustaw((s) => ({ ...s, dokumenty: s.dokumenty.filter((d) => d.id !== did) })),
       nastepnyNumer,
       przywrocDaneTestowe: () => ustaw(stanPoczatkowy()),
     }),

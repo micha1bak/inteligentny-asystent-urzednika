@@ -1,30 +1,28 @@
 import { useRef, useState } from 'react';
-import { odczytajTekst } from '../lib/parsowanie';
+import { odczytajPdf } from '../lib/parsowanie';
 
 interface Props {
   napis: string;
-  wielokrotny?: boolean;
   onWczytano: (tekst: string, plik: File) => void;
 }
 
-export default function StrefaPliku({ napis, wielokrotny, onWczytano }: Props) {
+export default function StrefaPliku({ napis, onWczytano }: Props) {
   const wejscie = useRef<HTMLInputElement>(null);
   const [aktywna, setAktywna] = useState(false);
   const [blad, setBlad] = useState('');
   const [trwa, setTrwa] = useState(false);
 
-  async function obsluz(pliki: FileList | null) {
-    if (!pliki?.length) return;
+  async function obsluz(plik: File | undefined) {
+    if (!plik) return;
     setBlad('');
     setTrwa(true);
-    for (const plik of Array.from(pliki)) {
-      try {
-        onWczytano(await odczytajTekst(plik), plik);
-      } catch (e) {
-        setBlad(`${plik.name}: ${e instanceof Error ? e.message : String(e)}`);
-      }
+    try {
+      onWczytano(await odczytajPdf(plik), plik);
+    } catch (e) {
+      setBlad(`${plik.name}: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setTrwa(false);
     }
-    setTrwa(false);
   }
 
   return (
@@ -40,19 +38,18 @@ export default function StrefaPliku({ napis, wielokrotny, onWczytano }: Props) {
         onDrop={(e) => {
           e.preventDefault();
           setAktywna(false);
-          void obsluz(e.dataTransfer.files);
+          void obsluz(e.dataTransfer.files[0]);
         }}
       >
         <strong>{trwa ? 'Odczytuję plik…' : napis}</strong>
-        <div className="maly">PDF, DOCX lub TXT · przeciągnij tutaj albo kliknij · plik jest czytany lokalnie</div>
+        <div className="maly">Plik PDF · przeciągnij tutaj albo kliknij · plik jest czytany lokalnie</div>
         <input
           ref={wejscie}
           type="file"
           hidden
-          multiple={wielokrotny}
-          accept=".pdf,.docx,.txt"
+          accept=".pdf,application/pdf"
           onChange={(e) => {
-            void obsluz(e.target.files);
+            void obsluz(e.target.files?.[0]);
             e.target.value = '';
           }}
         />

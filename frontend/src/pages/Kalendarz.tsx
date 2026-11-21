@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useMagazyn } from '../magazyn';
-import { STATUSY, type Status, type Wniosek } from '../types';
+import type { Wniosek } from '../types';
 import { dodajDni, doIso, dzisIso, formatuj, zIso } from '../lib/daty';
 import { czyDzienWolny, pilnosc, type Pilnosc } from '../lib/terminy';
 import { Pozostalo, ZnaczekStatusu } from '../components/Znaczki';
 
-type Filtr = 'wszystkie' | 'pilne' | 'w_toku' | Status;
 type Wiersz = Wniosek & { lp: number; termin: string; pozostalo: number; pilnosc: Pilnosc };
+
+const PILNE: Pilnosc[] = ['po_terminie', 'dzis', 'jutro'];
 
 export default function Kalendarz() {
   const { wnioski, przywrocDaneTestowe } = useMagazyn();
@@ -17,8 +18,7 @@ export default function Kalendarz() {
     [wnioski, dzis],
   );
   const [rok, setRok] = useState(dzis.slice(0, 4));
-  const [filtr, setFiltr] = useState<Filtr>('wszystkie');
-  const [szukaj, setSzukaj] = useState('');
+  const [tylkoPilne, setTylkoPilne] = useState(false);
   const [widok, setWidok] = useState<'tabela' | 'miesiac'>('tabela');
 
   const wiersze: Wiersz[] = useMemo(
@@ -30,23 +30,9 @@ export default function Kalendarz() {
     [wnioski, rok, dzis],
   );
 
-  const licz = (f: (w: Wiersz) => boolean) => wiersze.filter(f).length;
-  const kafle: { id: Filtr; etykieta: string; liczba: number; klasa?: string }[] = [
-    { id: 'wszystkie', etykieta: 'Wszystkie', liczba: wiersze.length },
-    { id: 'pilne', etykieta: 'Po terminie / dziś / jutro', liczba: licz((w) => ['po_terminie', 'dzis', 'jutro'].includes(w.pilnosc)), klasa: 'pil-po_terminie' },
-    { id: 'w_toku', etykieta: 'W toku', liczba: licz((w) => w.status !== 'odpowiedz_wyslana') },
-    { id: 'kwerenda', etykieta: 'Kwerenda', liczba: licz((w) => w.status === 'kwerenda') },
-    { id: 'odpowiedz_wyslana', etykieta: 'Odpowiedź wysłana', liczba: licz((w) => w.status === 'odpowiedz_wyslana') },
-  ];
-
-  const q = szukaj.trim().toLowerCase();
-  const widoczne = wiersze.filter((w) => {
-    if (filtr === 'pilne' && !['po_terminie', 'dzis', 'jutro'].includes(w.pilnosc)) return false;
-    if (filtr === 'w_toku' && w.status === 'odpowiedz_wyslana') return false;
-    if (filtr !== 'wszystkie' && filtr !== 'pilne' && filtr !== 'w_toku' && w.status !== filtr) return false;
-    if (q && !`${w.numer} ${w.temat} ${w.wnioskodawca} ${w.inicjaly}`.toLowerCase().includes(q)) return false;
-    return true;
-  });
+  const liczba = (p: Pilnosc) => wiersze.filter((w) => w.pilnosc === p).length;
+  const pilnych = wiersze.filter((w) => PILNE.includes(w.pilnosc)).length;
+  const widoczne = tylkoPilne ? wiersze.filter((w) => PILNE.includes(w.pilnosc)) : wiersze;
 
   return (
     <>
@@ -62,17 +48,16 @@ export default function Kalendarz() {
               {lata.map((r) => <option key={r}>{r}</option>)}
             </select>
           </label>
-          <Link className="przycisk glowny" to="/nowy">+ Nowy wniosek</Link>
+          <Link className="przycisk glowny" to="/nowy">+ Dodaj wniosek</Link>
         </div>
       </div>
 
       <div className="kafle">
-        {kafle.map((k) => (
-          <button key={k.id} className={`kafel ${filtr === k.id ? 'wybrany' : ''}`} onClick={() => setFiltr(k.id)}>
-            <span className={`liczba ${k.liczba ? k.klasa ?? '' : ''}`}>{k.liczba}</span>
-            <span className="maly">{k.etykieta}</span>
-          </button>
-        ))}
+        <div className="kafel"><span className={`liczba ${liczba('po_terminie') ? 'pil-po_terminie' : ''}`}>{liczba('po_terminie')}</span><span className="maly">Po terminie</span></div>
+        <div className="kafel"><span className={`liczba ${liczba('dzis') ? 'pil-dzis' : ''}`}>{liczba('dzis')}</span><span className="maly">Termin dziś</span></div>
+        <div className="kafel"><span className={`liczba ${liczba('jutro') ? 'pil-jutro' : ''}`}>{liczba('jutro')}</span><span className="maly">Termin jutro</span></div>
+        <div className="kafel"><span className="liczba">{wiersze.filter((w) => w.pilnosc !== 'zakonczony').length}</span><span className="maly">W toku</span></div>
+        <div className="kafel"><span className="liczba">{wiersze.length}</span><span className="maly">Wszystkie w {rok} r.</span></div>
       </div>
 
       <div className="karta">
@@ -82,11 +67,10 @@ export default function Kalendarz() {
               <button className={widok === 'tabela' ? 'aktywna' : ''} onClick={() => setWidok('tabela')}>Tabela</button>
               <button className={widok === 'miesiac' ? 'aktywna' : ''} onClick={() => setWidok('miesiac')}>Kalendarz</button>
             </div>
-            <input placeholder="Szukaj: numer, temat, wnioskodawca…" value={szukaj} onChange={(e) => setSzukaj(e.target.value)} style={{ width: 280 }} />
-            <select value={STATUSY.some((s) => s.id === filtr) ? filtr : ''} onChange={(e) => setFiltr((e.target.value || 'wszystkie') as Filtr)} style={{ width: 210 }}>
-              <option value="">Każdy status</option>
-              {STATUSY.map((s) => <option key={s.id} value={s.id}>{s.etykieta}</option>)}
-            </select>
+            <label style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <input type="checkbox" style={{ width: 'auto' }} checked={tylkoPilne} onChange={(e) => setTylkoPilne(e.target.checked)} />
+              Tylko pilne ({pilnych})
+            </label>
           </div>
           <div className="legenda">
             <span className="l-po">po terminie</span>
@@ -114,7 +98,6 @@ export default function Kalendarz() {
 }
 
 function Tabela({ wiersze }: { wiersze: Wiersz[] }) {
-  const nav = useNavigate();
   return (
     <div style={{ overflowX: 'auto' }}>
       <table>
@@ -133,14 +116,12 @@ function Tabela({ wiersze }: { wiersze: Wiersz[] }) {
         </thead>
         <tbody>
           {wiersze.map((w) => (
-            <tr key={w.id} className={`p-${w.pilnosc}`} onClick={() => nav(`/sprawa/${w.id}`)}>
+            <tr key={w.id} className={`p-${w.pilnosc}`}>
               <td>{w.lp}</td>
               <td className="numer nowrap">{w.numer}</td>
               <td className="nowrap">{formatuj(w.dataWplywu)}</td>
               <td>
-                <Link to={`/sprawa/${w.id}`} onClick={(e) => e.stopPropagation()} style={{ color: 'inherit', fontWeight: 500, textDecoration: 'none' }}>
-                  {w.temat}
-                </Link>
+                <span style={{ fontWeight: 500 }}>{w.temat}</span>
                 <div className="maly">{w.wnioskodawca}</div>
               </td>
               <td title="Inicjały osoby prowadzącej">{w.inicjaly}</td>
@@ -178,7 +159,7 @@ function Miesiac({ wiersze, dzis, rok }: { wiersze: Wiersz[]; dzis: string; rok:
         <button className="maly-p" onClick={() => zmien(-1)}>‹</button>
         <strong style={{ minWidth: 160, textAlign: 'center', textTransform: 'capitalize' }}>{nazwa}</strong>
         <button className="maly-p" onClick={() => zmien(1)}>›</button>
-        <span className="maly">Wnioski pokazane w dniu terminu odpowiedzi (wysłane – w dniu wysyłki).</span>
+        <span className="maly">Wnioski pokazane w dniu terminu odpowiedzi.</span>
       </div>
       <div className="miesiac">
         {DNI.map((d) => <div key={d} className="naglowek">{d}</div>)}
@@ -189,9 +170,9 @@ function Miesiac({ wiersze, dzis, rok }: { wiersze: Wiersz[]; dzis: string; rok:
           >
             <span className="nr">{Number(d.slice(8))}</span>
             {(wgTerminu.get(d) ?? []).map((w) => (
-              <Link key={w.id} to={`/sprawa/${w.id}`} className={`chip p-${w.pilnosc}`} title={`${w.numer} – ${w.temat}`}>
+              <span key={w.id} className={`chip p-${w.pilnosc}`} title={`${w.numer} – ${w.temat}`}>
                 {w.inicjaly} · {w.temat}
-              </Link>
+              </span>
             ))}
           </div>
         ))}
