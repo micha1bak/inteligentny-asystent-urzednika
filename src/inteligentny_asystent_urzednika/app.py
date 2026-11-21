@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import tempfile
 from datetime import date
 from pathlib import Path
@@ -10,6 +11,7 @@ from pathlib import Path
 from fastapi import BackgroundTasks, Depends, FastAPI, Form, HTTPException, Query, Response, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from . import analiza_aktu, anonimizacja, archiwum, baza_wiedzy, baza_wnioskow
@@ -24,7 +26,7 @@ from .baza_wnioskow import (
     WniosekZapisany,
     ZatwierdzenieOdpowiedziWejscie,
 )
-from .config import Ustawienia, wczytaj_ustawienia
+from .config import KATALOG_GLOWNY, Ustawienia, wczytaj_ustawienia
 from .groq_klient import BladLLM, KlientGroq, KlientLLM
 from .konwersja import ocr_llm
 from .podobne import WynikPodobnych, ZapytanieOPodobne, znajdz as znajdz_podobne
@@ -662,6 +664,12 @@ def utworz_aplikacje() -> FastAPI:
             strony_z_modelu=k.strony_z_modelu,
             komunikat=k.komunikat,
         )
+
+    # zbudowany frontend (npm --prefix frontend run build) pod tym samym adresem co API – jedno polecenie do
+    # uruchomienia w urzędzie; trasy /api/* zarejestrowane wyżej mają pierwszeństwo
+    dist = Path(os.getenv("FRONTEND_DIST", str(KATALOG_GLOWNY / "frontend" / "dist")))
+    if (dist / "index.html").exists():
+        app.mount("/", StaticFiles(directory=dist, html=True), name="frontend")
 
     return app
 

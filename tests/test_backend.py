@@ -524,3 +524,13 @@ def test_klient_groq_limit_dzienny():
     with pytest.raises(BladLLM) as e:
         asyncio.run(_groq(lambda req: httpx.Response(429, text=tekst)).czat_json([]))
     assert "DZIENNY" in e.value.komunikat and "38m38s" in e.value.komunikat
+
+
+def test_backend_serwuje_zbudowany_frontend(tmp_path, monkeypatch):
+    from inteligentny_asystent_urzednika.app import utworz_aplikacje
+
+    (tmp_path / "index.html").write_text("<!doctype html><title>Asystent urzędnika</title>", encoding="utf-8")
+    monkeypatch.setenv("FRONTEND_DIST", str(tmp_path))
+    k = TestClient(utworz_aplikacje())
+    assert "Asystent urzędnika" in k.get("/").text
+    assert k.get("/api/zdrowie").json()["status"] == "ok"  # API ma pierwszeństwo

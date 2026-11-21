@@ -55,6 +55,17 @@ anonimizacja, eksport DOCX/TXT, odczyt Word i PDF z warstwą tekstową.
    npm --prefix frontend run dev
    ```
 
+### Wdrożenie w urzędzie (jeden proces)
+
+```powershell
+npm --prefix frontend install
+npm --prefix frontend run build          # jednorazowo – frontend trafia do frontend/dist
+$env:BACKEND_RELOAD="0"; uv run inteligentny-asystent-urzednika
+```
+
+Aplikacja (frontend i API) jest wtedy dostępna pod http://127.0.0.1:8000 – bez serwera deweloperskiego Vite.
+Dane zostają na komputerze/serwerze urzędu: `wnioski.db` (SQLite), archiwum i baza wiedzy (JSON), dokumenty prawne.
+
 ## API
 
 | Metoda | Ścieżka | Opis |
