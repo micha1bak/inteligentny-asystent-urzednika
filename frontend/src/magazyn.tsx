@@ -8,8 +8,11 @@ import {
   pobierzWnioski,
   usunWniosekApi,
   zastapWnioskiApi,
+  zatwierdzOdpowiedzApi,
   zmienWniosekApi,
   type WniosekDoZapisu,
+  type WynikZatwierdzenia,
+  type ZatwierdzenieOdpowiedziWejscie,
 } from './lib/api';
 
 interface Magazyn {
@@ -20,6 +23,7 @@ interface Magazyn {
   dodajWniosek: (w: WniosekDoZapisu) => Promise<Wniosek>;
   dodajWnioskiWsadowo: (lista: WniosekDoZapisu[]) => Promise<Wniosek[]>;
   zmienWniosek: (id: string, w: WniosekDoZapisu) => Promise<Wniosek>;
+  zatwierdzOdpowiedz: (id: string, dane: ZatwierdzenieOdpowiedziWejscie) => Promise<WynikZatwierdzenia>;
   usunWniosek: (id: string) => Promise<void>;
   nastepnyNumer: (rok: string, przesuniecie?: number) => string;
   przywrocDaneTestowe: () => Promise<void>;
@@ -97,6 +101,12 @@ export function DostawcaMagazynu({ children }: { children: ReactNode }) {
     return zapisany;
   }, []);
 
+  const zatwierdzOdpowiedz = useCallback(async (id: string, dane: ZatwierdzenieOdpowiedziWejscie) => {
+    const wynik = await zatwierdzOdpowiedzApi(id, dane);
+    setWnioski((prev) => prev.map((x) => (x.id === id ? wynik.wniosek : x)));
+    return wynik;
+  }, []);
+
   const usunWniosek = useCallback(async (id: string) => {
     await usunWniosekApi(id);
     setWnioski((prev) => prev.filter((x) => x.id !== id));
@@ -122,11 +132,12 @@ export function DostawcaMagazynu({ children }: { children: ReactNode }) {
       dodajWniosek,
       dodajWnioskiWsadowo,
       zmienWniosek,
+      zatwierdzOdpowiedz,
       usunWniosek,
       nastepnyNumer,
       przywrocDaneTestowe,
     }),
-    [wnioski, ladowanie, blad, odswiez, dodajWniosek, dodajWnioskiWsadowo, zmienWniosek, usunWniosek, nastepnyNumer, przywrocDaneTestowe],
+    [wnioski, ladowanie, blad, odswiez, dodajWniosek, dodajWnioskiWsadowo, zmienWniosek, zatwierdzOdpowiedz, usunWniosek, nastepnyNumer, przywrocDaneTestowe],
   );
 
   return <Kontekst.Provider value={wartosc}>{children}</Kontekst.Provider>;

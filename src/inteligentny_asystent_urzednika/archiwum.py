@@ -168,6 +168,40 @@ def zmien(plik: Path, sygnatura: str, zmiana: ZmianaSprawy, slownik_werdyktow: d
     return SprawaZArchiwum.model_validate(nowa)
 
 
+def zapisz_lub_aktualizuj(
+    plik: Path, zmiana: ZmianaSprawy, slownik_werdyktow: dict[str, str]
+) -> tuple[SprawaZArchiwum, bool]:
+    """Dodaje nową sprawę lub aktualizuje istniejącą po sygnaturze (z historią zmian). Zwraca (sprawa, czy_nowa)."""
+    sprawa = zmiana.sprawa
+    sprawdz(sprawa, slownik_werdyktow)
+    with _blokada:
+        dane = wczytaj(plik)
+        istniejacy = next((i for i, s in enumerate(dane["sprawy"]) if s["sygnatura"] == sprawa.sygnatura), None)
+        if istniejacy is None:
+            nowa = {**_jako_slownik(sprawa), "historia": [_wpis(zmiana.autor, "dodano (zatwierdzona odpowiedź)")]}
+            dane["sprawy"].append(nowa)
+            _zapisz(plik, dane)
+            return SprawaZArchiwum.model_validate(nowa), True
+
+        stara = dane["sprawy"][istniejacy]
+        nowa = _jako_slownik(sprawa)
+        pola = {
+            p: {"przed": stara.get(p, ""), "po": nowa.get(p, "")}
+            for p in POLA_SPRAWY
+            if stara.get(p, "") != nowa.get(p, "")
+        }
+        historia = list(stara.get("historia", []))
+        if pola:
+            historia.append(_wpis(zmiana.autor, "zaktualizowano (zatwierdzona odpowiedź)", pola))
+        if bool(stara.get("nieaktualna")) and not sprawa.nieaktualna:
+            historia.append(_wpis(zmiana.autor, "przywrócono jako aktualną"))
+        nowa["historia"] = historia
+        dane["sprawy"][istniejacy] = nowa
+        if historia != stara.get("historia", []):
+            _zapisz(plik, dane)
+        return SprawaZArchiwum.model_validate(nowa), False
+
+
 def usun(plik: Path, sygnatura: str) -> None:
     with _blokada:
         dane = wczytaj(plik)

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 import sqlite3
 import uuid
@@ -46,6 +47,31 @@ class WniosekWejscie(BaseModel):
     nazwa_pliku: str | None = Field(default=None, max_length=300)
 
 
+class ZatwierdzonaOdpowiedz(BaseModel):
+    werdykt: str = ""
+    uzasadnienie: str = ""
+    podstawy_prawne: list[str] = []
+    komorka_merytoryczna: str = ""
+    wzor: str = ""
+    wzor_nazwa: str = ""
+    tresc: str = Field(min_length=1, max_length=100_000)
+    pismo: dict | None = None
+    autor: str = ""
+    zatwierdzono: str = ""
+
+
+class ZatwierdzenieOdpowiedziWejscie(BaseModel):
+    werdykt: str = Field(default="", max_length=60)
+    uzasadnienie: str = Field(default="", max_length=10_000)
+    podstawy_prawne: list[str] = []
+    komorka_merytoryczna: str = Field(default="", max_length=200)
+    wzor: str = Field(default="", max_length=120)
+    wzor_nazwa: str = Field(default="", max_length=200)
+    tresc: str = Field(min_length=1, max_length=100_000)
+    pismo: dict | None = None
+    autor: str = Field(default="", max_length=40)
+
+
 class WniosekZapisany(BaseModel):
     id: str
     numer: str
@@ -59,6 +85,7 @@ class WniosekZapisany(BaseModel):
     dni_kwerendy: int | None = None
     data_odpowiedzi: str | None = None
     nazwa_pliku: str | None = None
+    zatwierdzona_odpowiedz: ZatwierdzonaOdpowiedz | None = None
     utworzono: str
     zaktualizowano: str
 
@@ -81,15 +108,33 @@ CREATE TABLE IF NOT EXISTS wnioski (
     dni_kwerendy INTEGER,
     data_odpowiedzi TEXT,
     nazwa_pliku TEXT,
+    odpowiedz_tresc TEXT,
+    odpowiedz_werdykt TEXT,
+    odpowiedz_zatwierdzono TEXT,
+    odpowiedz_json TEXT,
     utworzono TEXT NOT NULL,
     zaktualizowano TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_wnioski_data_wplywu ON wnioski(data_wplywu);
 """
 
+_NOWE_KOLUMNY = (
+    ("odpowiedz_tresc", "TEXT"),
+    ("odpowiedz_werdykt", "TEXT"),
+    ("odpowiedz_zatwierdzono", "TEXT"),
+    ("odpowiedz_json", "TEXT"),
+)
+
 
 def _teraz_iso() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def _migruj(conn: sqlite3.Connection) -> None:
+    istniejace = {w["name"] for w in conn.execute("PRAGMA table_info(wnioski)")}
+    for nazwa, typ in _NOWE_KOLUMNY:
+        if nazwa not in istniejace:
+            conn.execute(f"ALTER TABLE wnioski ADD COLUMN {nazwa} {typ}")
 
 
 @contextmanager
@@ -100,6 +145,7 @@ def _polaczenie(sciezka: Path) -> Iterator[sqlite3.Connection]:
     try:
         conn.execute("PRAGMA journal_mode=WAL")
         conn.executescript(_SCHEMAT)
+        _migruj(conn)
         yield conn
         conn.commit()
     except Exception:
@@ -107,6 +153,16 @@ def _polaczenie(sciezka: Path) -> Iterator[sqlite3.Connection]:
         raise
     finally:
         conn.close()
+
+
+def _parsuj_odpowiedz(wiersz: sqlite3.Row) -> ZatwierdzonaOdpowiedz | None:
+    surowy = wiersz["odpowiedz_json"]
+    if not surowy:
+        return None
+    try:
+        return ZatwierdzonaOdpowiedz.model_validate(json.loads(surowy))
+    except Exception:
+        return None
 
 
 def _wiersz_na_model(wiersz: sqlite3.Row) -> WniosekZapisany:
@@ -123,6 +179,7 @@ def _wiersz_na_model(wiersz: sqlite3.Row) -> WniosekZapisany:
         dni_kwerendy=wiersz["dni_kwerendy"],
         data_odpowiedzi=wiersz["data_odpowiedzi"],
         nazwa_pliku=wiersz["nazwa_pliku"],
+        zatwierdzona_odpowiedz=_parsuj_odpowiedz(wiersz),
         utworzono=wiersz["utworzono"],
         zaktualizowano=wiersz["zaktualizowano"],
     )
@@ -259,6 +316,55 @@ def zmien(sciezka: Path, id_wniosku: str, dane: WniosekWejscie) -> WniosekZapisa
             )
         except sqlite3.IntegrityError as e:
             raise BladBazy(409, f"Wniosek o numerze {numer} już istnieje w bazie.") from e
+        wiersz = conn.execute("SELECT * FROM wnioski WHERE id = ?", (id_wniosku,)).fetchone()
+        assert wiersz is not None
+        return _wiersz_na_model(wiersz)
+
+
+def zatwierdz_odpowiedz(
+    sciezka: Path, id_wniosku: str, dane: ZatwierdzenieOdpowiedziWejscie
+) -> WniosekZapisany:
+    teraz = _teraz_iso()
+    with _polaczenie(sciezka) as conn:
+        istniejacy = conn.execute("SELECT * FROM wnioski WHERE id = ?", (id_wniosku,)).fetchone()
+        if istniejacy is None:
+            raise BladBazy(404, "Nie znaleziono wniosku.")
+
+        autor = dane.autor.strip().upper() or istniejacy["inicjaly"] or "UMB"
+        zapisana = ZatwierdzonaOdpowiedz(
+            werdykt=dane.werdykt.strip(),
+            uzasadnienie=dane.uzasadnienie.strip(),
+            podstawy_prawne=[p.strip() for p in dane.podstawy_prawne if p.strip()],
+            komorka_merytoryczna=dane.komorka_merytoryczna.strip(),
+            wzor=dane.wzor.strip(),
+            wzor_nazwa=dane.wzor_nazwa.strip(),
+            tresc=dane.tresc.strip(),
+            pismo=dane.pismo,
+            autor=autor,
+            zatwierdzono=teraz,
+        )
+        nowy_status = (
+            istniejacy["status"]
+            if istniejacy["status"] == "odpowiedz_wyslana"
+            else "odpowiedz_przygotowana"
+        )
+        conn.execute(
+            """
+            UPDATE wnioski
+            SET status = ?, odpowiedz_tresc = ?, odpowiedz_werdykt = ?,
+                odpowiedz_zatwierdzono = ?, odpowiedz_json = ?, zaktualizowano = ?
+            WHERE id = ?
+            """,
+            (
+                nowy_status,
+                zapisana.tresc,
+                zapisana.werdykt,
+                teraz,
+                zapisana.model_dump_json(),
+                teraz,
+                id_wniosku,
+            ),
+        )
         wiersz = conn.execute("SELECT * FROM wnioski WHERE id = ?", (id_wniosku,)).fetchone()
         assert wiersz is not None
         return _wiersz_na_model(wiersz)

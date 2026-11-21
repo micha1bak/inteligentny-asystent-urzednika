@@ -47,6 +47,12 @@ h3 { font-size: 0.95rem; margin: 0 0 8px; }
 
 /* karty i siatki */
 .karta { background: var(--karta); border: 1px solid var(--linia); border-radius: var(--promien); box-shadow: var(--cien); padding: 18px 20px; }
+.karta-zatwierdzona { border-left: 4px solid var(--zielony); }
+.pole-tekstu {
+  white-space: pre-wrap; font-family: 'Times New Roman', Times, serif; font-size: 0.94rem; line-height: 1.5;
+  background: #fafbfc; border: 1px solid var(--linia); border-radius: 6px; padding: 12px 14px;
+  max-height: 320px; overflow: auto;
+}
 .siatka-2 { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 18px; align-items: start; }
 .stos { display: flex; flex-direction: column; gap: 18px; }
 .rzad { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }

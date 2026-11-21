@@ -1,18 +1,26 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import PelnyPodgladPisma from '../components/PelnyPodgladPisma';
 import PropozycjaOdpowiedzi from '../components/PropozycjaOdpowiedzi';
 import { Pozostalo, ZnaczekStatusu } from '../components/Znaczki';
-import { pobierzWniosek } from '../lib/api';
+import {
+  pobierzWniosek,
+  type WniosekDoZapisu,
+  type WynikZatwierdzenia,
+  type ZatwierdzenieOdpowiedziWejscie,
+} from '../lib/api';
 import { dzisIso, formatuj } from '../lib/daty';
 import { zapamietajInicjaly } from '../lib/inicjaly';
+import { pismoNaTekst, type StrukturaPisma } from '../lib/pismo';
 import { maksDniKwerendy, pilnosc, terminOdpowiedzi } from '../lib/terminy';
 import { useMagazyn } from '../magazyn';
-import { STATUSY, type Status, type Wniosek } from '../types';
+import { STATUSY, type Status, type Wniosek, type ZatwierdzonaOdpowiedz } from '../types';
+import { ZnaczekWerdyktu } from './Archiwum';
 import type { ZWniosku } from './NowaSprawaArchiwum';
 
 export default function SzczegolyWniosku() {
   const { id } = useParams<{ id: string }>();
-  const { wnioski, ladowanie, zmienWniosek, usunWniosek } = useMagazyn();
+  const { wnioski, ladowanie, zmienWniosek, zatwierdzOdpowiedz, usunWniosek } = useMagazyn();
   const zMagazynu = wnioski.find((w) => w.id === id);
   const [pobrany, setPobrany] = useState<Wniosek | null>(null);
   const [bladPobrania, setBladPobrania] = useState('');
@@ -65,7 +73,16 @@ export default function SzczegolyWniosku() {
       key={wniosek.id}
       wniosek={wniosek}
       wszystkieWnioski={wnioski}
-      onZapisz={(dane) => zmienWniosek(wniosek.id, dane)}
+      onZapisz={async (dane) => {
+        const z = await zmienWniosek(wniosek.id, dane);
+        if (!zMagazynu) setPobrany(z);
+        return z;
+      }}
+      onZatwierdzOdpowiedz={async (dane) => {
+        const rez = await zatwierdzOdpowiedz(wniosek.id, dane);
+        if (!zMagazynu) setPobrany(rez.wniosek);
+        return rez;
+      }}
       onUsun={() => usunWniosek(wniosek.id)}
     />
   );
@@ -75,11 +92,13 @@ function WidokSzczegolow({
   wniosek,
   wszystkieWnioski,
   onZapisz,
+  onZatwierdzOdpowiedz,
   onUsun,
 }: {
   wniosek: Wniosek;
   wszystkieWnioski: Wniosek[];
-  onZapisz: (dane: Omit<Wniosek, 'id'>) => Promise<Wniosek>;
+  onZapisz: (dane: WniosekDoZapisu) => Promise<Wniosek>;
+  onZatwierdzOdpowiedz: (dane: ZatwierdzenieOdpowiedziWejscie) => Promise<WynikZatwierdzenia>;
   onUsun: () => Promise<void>;
 }) {
   const nav = useNavigate();
@@ -171,6 +190,14 @@ function WidokSzczegolow({
     } finally {
       setTrwaZapis(false);
     }
+  }
+
+  async function zatwierdz(wejscie: ZatwierdzenieOdpowiedziWejscie): Promise<WynikZatwierdzenia> {
+    const autor = dane.inicjaly.trim().toUpperCase();
+    if (autor) zapamietajInicjaly(autor);
+    const rez = await onZatwierdzOdpowiedz({ ...wejscie, autor });
+    setDane((d) => ({ ...d, status: rez.wniosek.status }));
+    return rez;
   }
 
   async function usun() {
@@ -291,6 +318,13 @@ function WidokSzczegolow({
         </div>
 
         <div className="stos">
+          {wniosek.zatwierdzonaOdpowiedz && (
+            <KartaZatwierdzonejOdpowiedzi
+              key={wniosek.zatwierdzonaOdpowiedz.zatwierdzono}
+              odpowiedz={wniosek.zatwierdzonaOdpowiedz}
+              onZaktualizuj={zatwierdz}
+            />
+          )}
           <PropozycjaOdpowiedzi
             key={wniosek.id}
             wniosek={{
@@ -300,9 +334,121 @@ function WidokSzczegolow({
               data_wplywu: dane.dataWplywu,
               wnioskodawca: dane.wnioskodawca,
             }}
+            onZatwierdz={zatwierdz}
           />
         </div>
       </div>
     </>
+  );
+}
+
+function KartaZatwierdzonejOdpowiedzi({
+  odpowiedz,
+  onZaktualizuj,
+}: {
+  odpowiedz: ZatwierdzonaOdpowiedz;
+  onZaktualizuj: (dane: ZatwierdzenieOdpowiedziWejscie) => Promise<WynikZatwierdzenia>;
+}) {
+  const [pismo, setPismo] = useState<StrukturaPisma | null>(odpowiedz.pismo);
+  const [podglad, setPodglad] = useState(false);
+  const [skopiowano, setSkopiowano] = useState(false);
+  const [trwaZapis, setTrwaZapis] = useState(false);
+  const [blad, setBlad] = useState('');
+
+  async function kopiuj() {
+    try {
+      await navigator.clipboard.writeText(pismo ? pismoNaTekst(pismo) : odpowiedz.tresc);
+      setSkopiowano(true);
+      setTimeout(() => setSkopiowano(false), 1500);
+    } catch {
+      /* brak uprawnień do schowka */
+    }
+  }
+
+  async function zapiszEdycjePisma() {
+    if (!pismo) return;
+    setTrwaZapis(true);
+    setBlad('');
+    try {
+      await onZaktualizuj({
+        werdykt: odpowiedz.werdykt,
+        uzasadnienie: odpowiedz.uzasadnienie,
+        podstawy_prawne: odpowiedz.podstawyPrawne,
+        komorka_merytoryczna: odpowiedz.komorkaMerytoryczna,
+        wzor: odpowiedz.wzor,
+        wzor_nazwa: odpowiedz.wzorNazwa,
+        tresc: pismoNaTekst(pismo),
+        pismo,
+      });
+      setPodglad(false);
+    } catch (e) {
+      setBlad(e instanceof Error ? e.message : String(e));
+    } finally {
+      setTrwaZapis(false);
+    }
+  }
+
+  return (
+    <div className="karta karta-zatwierdzona">
+      <div className="rzad rozsun" style={{ marginBottom: 10 }}>
+        <h2 style={{ margin: 0 }}>Zatwierdzona odpowiedź</h2>
+        <div className="rzad" style={{ gap: 6 }}>
+          {odpowiedz.werdykt && <ZnaczekWerdyktu werdykt={odpowiedz.werdykt} />}
+          <span className="maly">
+            {odpowiedz.autor && `${odpowiedz.autor} · `}
+            {odpowiedz.zatwierdzono ? new Date(odpowiedz.zatwierdzono).toLocaleString('pl-PL') : ''}
+          </span>
+        </div>
+      </div>
+
+      <div className="stos" style={{ gap: 10 }}>
+        {odpowiedz.komorkaMerytoryczna && (
+          <div>
+            <div className="maly">Komórka merytoryczna</div>
+            <div style={{ fontSize: '0.92rem' }}>{odpowiedz.komorkaMerytoryczna}</div>
+          </div>
+        )}
+        {odpowiedz.podstawyPrawne.length > 0 && (
+          <div>
+            <div className="maly">Podstawy prawne</div>
+            <div style={{ fontSize: '0.9rem' }}>{odpowiedz.podstawyPrawne.join(', ')}</div>
+          </div>
+        )}
+        {odpowiedz.uzasadnienie && (
+          <div>
+            <div className="maly">Uzasadnienie</div>
+            <div style={{ fontSize: '0.92rem' }}>{odpowiedz.uzasadnienie}</div>
+          </div>
+        )}
+        <div>
+          <div className="maly" style={{ marginBottom: 4 }}>
+            {odpowiedz.wzorNazwa || 'Treść pisma'}
+          </div>
+          <div className="pole-tekstu">{odpowiedz.tresc}</div>
+        </div>
+        {blad && <div className="blad">{blad}</div>}
+        <div className="rzad">
+          {pismo && (
+            <button className="glowny" onClick={() => setPodglad(true)}>
+              Otwórz pismo (podgląd i edycja)
+            </button>
+          )}
+          <button className="maly-p" onClick={() => void kopiuj()}>
+            {skopiowano ? 'Skopiowano' : 'Kopiuj tekst'}
+          </button>
+        </div>
+      </div>
+
+      {podglad && pismo && (
+        <PelnyPodgladPisma
+          pismo={pismo}
+          onZmiana={setPismo}
+          onZamknij={() => setPodglad(false)}
+          tytul={odpowiedz.wzorNazwa ? `Zatwierdzona odpowiedź – ${odpowiedz.wzorNazwa}` : 'Zatwierdzona odpowiedź'}
+          onZatwierdz={() => void zapiszEdycjePisma()}
+          trwaZatwierdzanie={trwaZapis}
+        />
+      )}
+    </div>
   );
 }

@@ -1,11 +1,23 @@
 import { useRef, useState } from 'react';
-import { pobierzPropozycje, type Propozycja, type ZapytanieOPropozycje } from '../lib/api';
+import {
+  pobierzPropozycje,
+  type Propozycja,
+  type WynikZatwierdzenia,
+  type ZapytanieOPropozycje,
+  type ZatwierdzenieOdpowiedziWejscie,
+} from '../lib/api';
 import { pismoNaTekst, type StrukturaPisma } from '../lib/pismo';
 import PelnyPodgladPisma from './PelnyPodgladPisma';
 import PodstawyPrawne from './PodstawyPrawne';
 
 /** Propozycja odpowiedzi z modelu (Groq) na podstawie modelu oceny prawnej i archiwum werdyktów. */
-export default function PropozycjaOdpowiedzi({ wniosek }: { wniosek: ZapytanieOPropozycje }) {
+export default function PropozycjaOdpowiedzi({
+  wniosek,
+  onZatwierdz,
+}: {
+  wniosek: ZapytanieOPropozycje;
+  onZatwierdz?: (dane: ZatwierdzenieOdpowiedziWejscie) => Promise<WynikZatwierdzenia>;
+}) {
   const [wynik, setWynik] = useState<Propozycja>();
   const [podstawy, setPodstawy] = useState<string[]>([]);
   const [projekt, setProjekt] = useState('');
@@ -14,6 +26,8 @@ export default function PropozycjaOdpowiedzi({ wniosek }: { wniosek: ZapytanieOP
   const [wstawiono, setWstawiono] = useState('');
   const [blad, setBlad] = useState('');
   const [trwa, setTrwa] = useState(false);
+  const [trwaZatwierdzanie, setTrwaZatwierdzanie] = useState(false);
+  const [komunikatZatwierdzenia, setKomunikatZatwierdzenia] = useState('');
   const [skopiowano, setSkopiowano] = useState(false);
   const przerwij = useRef<AbortController | null>(null);
   const projektRef = useRef<HTMLTextAreaElement | null>(null);
@@ -26,6 +40,7 @@ export default function PropozycjaOdpowiedzi({ wniosek }: { wniosek: ZapytanieOP
     przerwij.current = ac;
     setTrwa(true);
     setBlad('');
+    setKomunikatZatwierdzenia('');
     try {
       const p = await pobierzPropozycje(wniosek, ac.signal);
       setWynik(p);
@@ -68,6 +83,37 @@ export default function PropozycjaOdpowiedzi({ wniosek }: { wniosek: ZapytanieOP
       return `${przed}${separatorPrzed}${fragment}${separatorPo}${po}`;
     });
     pole.focus();
+  }
+
+  async function zatwierdz() {
+    if (!wynik || !onZatwierdz) return;
+    const aktualnaTresc = (pismo ? pismoNaTekst(pismo) : projekt).trim();
+    if (!aktualnaTresc) return;
+    setTrwaZatwierdzanie(true);
+    setBlad('');
+    setKomunikatZatwierdzenia('');
+    try {
+      const rez = await onZatwierdz({
+        werdykt: wynik.werdykt,
+        uzasadnienie: wynik.uzasadnienie,
+        podstawy_prawne: podstawy,
+        komorka_merytoryczna: wynik.komorka_merytoryczna,
+        wzor: wynik.wzor,
+        wzor_nazwa: wynik.wzor_nazwa,
+        tresc: aktualnaTresc,
+        pismo,
+      });
+      setPodglad(false);
+      setKomunikatZatwierdzenia(
+        rez.zaktualizowano_werdykty
+          ? 'Zatwierdzono odpowiedź, zapisano w bazie i zaktualizowano werdykty.'
+          : rez.komunikat_werdykty || 'Zatwierdzono i zapisano odpowiedź w bazie.',
+      );
+    } catch (e) {
+      setBlad(e instanceof Error ? e.message : String(e));
+    } finally {
+      setTrwaZatwierdzanie(false);
+    }
   }
 
   async function kopiuj() {
@@ -145,6 +191,8 @@ export default function PropozycjaOdpowiedzi({ wniosek }: { wniosek: ZapytanieOP
                   onZmiana={setPismo}
                   onZamknij={() => setPodglad(false)}
                   tytul={wynik.wzor_nazwa ? `Projekt pisma – ${wynik.wzor_nazwa}` : undefined}
+                  onZatwierdz={onZatwierdz ? () => void zatwierdz() : undefined}
+                  trwaZatwierdzanie={trwaZatwierdzanie}
                 />
               )}
             </div>
@@ -160,7 +208,13 @@ export default function PropozycjaOdpowiedzi({ wniosek }: { wniosek: ZapytanieOP
               />
             </label>
           )}
+          {komunikatZatwierdzenia && <div className="info">{komunikatZatwierdzenia}</div>}
           <div className="rzad">
+            {onZatwierdz && (
+              <button className="glowny" disabled={trwaZatwierdzanie} onClick={() => void zatwierdz()}>
+                {trwaZatwierdzanie ? 'Zapisywanie…' : 'Zatwierdź odpowiedź'}
+              </button>
+            )}
             <button className="maly-p" onClick={() => void kopiuj()}>{skopiowano ? 'Skopiowano' : 'Kopiuj tekst'}</button>
             <span className="maly">model: {wynik.model}</span>
           </div>

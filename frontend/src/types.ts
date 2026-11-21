@@ -1,3 +1,5 @@
+import type { StrukturaPisma } from './lib/pismo';
+
 export type Status =
   | 'brak_dzialan'
   | 'zapytania_wyslane'
@@ -17,6 +19,19 @@ export function etykietaStatusu(s: Status): string {
   return STATUSY.find((x) => x.id === s)?.etykieta ?? s;
 }
 
+export interface ZatwierdzonaOdpowiedz {
+  werdykt: string;
+  uzasadnienie: string;
+  podstawyPrawne: string[];
+  komorkaMerytoryczna: string;
+  wzor: string;
+  wzorNazwa: string;
+  tresc: string;
+  pismo: StrukturaPisma | null;
+  autor: string;
+  zatwierdzono: string;
+}
+
 export interface Wniosek {
   id: string;
   numer: string;
@@ -31,4 +46,5 @@ export interface Wniosek {
   dniKwerendy?: number;
   dataOdpowiedzi?: string; // YYYY-MM-DD
   nazwaPliku?: string;
+  zatwierdzonaOdpowiedz?: ZatwierdzonaOdpowiedz;
 }

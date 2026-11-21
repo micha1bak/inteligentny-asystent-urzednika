@@ -1,4 +1,4 @@
-import type { Status, Wniosek } from '../types';
+import type { Status, Wniosek, ZatwierdzonaOdpowiedz } from '../types';
 import type { StrukturaPisma } from './pismo';
 
 // Klient backendu (FastAPI). W trybie deweloperskim Vite przekierowuje /api na http://127.0.0.1:8000.
@@ -344,6 +344,19 @@ export async function wycofajWersje(id: string, autor: string): Promise<WersjaBa
 
 // ---------------------------------------------------------------- baza wniosków (SQLite)
 
+interface ZatwierdzonaOdpowiedzApi {
+  werdykt: string;
+  uzasadnienie: string;
+  podstawy_prawne: string[];
+  komorka_merytoryczna: string;
+  wzor: string;
+  wzor_nazwa: string;
+  tresc: string;
+  pismo: StrukturaPisma | null;
+  autor: string;
+  zatwierdzono: string;
+}
+
 interface WniosekApi {
   id: string;
   numer: string;
@@ -357,9 +370,45 @@ interface WniosekApi {
   dni_kwerendy?: number | null;
   data_odpowiedzi?: string | null;
   nazwa_pliku?: string | null;
+  zatwierdzona_odpowiedz?: ZatwierdzonaOdpowiedzApi | null;
 }
 
-export type WniosekDoZapisu = Omit<Wniosek, 'id' | 'numer'> & { id?: string; numer?: string };
+export interface ZatwierdzenieOdpowiedziWejscie {
+  werdykt: string;
+  uzasadnienie: string;
+  podstawy_prawne: string[];
+  komorka_merytoryczna: string;
+  wzor: string;
+  wzor_nazwa: string;
+  tresc: string;
+  pismo: StrukturaPisma | null;
+  autor?: string;
+}
+
+export interface WynikZatwierdzenia {
+  wniosek: Wniosek;
+  zaktualizowano_werdykty: boolean;
+  werdykt_nowy_wpis: boolean;
+  komunikat_werdykty: string | null;
+}
+
+export type WniosekDoZapisu = Omit<Wniosek, 'id' | 'numer' | 'zatwierdzonaOdpowiedz'> & { id?: string; numer?: string };
+
+function zApiOdpowiedz(o: ZatwierdzonaOdpowiedzApi | null | undefined): ZatwierdzonaOdpowiedz | undefined {
+  if (!o) return undefined;
+  return {
+    werdykt: o.werdykt,
+    uzasadnienie: o.uzasadnienie,
+    podstawyPrawne: o.podstawy_prawne ?? [],
+    komorkaMerytoryczna: o.komorka_merytoryczna,
+    wzor: o.wzor,
+    wzorNazwa: o.wzor_nazwa,
+    tresc: o.tresc,
+    pismo: o.pismo ?? null,
+    autor: o.autor,
+    zatwierdzono: o.zatwierdzono,
+  };
+}
 
 function zApi(w: WniosekApi): Wniosek {
   return {
@@ -375,6 +424,7 @@ function zApi(w: WniosekApi): Wniosek {
     dniKwerendy: w.dni_kwerendy ?? undefined,
     dataOdpowiedzi: w.data_odpowiedzi ?? undefined,
     nazwaPliku: w.nazwa_pliku ?? undefined,
+    zatwierdzonaOdpowiedz: zApiOdpowiedz(w.zatwierdzona_odpowiedz),
   };
 }
 
@@ -439,4 +489,27 @@ export async function zmienWniosekApi(id: string, w: WniosekDoZapisu): Promise<W
 
 export async function usunWniosekApi(id: string): Promise<void> {
   await wyslij(`/api/wnioski/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+export async function zatwierdzOdpowiedzApi(
+  id: string,
+  dane: ZatwierdzenieOdpowiedziWejscie,
+): Promise<WynikZatwierdzenia> {
+  const odp = await wyslij(`/api/wnioski/${encodeURIComponent(id)}/zatwierdz-odpowiedz`, {
+    method: 'POST',
+    headers: JSON_NAGLOWKI,
+    body: JSON.stringify(dane),
+  });
+  const surowe = (await odp.json()) as {
+    wniosek: WniosekApi;
+    zaktualizowano_werdykty: boolean;
+    werdykt_nowy_wpis: boolean;
+    komunikat_werdykty: string | null;
+  };
+  return {
+    wniosek: zApi(surowe.wniosek),
+    zaktualizowano_werdykty: surowe.zaktualizowano_werdykty,
+    werdykt_nowy_wpis: surowe.werdykt_nowy_wpis,
+    komunikat_werdykty: surowe.komunikat_werdykty,
+  };
 }

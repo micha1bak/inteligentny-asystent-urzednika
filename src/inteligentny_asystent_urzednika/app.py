@@ -12,11 +12,17 @@ from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from . import analiza_aktu, archiwum, baza_wiedzy, baza_wnioskow
+from . import analiza_aktu, anonimizacja, archiwum, baza_wiedzy, baza_wnioskow
 from .analiza_aktu import ROZSZERZENIA_AKTU, Analiza
-from .archiwum import BladArchiwum, SprawaZArchiwum, ZmianaSprawy
+from .archiwum import BladArchiwum, Sprawa, SprawaZArchiwum, ZmianaSprawy
 from .baza_wiedzy import BladBazyWiedzy, Wersja, WersjaZeStatusem
-from .baza_wnioskow import BladBazy, WniosekWejscie, WniosekWsad, WniosekZapisany
+from .baza_wnioskow import (
+    BladBazy,
+    WniosekWejscie,
+    WniosekWsad,
+    WniosekZapisany,
+    ZatwierdzenieOdpowiedziWejscie,
+)
 from .config import Ustawienia, wczytaj_ustawienia
 from .groq_klient import BladLLM, KlientGroq, KlientLLM
 from .konwersja import ocr_llm
@@ -65,6 +71,13 @@ class ZatwierdzenieAnalizy(BaseModel):
 
 class Autor(BaseModel):
     autor: str = Field(min_length=1, max_length=40)
+
+
+class WynikZatwierdzenia(BaseModel):
+    wniosek: WniosekZapisany
+    zaktualizowano_werdykty: bool
+    werdykt_nowy_wpis: bool = False
+    komunikat_werdykty: str | None = None
 
 
 class WynikKonwersji(BaseModel):
@@ -203,6 +216,66 @@ def utworz_aplikacje() -> FastAPI:
             return baza_wnioskow.zmien(u.plik_bazy, id_wniosku, dane)
         except BladBazy as e:
             raise HTTPException(e.status, e.komunikat) from e
+
+    @app.post("/api/wnioski/{id_wniosku}/zatwierdz-odpowiedz", response_model=WynikZatwierdzenia)
+    def wnioski_zatwierdz_odpowiedz(
+        id_wniosku: str,
+        dane: ZatwierdzenieOdpowiedziWejscie,
+        u: Ustawienia = Depends(pobierz_ustawienia),
+        wiedza: Wiedza = Depends(pobierz_wiedze),
+    ) -> WynikZatwierdzenia:
+        try:
+            wniosek = baza_wnioskow.zatwierdz_odpowiedz(u.plik_bazy, id_wniosku, dane)
+        except BladBazy as e:
+            raise HTTPException(e.status, e.komunikat) from e
+
+        zaktualizowano = False
+        nowy_wpis = False
+        komunikat: str | None = None
+
+        if dane.werdykt.strip() in wiedza.slownik_werdyktow:
+            opis_wniosku = anonimizacja.zanonimizuj(wniosek.temat).strip()
+            if len(opis_wniosku) < 10:
+                fragment = anonimizacja.zanonimizuj(wniosek.tresc).strip()
+                opis_wniosku = f"{opis_wniosku}: {fragment}".strip(": ")[:2800]
+            if len(opis_wniosku) < 10:
+                opis_wniosku = f"Wniosek {wniosek.numer} o udostępnienie informacji publicznej"
+
+            opis_odpowiedzi = anonimizacja.zanonimizuj(dane.uzasadnienie.strip() or dane.tresc.strip())[:4800]
+            if len(opis_odpowiedzi) < 10:
+                opis_odpowiedzi = anonimizacja.zanonimizuj(dane.tresc.strip())[:4800]
+            if len(opis_odpowiedzi) < 10:
+                opis_odpowiedzi = "Udzielono odpowiedzi na wniosek o dostęp do informacji publicznej."
+
+            autor = (wniosek.zatwierdzona_odpowiedz.autor if wniosek.zatwierdzona_odpowiedz else "") or "UMB"
+            sprawa = Sprawa(
+                sygnatura=wniosek.numer,
+                data_odpowiedzi=wniosek.data_odpowiedzi or date.today().isoformat(),
+                komorka_merytoryczna=anonimizacja.zanonimizuj(dane.komorka_merytoryczna)[:200],
+                wniosek_o_co=opis_wniosku[:3000],
+                jaka_odpowiedz=opis_odpowiedzi[:5000],
+                werdykt=dane.werdykt.strip(),
+                forma_zalatwienia=anonimizacja.zanonimizuj(dane.wzor_nazwa or "Pismo urzędowe")[:1000],
+                etap_i_podstawa=anonimizacja.zanonimizuj(", ".join(dane.podstawy_prawne))[:1000],
+            )
+            try:
+                _, nowy_wpis = archiwum.zapisz_lub_aktualizuj(
+                    u.plik_werdyktow,
+                    ZmianaSprawy(sprawa=sprawa, autor=autor),
+                    wiedza.slownik_werdyktow,
+                )
+                zaktualizowano = True
+            except BladArchiwum as e:
+                komunikat = e.komunikat
+        else:
+            komunikat = "Odpowiedź zapisana w bazie; werdykt spoza słownika nie został dodany do pliku werdyktów."
+
+        return WynikZatwierdzenia(
+            wniosek=wniosek,
+            zaktualizowano_werdykty=zaktualizowano,
+            werdykt_nowy_wpis=nowy_wpis,
+            komunikat_werdykty=komunikat,
+        )
 
     @app.delete("/api/wnioski/{id_wniosku}", status_code=204)
     def wnioski_usun(id_wniosku: str, u: Ustawienia = Depends(pobierz_ustawienia)) -> Response:

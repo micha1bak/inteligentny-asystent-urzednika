@@ -1,5 +1,7 @@
 """Testy bazy SQLite i endpointów /api/wnioski."""
 
+import json
+import shutil
 from dataclasses import replace
 
 import pytest
@@ -24,14 +26,16 @@ PRZYKLAD = {
 @pytest.fixture
 def api_bazy(tmp_path):
     plik_bazy = tmp_path / "test_wnioski.db"
-    ustawienia = replace(U, plik_bazy=plik_bazy)
+    plik_werdyktow = tmp_path / "werdykty.json"
+    shutil.copy(U.plik_werdyktow, plik_werdyktow)
+    ustawienia = replace(U, plik_bazy=plik_bazy, plik_werdyktow=plik_werdyktow)
     app.dependency_overrides[pobierz_ustawienia] = lambda: ustawienia
-    yield TestClient(app), plik_bazy
+    yield TestClient(app), plik_bazy, plik_werdyktow
     app.dependency_overrides.clear()
 
 
 def test_pusta_baza_i_crud(api_bazy):
-    klient, plik_bazy = api_bazy
+    klient, plik_bazy, _ = api_bazy
     assert klient.get("/api/wnioski").json() == []
     assert plik_bazy.exists()
 
@@ -65,7 +69,7 @@ def test_pusta_baza_i_crud(api_bazy):
 
 
 def test_dodawanie_wsadowe_nadaje_kolejne_numery(api_bazy):
-    klient, _ = api_bazy
+    klient, _, _ = api_bazy
     wsad = {
         "wnioski": [
             {**PRZYKLAD, "temat": "Wniosek pierwszy", "nazwa_pliku": "a.pdf"},
@@ -85,7 +89,7 @@ def test_dodawanie_wsadowe_nadaje_kolejne_numery(api_bazy):
 
 
 def test_duplikat_numeru_zwraca_409(api_bazy):
-    klient, _ = api_bazy
+    klient, _, _ = api_bazy
     w = klient.post("/api/wnioski", json={**PRZYKLAD, "numer": "BKS.IV.1431.99.2026"}).json()
     assert w["numer"] == "BKS.IV.1431.99.2026"
     odp = klient.post("/api/wnioski", json={**PRZYKLAD, "numer": "BKS.IV.1431.99.2026"})
@@ -93,7 +97,7 @@ def test_duplikat_numeru_zwraca_409(api_bazy):
 
 
 def test_zastap_wszystkie_i_zdrowie(api_bazy):
-    klient, _ = api_bazy
+    klient, _, _ = api_bazy
     klient.post("/api/wnioski", json=PRZYKLAD)
     odp = klient.post(
         "/api/wnioski/zastap",
@@ -107,3 +111,52 @@ def test_zastap_wszystkie_i_zdrowie(api_bazy):
     assert odp.status_code == 200
     assert len(klient.get("/api/wnioski").json()) == 2
     assert klient.get("/api/zdrowie").json()["wnioskow_w_bazie"] == 2
+
+
+def test_zatwierdzenie_odpowiedzi_zapisuje_w_bazie_i_aktualizuje_werdykty(api_bazy):
+    klient, _, plik_werdyktow = api_bazy
+    w = klient.post("/api/wnioski", json=PRZYKLAD).json()
+
+    propozycja = {
+        "werdykt": "MOZNA_UDOSTEPNIC",
+        "uzasadnienie": "Informacja o wydatkach publicznych podlega udostępnieniu (kontakt: jan.nowicki@example.com).",
+        "podstawy_prawne": ["Art. 6 ust. 1 pkt 5 UDIP", "Art. 13 ust. 1 UDIP"],
+        "komorka_merytoryczna": "Wydział Inwestycji Miasta",
+        "wzor": "udostepnienie_w_tresci",
+        "wzor_nazwa": "Udostępnienie informacji w treści pisma",
+        "tresc": "URZĄD MIASTA BYDGOSZCZY\nInformuję, że koszt remontu wyniósł 1 200 000 zł.",
+        "pismo": {"naglowek": ["URZĄD MIASTA BYDGOSZCZY"], "tresc": [{"typ": "akapit", "tekst": "Treść."}]},
+        "autor": "AK",
+    }
+    odp = klient.post(f"/api/wnioski/{w['id']}/zatwierdz-odpowiedz", json=propozycja)
+    assert odp.status_code == 200, odp.text
+    wynik = odp.json()
+    assert wynik["zaktualizowano_werdykty"] is True
+    assert wynik["werdykt_nowy_wpis"] is True
+    assert wynik["wniosek"]["status"] == "odpowiedz_przygotowana"
+    assert wynik["wniosek"]["zatwierdzona_odpowiedz"]["werdykt"] == "MOZNA_UDOSTEPNIC"
+    assert "1 200 000 zł" in wynik["wniosek"]["zatwierdzona_odpowiedz"]["tresc"]
+
+    # sprawdź, że wniosek pobrany ponownie z SQLite ma zapisaną odpowiedź (także po edycji metadanych)
+    klient.put(f"/api/wnioski/{w['id']}", json={**PRZYKLAD, "numer": w["numer"], "temat": "Zmieniony temat"})
+    po_edycji = klient.get(f"/api/wnioski/{w['id']}").json()
+    assert po_edycji["temat"] == "Zmieniony temat"
+    assert po_edycji["zatwierdzona_odpowiedz"]["werdykt"] == "MOZNA_UDOSTEPNIC"
+
+    # sprawdź, że werdykty.json zostały zaktualizowane i zanonimizowane
+    werdykty = json.loads(plik_werdyktow.read_text(encoding="utf-8"))
+    wpis = next(s for s in werdykty["sprawy"] if s["sygnatura"] == w["numer"])
+    assert wpis["werdykt"] == "MOZNA_UDOSTEPNIC"
+    assert wpis["komorka_merytoryczna"] == "Wydział Inwestycji Miasta"
+    assert "jan.nowicki@example.com" not in wpis["jaka_odpowiedz"]
+
+    # ponowne zatwierdzenie aktualizuje istniejący wpis w werdykty.json zamiast tworzyć duplikat
+    odp2 = klient.post(
+        f"/api/wnioski/{w['id']}/zatwierdz-odpowiedz",
+        json={**propozycja, "werdykt": "MOZNA_Z_ANONIMIZACJA", "tresc": "Zaktualizowana treść odpowiedzi."},
+    )
+    assert odp2.status_code == 200
+    assert odp2.json()["werdykt_nowy_wpis"] is False
+    werdykty2 = json.loads(plik_werdyktow.read_text(encoding="utf-8"))
+    pasujace = [s for s in werdykty2["sprawy"] if s["sygnatura"] == w["numer"]]
+    assert len(pasujace) == 1 and pasujace[0]["werdykt"] == "MOZNA_Z_ANONIMIZACJA"
