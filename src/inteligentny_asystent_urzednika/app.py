@@ -641,14 +641,14 @@ def utworz_aplikacje() -> FastAPI:
         dane = await plik.read(MAKS_ROZMIAR_PLIKU + 1)
         if len(dane) > MAKS_ROZMIAR_PLIKU:
             raise HTTPException(413, "Plik jest za duży (maks. 20 MB).")
-        if Path(nazwa).suffix.lower() != ".docx" and not u.groq_api_key:
-            raise HTTPException(503, "Brak klucza GROQ_API_KEY w pliku .env – odczyt PDF i skanów wymaga modelu.")
 
         with tempfile.TemporaryDirectory() as katalog:
             sciezka = Path(katalog) / f"wniosek{Path(nazwa).suffix.lower()}"
             sciezka.write_bytes(dane)
             try:
                 k = await run_in_threadpool(ocr_llm.konwertuj, sciezka)
+            except ocr_llm.BrakModeluOCR as e:
+                raise HTTPException(503, str(e)) from e
             except RuntimeError as e:
                 raise HTTPException(502, f"Błąd odczytu przez model: {e}") from e
             except Exception as e:

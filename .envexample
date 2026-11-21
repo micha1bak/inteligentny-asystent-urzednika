@@ -9,3 +9,14 @@ KONTEKST_PRAWNY=wybrany
 GROQ_LIMIT_TPM=8000
 # Maksymalna długość odpowiedzi modelu (wlicza się do limitu)
 GROQ_MAX_TOKENS=2000
+
+# ---------------------------------------------------------------- tryb lokalny (docelowo w urzędzie, bez internetu)
+# Dowolny serwer zgodny z API OpenAI, np. Ollama na serwerze urzędu – dane nie opuszczają sieci UMB.
+# Gdy LLM_URL wskazuje lokalny serwer, klucz API nie jest wymagany.
+# LLM_URL=http://localhost:11434/v1/chat/completions
+# LLM_MODEL=SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M
+# Model wizyjny do odczytu skanów (OCR) i rozpoznawania pisma odręcznego:
+# OCR_URL=http://localhost:11434/v1/chat/completions
+# OCR_MODEL=qwen2.5vl:7b
+# Bez żadnego modelu działają: kalendarz, podobne sprawy, propozycja wydziałów (archiwum + zakresy),
+# anonimizacja, eksport DOCX/TXT, odczyt Word i PDF z warstwą tekstową.

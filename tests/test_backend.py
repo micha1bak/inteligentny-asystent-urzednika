@@ -452,14 +452,14 @@ def test_konwersja_nieobslugiwany_format():
     assert _wyslij("wniosek.txt", b"abc").status_code == 415
 
 
-def test_konwersja_pdf_wymaga_klucza():
-    from inteligentny_asystent_urzednika.app import pobierz_ustawienia
-
-    app.dependency_overrides[pobierz_ustawienia] = lambda: replace(U, groq_api_key=None)
-    try:
-        assert _wyslij("Wniosek - BKS.IV.1431.16.2026.pdf").status_code == 503
-    finally:
-        app.dependency_overrides.clear()
+def test_konwersja_bez_modelu_offline(monkeypatch):
+    """Tryb bez modelu (offline): PDF z warstwą tekstową czytany lokalnie, skan – czytelny komunikat 503."""
+    monkeypatch.setattr(ocr_llm, "model_dostepny", lambda: False)
+    monkeypatch.setattr(ocr_llm, "_zapytaj", lambda *a, **k: pytest.fail("bez modelu nie wolno wołać OCR"))
+    tekstowy = _wyslij("Wniosek - BKS.IV.1431.590.2026.pdf")
+    assert tekstowy.status_code == 200 and "Astoria" in tekstowy.json()["tekst"]
+    skan = _wyslij("Wniosek - BKS.IV.1431.16.2026.pdf")
+    assert skan.status_code == 503 and "OCR" in skan.json()["detail"]
 
 
 def test_odpowiedzi_wydzialow_trafiaja_do_modelu_i_mieszcza_sie_w_limicie():
@@ -505,3 +505,15 @@ def test_podobne_sprawy_i_wnioski_z_ostatniego_roku():
 def test_endpoint_podobnych():
     odp = TestClient(app).post("/api/podobne", json={"tresc": "Liczba uczniów w szkołach podstawowych i obcokrajowców"})
     assert odp.status_code == 200 and odp.json()["sprawy"][0]["sygnatura"] == "BKS.IV.1431.307.2025"
+
+
+def test_konfiguracja_lokalnego_modelu(monkeypatch):
+    from inteligentny_asystent_urzednika.config import wczytaj_ustawienia
+
+    for z in ("LLM_API_KEY", "GROQ_API_KEY", "LLM_URL", "GROQ_URL", "LLM_MODEL"):
+        monkeypatch.delenv(z, raising=False)
+    assert wczytaj_ustawienia().groq_api_key is None  # Groq bez klucza – brak modelu
+    monkeypatch.setenv("LLM_URL", "http://localhost:11434/v1/chat/completions")
+    monkeypatch.setenv("LLM_MODEL", "bielik-11b")
+    u = wczytaj_ustawienia()
+    assert u.groq_url.startswith("http://localhost") and u.groq_model == "bielik-11b" and u.groq_api_key == "lokalny"

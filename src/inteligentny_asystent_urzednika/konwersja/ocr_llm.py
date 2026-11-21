@@ -36,8 +36,11 @@ from xml.etree import ElementTree
 from dataclasses import dataclass
 from pathlib import Path
 
-URL = "https://api.groq.com/openai/v1/chat/completions"
-MODEL = "qwen/qwen3.8-27b"
+# Model wizyjny OCR – domyślnie Groq; docelowo lokalny serwer zgodny z API OpenAI (np. Ollama: OCR_URL=
+# http://localhost:11434/v1/chat/completions, OCR_MODEL=qwen2.5vl:7b) – wtedy skany nie opuszczają urzędu.
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+URL = os.getenv("OCR_URL", GROQ_URL)
+MODEL = os.getenv("OCR_MODEL", "qwen/qwen3.8-27b")
 DPI = 200
 KOD_ODRECZNY = 3  # kod wyjścia, gdy dokument jest odręczny
 PROBY = 6  # ponowienia przy limicie zapytań (HTTP 429) i błędach serwera
@@ -76,9 +79,19 @@ class Wynik:
 
 
 # ---------------------------------------------------------------- API
+def model_dostepny() -> bool:
+    """Czy jest model OCR: klucz do Groq albo lokalny serwer (OCR_URL inny niż Groq)."""
+    try:
+        return bool(_klucz())
+    except RuntimeError:
+        return False
+
+
 def _klucz() -> str:
-    if klucz := os.environ.get("GROQ_API_KEY"):
+    if klucz := os.environ.get("OCR_API_KEY") or os.environ.get("GROQ_API_KEY"):
         return klucz
+    if URL != GROQ_URL:
+        return "lokalny"  # lokalny serwer (np. Ollama) nie wymaga klucza
     env = Path(".env")
     if env.exists():
         for linia in env.read_text(encoding="utf-8").splitlines():
@@ -192,6 +205,10 @@ def sprawdz_format(plik: Path) -> None:
         raise ValueError(f"Nieobsługiwany format: {plik.suffix or 'brak rozszerzenia'} (obsługiwane: {', '.join(sorted(ROZSZERZENIA))})")
 
 
+class BrakModeluOCR(RuntimeError):
+    """Skan wymaga modelu OCR, a żaden nie jest skonfigurowany."""
+
+
 def konwertuj(plik: Path) -> Konwersja:
     """Konwertuje jeden plik na tekst. Dokument z pismem odręcznym zwraca pusty tekst i `odreczny=True`."""
     sprawdz_format(plik)
@@ -199,6 +216,16 @@ def konwertuj(plik: Path) -> Konwersja:
         return Konwersja(tekst_docx(plik).strip(), False, [], 1, [])
 
     strony = _strony(plik)
+    if not model_dostepny():
+        # tryb bez modelu: odczyt warstwy tekstowej PDF; skan (strona bez tekstu) wymaga modelu OCR
+        bez_tekstu = [i for i, (_, w) in enumerate(strony, 1) if len(re.sub(r"\s", "", w)) < MIN_ZNAKOW_WARSTWY]
+        if bez_tekstu:
+            raise BrakModeluOCR(
+                "Plik jest skanem (strony bez tekstu: " + ", ".join(map(str, bez_tekstu)) + ") – odczyt wymaga modelu "
+                "OCR (lokalnego: OCR_URL, albo GROQ_API_KEY). Wgraj plik Word lub PDF z tekstem."
+            )
+        return Konwersja("\n\n".join(w.strip() for _, w in strony).strip(), False, [], len(strony), [])
+
     odreczne = [i for i, (obraz, _) in enumerate(strony, 1) if czy_odreczne(obraz)]
     if odreczne:
         return Konwersja("", True, odreczne, len(strony), [])

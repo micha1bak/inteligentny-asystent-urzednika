@@ -338,6 +338,8 @@ function WidokSzczegolow({
               odpowiedz={wniosek.zatwierdzonaOdpowiedz}
               onZaktualizuj={zatwierdz}
               numer={dane.numer}
+              wyslana={dane.status === 'odpowiedz_wyslana'}
+              onOznaczWyslana={() => zapisz('odpowiedz_wyslana')}
             />
           )}
           <PodobneSprawy tresc={dane.tresc} pominId={wniosek.id} dataOdniesienia={dane.dataWplywu} />
@@ -370,10 +372,15 @@ function KartaZatwierdzonejOdpowiedzi({
   odpowiedz,
   onZaktualizuj,
   numer,
+  wyslana,
+  onOznaczWyslana,
 }: {
   odpowiedz: ZatwierdzonaOdpowiedz;
   onZaktualizuj: (dane: ZatwierdzenieOdpowiedziWejscie) => Promise<WynikZatwierdzenia>;
   numer: string;
+  wyslana: boolean;
+  /** program niczego nie wysyła – urzędnik oznacza wysłanie odpowiedzi do wnioskodawcy */
+  onOznaczWyslana: () => Promise<void>;
 }) {
   const [pismo, setPismo] = useState<StrukturaPisma | null>(odpowiedz.pismo);
   const [podglad, setPodglad] = useState(false);
@@ -461,6 +468,14 @@ function KartaZatwierdzonejOdpowiedzi({
           )}
           <button className="maly-p" onClick={() => void kopiuj()}>
             {skopiowano ? 'Skopiowano' : 'Kopiuj tekst'}
+          </button>
+          <button
+            className="maly-p"
+            disabled={wyslana}
+            title="Program niczego nie wysyła – po wysłaniu odpowiedzi ze swojej poczty oznacz ją tutaj"
+            onClick={() => void onOznaczWyslana()}
+          >
+            {wyslana ? 'Odpowiedź wysłana' : 'Oznacz: odpowiedź wysłana do wnioskodawcy'}
           </button>
         </div>
       </div>

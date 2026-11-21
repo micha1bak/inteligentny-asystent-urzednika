@@ -40,11 +40,27 @@ def _tryb_kontekstu(wartosc: str) -> str:
     return "pelny" if wartosc == "pelny" else "wybrany"
 
 
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+
+
+def _url_llm() -> str:
+    return os.getenv("LLM_URL") or os.getenv("GROQ_URL", GROQ_URL)
+
+
+def _klucz_llm() -> str | None:
+    """Klucz API; lokalny serwer (LLM_URL inny niż Groq, np. Ollama) działa bez klucza."""
+    klucz = os.getenv("LLM_API_KEY") or os.getenv("GROQ_API_KEY")
+    if klucz:
+        return klucz
+    return "lokalny" if _url_llm() != GROQ_URL else None
+
+
 def wczytaj_ustawienia() -> Ustawienia:
     return Ustawienia(
-        groq_api_key=os.getenv("GROQ_API_KEY") or None,
-        groq_model=os.getenv("GROQ_MODEL", "openai/gpt-oss-120b"),
-        groq_url=os.getenv("GROQ_URL", "https://api.groq.com/openai/v1/chat/completions"),
+        # LLM_* – nazwy ogólne (dowolny serwer zgodny z API OpenAI, np. lokalna Ollama); GROQ_* – dotychczasowe
+        groq_api_key=_klucz_llm(),
+        groq_model=os.getenv("LLM_MODEL") or os.getenv("GROQ_MODEL", "openai/gpt-oss-120b"),
+        groq_url=_url_llm(),
         groq_timeout_s=float(os.getenv("GROQ_TIMEOUT_S", "90")),
         groq_limit_tpm=int(os.getenv("GROQ_LIMIT_TPM", "8000")),
         groq_max_tokens=int(os.getenv("GROQ_MAX_TOKENS", "2000")),
