@@ -168,8 +168,8 @@ export default function Wnioski() {
               </select>
             </label>
             <button className="maly-p" onClick={przelaczWyslane} aria-pressed={!pokazWyslane}
-              title="Wnioski, na które odpowiedź została już wysłana do wnioskodawcy">
-              {pokazWyslane ? 'Ukryj' : 'Pokaż'} odesłane do wnioskodawcy ({wiersze.filter((w) => w.status === 'odpowiedz_wyslana').length})
+              title="Wnioski o statusie Rozpatrzone (odpowiedź wysłana do wnioskodawcy)">
+              {pokazWyslane ? 'Ukryj' : 'Pokaż'} rozpatrzone ({wiersze.filter((w) => w.status === 'odpowiedz_wyslana').length})
             </button>
           </div>
           <div className="legenda">
