@@ -1,0 +1,32 @@
+{
+  "id": "TC04",
+  "folder": "TC04 - WSO - CEIDG brak statystyk (brak danych)",
+  "opis": "Wniosek trafia do właściwego wydziału, ale urząd nie prowadzi takich danych. Odpowiedź: pismo informacyjne „urząd nie prowadzi statystyk” (wzór jak BKS.IV.1431.16.2026).",
+  "numer": "BKS.IV.1431.704.2026",
+  "data_wplywu": "2026-11-06",
+  "temat": "Przyczyny zamknięcia działalności gospodarczych w 2025 r.",
+  "wnioskodawca": "Joanna Malinowska",
+  "forma_zwrotu": "pani",
+  "frazy_do_anonimizacji_we_wniosku": [
+    "Joanna Malinowska",
+    "j.malinowska@skrzynka-przyklad.pl"
+  ],
+  "frazy_do_anonimizacji_w_odpowiedzi_wydzialu": [],
+  "wydzial": "WSO",
+  "podmiot_poza_umb": "",
+  "termin_dla_wydzialu": "2026-11-13",
+  "data_odpowiedzi_wydzialu": "2026-11-10",
+  "data_pisma_koncowego": "2026-11-17",
+  "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+  "wzor_pisma": "brak_danych",
+  "pola_wzoru": {
+    "zakres_wniosku": "ile osób fizycznych prowadzących działalność gospodarczą z siedzibą w Bydgoszczy zakończyło (wykreśliło z CEIDG) działalność w 2025 r. z powodu wzrostu cen energii?",
+    "rodzaj_danych": "statystyk przyczyn zakończenia działalności gospodarczej"
+  },
+  "zalaczniki": [],
+  "kryteria_oceny": [
+    "Wydział: WSO na 1. miejscu.",
+    "Wzór: brak danych (NIE decyzja odmowna – informacja nie istnieje, więc nie ma czego odmówić).",
+    "Zwrot „Szanowna Pani,”, forma „przez Panią”."
+  ]
+}

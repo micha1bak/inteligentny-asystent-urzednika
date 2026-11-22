@@ -1,0 +1,22 @@
+{
+  "numer_wniosku": "BKS.IV.1431.709.2026",
+  "oczekiwany_wydzial": null,
+  "dopuszczalne_alternatywy": [],
+  "niepoprawne_wybory": [
+    {
+      "symbol": "WAB",
+      "nazwa": "Wydział Administracji Budowlanej"
+    },
+    {
+      "symbol": "WMG",
+      "nazwa": "Wydział Mienia i Geodezji"
+    },
+    {
+      "symbol": "WSO",
+      "nazwa": "Wydział Spraw Obywatelskich"
+    }
+  ],
+  "podmiot_poza_umb": "",
+  "przekazac_do_wydzialu": false,
+  "uzasadnienie": "Ocena prawna sytuacji w sporze sąsiedzkim (porada prawna) i dane osobowe osoby prywatnej (PESEL, telefon) nie są informacją publiczną w rozumieniu art. 1 ust. 1 i art. 6 UDIP – nie dotyczą działalności władz publicznych. Wniosku nie przekazuje się do wydziału."
+}

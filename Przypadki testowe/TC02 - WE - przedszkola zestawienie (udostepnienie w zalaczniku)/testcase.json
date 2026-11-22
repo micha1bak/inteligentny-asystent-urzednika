@@ -1,0 +1,33 @@
+{
+  "id": "TC02",
+  "folder": "TC02 - WE - przedszkola zestawienie (udostepnienie w zalaczniku)",
+  "opis": "Wniosek organizacji (fundacji) o zestawienie tabelaryczne w formie edytowalnej. Wydział przesyła tabelę – odpowiedź w załączniku.",
+  "numer": "BKS.IV.1431.702.2026",
+  "data_wplywu": "2026-11-04",
+  "temat": "Zestawienie przedszkoli miejskich – dzieci, oddziały, wolne miejsca",
+  "wnioskodawca": "Fundacja „Równy Start”",
+  "forma_zwrotu": "państwo",
+  "frazy_do_anonimizacji_we_wniosku": [
+    "Anna Kowalczyk",
+    "698 765 432"
+  ],
+  "frazy_do_anonimizacji_w_odpowiedzi_wydzialu": [],
+  "wydzial": "WE",
+  "podmiot_poza_umb": "",
+  "termin_dla_wydzialu": "2026-11-11",
+  "data_odpowiedzi_wydzialu": "2026-11-10",
+  "data_pisma_koncowego": "2026-11-16",
+  "werdykt": "MOZNA_UDOSTEPNIC",
+  "wzor_pisma": "udostepnienie_w_zalaczniku",
+  "pola_wzoru": {
+    "zakres_wniosku": "zestawienia przedszkoli publicznych prowadzonych przez Miasto Bydgoszcz z podaniem liczby dzieci, liczby oddziałów i liczby wolnych miejsc według stanu na dzień 30 września 2026 r."
+  },
+  "zalaczniki": [],
+  "kryteria_oceny": [
+    "Wydział: WE na 1. miejscu propozycji.",
+    "Wybrany wzór: udostępnienie w załączniku; w piśmie linia „Załącznik: Informacja_702”.",
+    "Forma „przez Państwa” (wniosek fundacji) – wzór bez zwrotu grzecznościowego.",
+    "Adresatem jest Fundacja, a nie osoba prywatna; imię i nazwisko prezes nie musi trafić do pisma.",
+    "Interpunkcja: „…30 września 2026 r., na podstawie…” – kropka skrótu „r.” zostaje przed przecinkiem (obecnie zloz_tresc ją usuwa: „2026 r,”)."
+  ]
+}

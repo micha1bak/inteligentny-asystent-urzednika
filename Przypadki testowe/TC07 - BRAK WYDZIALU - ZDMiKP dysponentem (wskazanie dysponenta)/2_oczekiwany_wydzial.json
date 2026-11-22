@@ -1,0 +1,22 @@
+{
+  "numer_wniosku": "BKS.IV.1431.707.2026",
+  "oczekiwany_wydzial": null,
+  "dopuszczalne_alternatywy": [],
+  "niepoprawne_wybory": [
+    {
+      "symbol": "WUK",
+      "nazwa": "Wydział Uprawnień Komunikacyjnych"
+    },
+    {
+      "symbol": "WIM",
+      "nazwa": "Wydział Inwestycji Miasta"
+    },
+    {
+      "symbol": "WGK",
+      "nazwa": "Wydział Zieleni i Gospodarki Komunalnej"
+    }
+  ],
+  "podmiot_poza_umb": "Zarząd Dróg Miejskich i Komunikacji Publicznej w Bydgoszczy",
+  "przekazac_do_wydzialu": false,
+  "uzasadnienie": "Organizacją komunikacji miejskiej i nadzorem nad realizacją kursów zajmuje się ZDMiKP – jednostka budżetowa Miasta, samodzielny podmiot zobowiązany do udostępniania informacji (art. 4 ust. 3 UDIP). Urząd Miasta nie posiada tych danych."
+}

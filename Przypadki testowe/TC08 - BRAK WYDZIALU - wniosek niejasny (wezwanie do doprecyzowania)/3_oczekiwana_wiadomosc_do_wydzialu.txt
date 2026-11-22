@@ -1,0 +1,5 @@
+BRAK – wniosku nie przekazuje się do żadnego wydziału Urzędu Miasta Bydgoszczy.
+
+Powód: Wniosek nie określa sprawy, jej przedmiotu ani komórki, która ją prowadziła – nie da się ustalić, kto posiada informacje. Jeżeli chodzi o akta własnej sprawy administracyjnej, dostęp następuje w trybie art. 73 KPA, a nie UDIP (art. 1 ust. 2 UDIP).
+
+Oczekiwane zachowanie aplikacji: karta „Zapytanie do wydziału” nie powinna proponować wysłania prośby do komórki, której zakres tylko słownie pasuje do wniosku; urzędnik przechodzi od razu do pisma do wnioskodawcy (plik 5).

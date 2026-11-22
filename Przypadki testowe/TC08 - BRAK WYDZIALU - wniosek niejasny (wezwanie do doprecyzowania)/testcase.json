@@ -1,0 +1,32 @@
+{
+  "id": "TC08",
+  "folder": "TC08 - BRAK WYDZIALU - wniosek niejasny (wezwanie do doprecyzowania)",
+  "opis": "Z wniosku nie wynika, jakiej sprawy i jakich informacji dotyczy – nie da się wskazać wydziału. Wniosek wraca do wnioskodawcy z wezwaniem do doprecyzowania (pod rygorem pozostawienia bez rozpoznania), z pouczeniem o trybie dostępu do akt własnej sprawy (art. 73 KPA).",
+  "numer": "BKS.IV.1431.708.2026",
+  "data_wplywu": "2026-11-13",
+  "temat": "Wniosek o „wszystkie dokumenty w mojej sprawie” – niejasny",
+  "wnioskodawca": "Adam Wójcik",
+  "forma_zwrotu": "pan",
+  "frazy_do_anonimizacji_we_wniosku": [
+    "Adam Wójcik",
+    "ul. Kasztanowa 21/7, 85-605 Bydgoszcz",
+    "669 200 300",
+    "adam.wojcik@example.com"
+  ],
+  "frazy_do_anonimizacji_w_odpowiedzi_wydzialu": [],
+  "wydzial": null,
+  "podmiot_poza_umb": "",
+  "termin_dla_wydzialu": null,
+  "data_odpowiedzi_wydzialu": null,
+  "data_pisma_koncowego": "2026-11-17",
+  "werdykt": "MOZNA_WARUNKOWO",
+  "wzor_pisma": "pismo z akapitów (zloz_pismo_z_tekstu)",
+  "pola_wzoru": {},
+  "zalaczniki": [],
+  "kryteria_oceny": [
+    "Brak wydziału – wniosek NIE jest przekazywany do żadnej komórki merytorycznej.",
+    "Pismo zatytułowane „WEZWANIE DO DOPRECYZOWANIA ZAKRESU OTRZYMANEGO WNIOSKU”, termin 7 dni, rygor pozostawienia bez rozpoznania.",
+    "Pouczenie o art. 73 KPA / art. 1 ust. 2 UDIP (akta własnej sprawy).",
+    "Pismo nie odpowiada na zarzut „urząd nic nie zrobił” (to nie informacja publiczna, tylko ewentualna skarga)."
+  ]
+}

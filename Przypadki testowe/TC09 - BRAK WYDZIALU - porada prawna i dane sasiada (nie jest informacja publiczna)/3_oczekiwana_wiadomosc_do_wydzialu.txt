@@ -1,0 +1,5 @@
+BRAK – wniosku nie przekazuje się do żadnego wydziału Urzędu Miasta Bydgoszczy.
+
+Powód: Ocena prawna sytuacji w sporze sąsiedzkim (porada prawna) i dane osobowe osoby prywatnej (PESEL, telefon) nie są informacją publiczną w rozumieniu art. 1 ust. 1 i art. 6 UDIP – nie dotyczą działalności władz publicznych. Wniosku nie przekazuje się do wydziału.
+
+Oczekiwane zachowanie aplikacji: karta „Zapytanie do wydziału” nie powinna proponować wysłania prośby do komórki, której zakres tylko słownie pasuje do wniosku; urzędnik przechodzi od razu do pisma do wnioskodawcy (plik 5).

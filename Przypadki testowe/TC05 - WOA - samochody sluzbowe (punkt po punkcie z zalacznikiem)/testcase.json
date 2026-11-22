@@ -1,0 +1,44 @@
+{
+  "id": "TC05",
+  "folder": "TC05 - WOA - samochody sluzbowe (punkt po punkcie z zalacznikiem)",
+  "opis": "Wniosek o 4 informacje; wydział podaje liczby w treści i wykaz w tabeli. Odpowiedź punkt po punkcie z załącznikiem.",
+  "numer": "BKS.IV.1431.705.2026",
+  "data_wplywu": "2026-11-09",
+  "temat": "Samochody służbowe Urzędu Miasta – liczba, wykaz, koszt paliwa",
+  "wnioskodawca": "Marek Lewandowski",
+  "forma_zwrotu": "pan",
+  "frazy_do_anonimizacji_we_wniosku": [
+    "Marek Lewandowski",
+    "ul. Słoneczna 5",
+    "86-031 Osielsko",
+    "85030412345",
+    "m.lewandowski@example.net"
+  ],
+  "frazy_do_anonimizacji_w_odpowiedzi_wydzialu": [],
+  "wydzial": "WOA",
+  "podmiot_poza_umb": "",
+  "termin_dla_wydzialu": "2026-11-16",
+  "data_odpowiedzi_wydzialu": "2026-11-16",
+  "data_pisma_koncowego": "2026-11-19",
+  "werdykt": "MOZNA_UDOSTEPNIC",
+  "wzor_pisma": "udostepnienie_punkt_po_punkcie",
+  "pola_wzoru": {
+    "zakres_wniosku": "samochodów służbowych będących w dyspozycji Urzędu Miasta Bydgoszczy, ich wykazu, kosztu paliwa i energii elektrycznej w 2025 r. oraz korzystania z samochodu służbowego przez Prezydenta Miasta Bydgoszczy",
+    "odpowiedzi": [
+      "Według stanu na dzień 31 października 2026 r. w dyspozycji Urzędu Miasta Bydgoszczy pozostaje 14 samochodów służbowych.",
+      "Wykaz samochodów służbowych z podaniem marki, modelu, roku produkcji i rodzaju napędu przekazuję w załączeniu.",
+      "Łączny koszt paliwa i energii elektrycznej do samochodów służbowych poniesiony w 2025 r. wyniósł 96 482,17 zł brutto.",
+      "Prezydent Miasta Bydgoszczy korzysta z samochodu służbowego wyłącznie do celów służbowych; samochód prowadzą kierowcy zatrudnieni w Wydziale Organizacyjno-Administracyjnym Urzędu Miasta Bydgoszczy."
+    ]
+  },
+  "zalaczniki": [
+    "Informacja_705 (wykaz samochodów służbowych Urzędu Miasta Bydgoszczy)"
+  ],
+  "kryteria_oceny": [
+    "Wydział: WOA na 1. miejscu (WK akceptowalny jako 2.).",
+    "PESEL wnioskodawcy wykryty jako dane do anonimizacji w prośbie do wydziału i maskowany przed wysłaniem do AI.",
+    "Ad 1 – Ad 4; liczba 14 i kwota 96 482,17 zł zgodne z odpowiedzią wydziału.",
+    "Wykaz przekazany jako załącznik Informacja_705 (a nie przepisany w treści).",
+    "Adresat z adresem pocztowym (odpowiedź pocztą)."
+  ]
+}

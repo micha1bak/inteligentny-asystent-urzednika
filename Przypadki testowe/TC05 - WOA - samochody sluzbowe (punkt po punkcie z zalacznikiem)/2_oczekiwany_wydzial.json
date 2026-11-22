@@ -1,0 +1,26 @@
+{
+  "numer_wniosku": "BKS.IV.1431.705.2026",
+  "oczekiwany_wydzial": {
+    "symbol": "WOA",
+    "nazwa": "Wydział Organizacyjno-Administracyjny"
+  },
+  "dopuszczalne_alternatywy": [
+    {
+      "symbol": "WK",
+      "nazwa": "Wydział Księgowości"
+    }
+  ],
+  "niepoprawne_wybory": [
+    {
+      "symbol": "WUK",
+      "nazwa": "Wydział Uprawnień Komunikacyjnych"
+    },
+    {
+      "symbol": "WIM",
+      "nazwa": "Wydział Inwestycji Miasta"
+    }
+  ],
+  "podmiot_poza_umb": "",
+  "przekazac_do_wydzialu": true,
+  "uzasadnienie": "Samochody służbowe urzędu są w zakresie Wydziału Organizacyjno-Administracyjnego; Wydział Księgowości dopuszczalny jako druga jednostka (koszt paliwa z ewidencji wydatków)."
+}

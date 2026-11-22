@@ -1,0 +1,7 @@
+BRAK – wniosku nie przekazuje się do żadnego wydziału Urzędu Miasta Bydgoszczy.
+
+Powód: Organizacją komunikacji miejskiej i nadzorem nad realizacją kursów zajmuje się ZDMiKP – jednostka budżetowa Miasta, samodzielny podmiot zobowiązany do udostępniania informacji (art. 4 ust. 3 UDIP). Urząd Miasta nie posiada tych danych.
+
+Podmiot posiadający informacje (poza UMB): Zarząd Dróg Miejskich i Komunikacji Publicznej w Bydgoszczy
+
+Oczekiwane zachowanie aplikacji: karta „Zapytanie do wydziału” nie powinna proponować wysłania prośby do komórki, której zakres tylko słownie pasuje do wniosku; urzędnik przechodzi od razu do pisma do wnioskodawcy (plik 5).

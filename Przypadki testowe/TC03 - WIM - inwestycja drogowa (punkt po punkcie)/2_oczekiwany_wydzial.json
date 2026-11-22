@@ -1,0 +1,22 @@
+{
+  "numer_wniosku": "BKS.IV.1431.703.2026",
+  "oczekiwany_wydzial": {
+    "symbol": "WIM",
+    "nazwa": "Wydział Inwestycji Miasta"
+  },
+  "dopuszczalne_alternatywy": [
+    {
+      "symbol": "WZP",
+      "nazwa": "Wydział Zamówień Publicznych"
+    }
+  ],
+  "niepoprawne_wybory": [
+    {
+      "symbol": "WAB",
+      "nazwa": "Wydział Administracji Budowlanej"
+    }
+  ],
+  "podmiot_poza_umb": "",
+  "przekazac_do_wydzialu": true,
+  "uzasadnienie": "Inwestycja drogowa realizowana przez Miasto – umowę z wykonawcą, aneksy, terminy i kary umowne prowadzi Wydział Inwestycji Miasta (por. sprawa BKS.IV.1431.590.2026). WZP dopuszczalny jako druga jednostka (umowa z wykonawcą po przetargu)."
+}

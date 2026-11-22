@@ -1,0 +1,35 @@
+{
+  "id": "TC09",
+  "folder": "TC09 - BRAK WYDZIALU - porada prawna i dane sasiada (nie jest informacja publiczna)",
+  "opis": "Wniosek nie dotyczy informacji publicznej (porada prawna w sprawie prywatnej + dane osobowe osoby prywatnej). Nie pasuje do żadnego wydziału – pismo informacyjne do wnioskodawcy, bez decyzji odmownej.",
+  "numer": "BKS.IV.1431.709.2026",
+  "data_wplywu": "2026-11-16",
+  "temat": "Spór sąsiedzki – prośba o poradę i dane sąsiada",
+  "wnioskodawca": "Halina Kaczmarek",
+  "forma_zwrotu": "pani",
+  "frazy_do_anonimizacji_we_wniosku": [
+    "Halina Kaczmarek",
+    "ul. Słowicza 6",
+    "85-436 Bydgoszcz",
+    "501 777 888",
+    "Zbigniew Krawczyk",
+    "ul. Słowicza 8",
+    "Krawczyka"
+  ],
+  "frazy_do_anonimizacji_w_odpowiedzi_wydzialu": [],
+  "wydzial": null,
+  "podmiot_poza_umb": "",
+  "termin_dla_wydzialu": null,
+  "data_odpowiedzi_wydzialu": null,
+  "data_pisma_koncowego": "2026-11-18",
+  "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+  "wzor_pisma": "pismo z akapitów (zloz_pismo_z_tekstu)",
+  "pola_wzoru": {},
+  "zalaczniki": [],
+  "kryteria_oceny": [
+    "Brak wydziału – wniosek NIE jest przekazywany do żadnej komórki (ani do WAB/WMG).",
+    "Pismo informacyjne (NIE decyzja odmowna): wniosek nie dotyczy informacji publicznej (art. 1 ust. 1, art. 6 UDIP).",
+    "Pismo nie zawiera danych sąsiada (Zbigniew Krawczyk, ul. Słowicza 8) ani żadnego numeru PESEL / telefonu.",
+    "Anonimizacja wykrywa w treści wniosku dane osoby trzeciej, nie tylko wnioskodawczyni – także odmienione nazwisko „Krawczyka” (obecnie niewykrywane)."
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "TC03",
+  "folder": "TC03 - WIM - inwestycja drogowa (punkt po punkcie)",
+  "opis": "Dziennikarz zadaje 4 ponumerowane pytania o inwestycję. Odpowiedź punkt po punkcie (Ad 1 … Ad 4).",
+  "numer": "BKS.IV.1431.703.2026",
+  "data_wplywu": "2026-11-05",
+  "temat": "Budowa ronda Fordońska / Wyszogrodzka – wykonawca, koszty, terminy, kary",
+  "wnioskodawca": "Piotr Zając",
+  "forma_zwrotu": "pan",
+  "frazy_do_anonimizacji_we_wniosku": [
+    "Piotr Zając",
+    "512 908 776",
+    "redakcja@kurier-fordonski.example.pl"
+  ],
+  "frazy_do_anonimizacji_w_odpowiedzi_wydzialu": [],
+  "wydzial": "WIM",
+  "podmiot_poza_umb": "",
+  "termin_dla_wydzialu": "2026-11-12",
+  "data_odpowiedzi_wydzialu": "2026-11-12",
+  "data_pisma_koncowego": "2026-11-17",
+  "werdykt": "MOZNA_UDOSTEPNIC",
+  "wzor_pisma": "udostepnienie_punkt_po_punkcie",
+  "pola_wzoru": {
+    "zakres_wniosku": "inwestycji pn. „Budowa ronda turbinowego u zbiegu ul. Fordońskiej i ul. Wyszogrodzkiej w Bydgoszczy” – wykonawcy, wartości umowy, terminów realizacji i kar umownych",
+    "odpowiedzi": [
+      "Wykonawcą inwestycji jest Drogbud Infrastruktura Sp. z o.o. z siedzibą w Bydgoszczy. Umowę nr WIM/45/2025 zawarto w dniu 14 kwietnia 2025 r. po przeprowadzeniu postępowania o udzielenie zamówienia publicznego w trybie podstawowym.",
+      "Wartość umowy brutto wynosiła 18 437 920,00 zł. Aneksem nr 1 z dnia 3 marca 2026 r. wynagrodzenie zwiększono o 612 400,00 zł brutto w związku z robotami dodatkowymi (przebudowa kolidującej sieci wodociągowej). Aktualna wartość umowy wynosi 19 050 320,00 zł brutto. Aneks nr 2 z dnia 12 sierpnia 2026 r. nie zmieniał wynagrodzenia.",
+      "Pierwotny termin zakończenia robót przypadał na 30 września 2026 r. Aneksem nr 2 z dnia 12 sierpnia 2026 r. termin przesunięto na 15 grudnia 2026 r. z uwagi na nieujawnioną w dokumentacji kolizję z siecią gazową.",
+      "Miasto nie naliczyło wykonawcy kar umownych. Przesunięcie terminu wynika z okoliczności, za które wykonawca nie ponosi odpowiedzialności."
+    ]
+  },
+  "zalaczniki": [],
+  "kryteria_oceny": [
+    "Wydział: WIM na 1. miejscu (WZP akceptowalny jako 2.).",
+    "Pismo ma 4 punkty Ad 1 – Ad 4 w kolejności pytań.",
+    "Kwoty zgodne z odpowiedzią wydziału: 18 437 920,00 zł, 612 400,00 zł, 19 050 320,00 zł.",
+    "Nazwa spółki-wykonawcy NIE jest anonimizowana (osoba prawna)."
+  ]
+}

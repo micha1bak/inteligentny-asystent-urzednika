@@ -1,0 +1,17 @@
+{
+  "numer_wniosku": "BKS.IV.1431.702.2026",
+  "oczekiwany_wydzial": {
+    "symbol": "WE",
+    "nazwa": "Wydział Edukacji i Sportu"
+  },
+  "dopuszczalne_alternatywy": [],
+  "niepoprawne_wybory": [
+    {
+      "symbol": "BZS",
+      "nazwa": "Biuro ds. Zdrowia i Polityki Społecznej"
+    }
+  ],
+  "podmiot_poza_umb": "",
+  "przekazac_do_wydzialu": true,
+  "uzasadnienie": "Przedszkola prowadzone przez Miasto, liczba dzieci i oddziałów to sprawy oświaty – Wydział Edukacji i Sportu (por. sprawy BKS.IV.1431.307.2025 i 599.2026 o liczbie uczniów)."
+}

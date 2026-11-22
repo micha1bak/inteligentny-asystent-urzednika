@@ -1,0 +1,17 @@
+{
+  "numer_wniosku": "BKS.IV.1431.701.2026",
+  "oczekiwany_wydzial": {
+    "symbol": "WGO",
+    "nazwa": "Wydział Gospodarki Odpadami"
+  },
+  "dopuszczalne_alternatywy": [],
+  "niepoprawne_wybory": [
+    {
+      "symbol": "WPL",
+      "nazwa": "Wydział Podatków i Opłat Lokalnych"
+    }
+  ],
+  "podmiot_poza_umb": "",
+  "przekazac_do_wydzialu": true,
+  "uzasadnienie": "Deklaracje o wysokości opłaty za gospodarowanie odpadami komunalnymi i liczba zadeklarowanych mieszkańców to dane prowadzone przez Wydział Gospodarki Odpadami (por. sprawa BKS.IV.1431.18.2026)."
+}

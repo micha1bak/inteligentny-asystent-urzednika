@@ -1,0 +1,26 @@
+{
+  "numer_wniosku": "BKS.IV.1431.706.2026",
+  "oczekiwany_wydzial": {
+    "symbol": "WOŚ",
+    "nazwa": "Wydział Ochrony Środowiska"
+  },
+  "dopuszczalne_alternatywy": [
+    {
+      "symbol": "WGK",
+      "nazwa": "Wydział Zieleni i Gospodarki Komunalnej"
+    }
+  ],
+  "niepoprawne_wybory": [
+    {
+      "symbol": "WAB",
+      "nazwa": "Wydział Administracji Budowlanej"
+    },
+    {
+      "symbol": "WMG",
+      "nazwa": "Wydział Mienia i Geodezji"
+    }
+  ],
+  "podmiot_poza_umb": "",
+  "przekazac_do_wydzialu": true,
+  "uzasadnienie": "Zezwolenia na usunięcie drzew z nieruchomości wydaje Prezydent Miasta – sprawy prowadzi Wydział Ochrony Środowiska (zakres: wycinka drzew). WGK dopuszczalny jako 2. (zieleń miejska)."
+}

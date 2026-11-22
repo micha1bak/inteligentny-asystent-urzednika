@@ -1,0 +1,38 @@
+{
+  "id": "TC06",
+  "folder": "TC06 - WOS - wycinka drzew (udostepnienie z anonimizacja)",
+  "opis": "Informację można udostępnić, ale odpowiedź wydziału zawiera dane osoby trzeciej (właściciela działki). Pismo końcowe musi je pominąć (MOZNA_Z_ANONIMIZACJA).",
+  "numer": "BKS.IV.1431.706.2026",
+  "data_wplywu": "2026-11-10",
+  "temat": "Zezwolenie na usunięcie dębów przy ul. Leśnej 14",
+  "wnioskodawca": "Katarzyna Nowak",
+  "forma_zwrotu": "pani",
+  "frazy_do_anonimizacji_we_wniosku": [
+    "Katarzyna Nowak",
+    "ul. Leśna 9",
+    "85-676 Bydgoszcz",
+    "604 111 222"
+  ],
+  "frazy_do_anonimizacji_w_odpowiedzi_wydzialu": [
+    "Jerzemu Kamińskiemu",
+    "ul. Leśna 14, 85-676 Bydgoszcz"
+  ],
+  "wydzial": "WOŚ",
+  "podmiot_poza_umb": "",
+  "termin_dla_wydzialu": "2026-11-17",
+  "data_odpowiedzi_wydzialu": "2026-11-16",
+  "data_pisma_koncowego": "2026-11-20",
+  "werdykt": "MOZNA_Z_ANONIMIZACJA",
+  "wzor_pisma": "udostepnienie_w_tresci",
+  "pola_wzoru": {
+    "zakres_wniosku": "zezwolenia na usunięcie dębów rosnących na nieruchomości przy ul. Leśnej 14 w Bydgoszczy (działka nr 17/3, obręb 0123)",
+    "tresc_informacji": "decyzją nr WOŚ.6131.512.2026 z dnia 12 października 2026 r. Prezydent Miasta Bydgoszczy zezwolił właścicielowi nieruchomości, który wystąpił z wnioskiem o wydanie zezwolenia, na usunięcie 2 z 3 wnioskowanych dębów szypułkowych, a w zakresie trzeciego drzewa odmówił zezwolenia ze względu na jego dobry stan zdrowotny. W decyzji nakazano wykonanie nasadzeń zastępczych 6 drzew (lipa drobnolistna, obwód pnia min. 16 cm) na tej samej nieruchomości w terminie do 30 kwietnia 2027 r. Dane osobowe właściciela nieruchomości, jako osoby fizycznej, nie podlegają udostępnieniu ze względu na ochronę prywatności (art. 5 ust. 2 ustawy o dostępie do informacji publicznej)"
+  },
+  "zalaczniki": [],
+  "kryteria_oceny": [
+    "Wydział: WOŚ na 1. miejscu (WGK akceptowalny jako 2.).",
+    "W piśmie końcowym NIE ma „Jerzy Kamiński” / „Jerzemu Kamińskiemu” ani jego adresu zamieszkania.",
+    "Pismo zawiera numer i datę decyzji, liczbę drzew (2 z 3) i nasadzenia zastępcze (6 lip do 30.04.2027).",
+    "Anonimizacja w podglądzie pisma / pliku odpowiedzi wydziału proponuje ukrycie danych osoby trzeciej."
+  ]
+}
