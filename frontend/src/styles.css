@@ -34,7 +34,7 @@ h3 { font-size: 0.95rem; margin: 0 0 8px; }
 .maly { font-size: 0.85rem; color: var(--tekst-2); }
 
 /* układ */
-.uklad { display: grid; grid-template-columns: 230px 1fr; min-height: 100vh; }
+.uklad { display: grid; grid-template-columns: 230px minmax(0, 1fr); min-height: 100vh; }
 .boczny { background: #102a43; color: #d9e2ec; padding: 20px 14px; display: flex; flex-direction: column; gap: 4px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
 .boczny .logo { font-weight: 700; color: #fff; font-size: 1.05rem; margin: 0 8px 4px; text-align: center; }
 .boczny .logo small { display: block; font-weight: 400; color: #9fb3c8; font-size: 0.8rem; }
@@ -64,9 +64,9 @@ h3 { font-size: 0.95rem; margin: 0 0 8px; }
 .logowanie-logo img { max-width: 160px; height: auto; display: block; }
 .os-moje {
   display: inline-block; padding: 1px 6px; border-radius: 4px;
-  background: var(--akcent-tlo); color: var(--akcent); font-weight: 700;
+  background: var(--akcent-tlo); color: var(--akcent); font-weight: 700; white-space: nowrap;
 }
-.tresc { padding: 24px 32px 48px; max-width: 1320px; width: 100%; }
+.tresc { padding: 24px 32px 48px; max-width: 1320px; width: 100%; min-width: 0; }
 
 /* karty i siatki */
 .karta { background: var(--karta); border: 1px solid var(--linia); border-radius: var(--promien); box-shadow: var(--cien); padding: 18px 20px; }
@@ -146,14 +146,14 @@ tr.p-jutro td:first-child { box-shadow: inset 4px 0 #e0b400; }
 .legenda .l-jutro::before { background: var(--zolty-tlo); border: 2px solid #e0b400; }
 
 /* kalendarz miesięczny */
-.miesiac { display: grid; grid-template-columns: repeat(7, 1fr); border-top: 1px solid var(--linia); border-left: 1px solid var(--linia); }
-.miesiac .naglowek { padding: 6px; font-size: 0.78rem; color: var(--tekst-2); text-align: center; border-right: 1px solid var(--linia); border-bottom: 1px solid var(--linia); background: #f8f9fb; }
-.dzien { min-height: 96px; padding: 6px; border-right: 1px solid var(--linia); border-bottom: 1px solid var(--linia); font-size: 0.8rem; }
+.miesiac { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); width: 100%; border-top: 1px solid var(--linia); border-left: 1px solid var(--linia); }
+.miesiac .naglowek { min-width: 0; padding: 6px; font-size: 0.78rem; color: var(--tekst-2); text-align: center; border-right: 1px solid var(--linia); border-bottom: 1px solid var(--linia); background: #f8f9fb; }
+.dzien { min-width: 0; min-height: 96px; padding: 6px; border-right: 1px solid var(--linia); border-bottom: 1px solid var(--linia); font-size: 0.8rem; overflow: hidden; }
 .dzien.inny { background: #fafbfc; color: #a0a8b5; }
 .dzien.wolny { background: #f6f6f8; }
 .dzien.dzisiaj .nr { background: var(--akcent); color: #fff; border-radius: 999px; padding: 0 6px; }
 .dzien .nr { font-weight: 600; display: inline-block; margin-bottom: 4px; }
-.chip { display: block; padding: 2px 6px; margin-bottom: 3px; border-radius: 4px; background: var(--akcent-tlo); color: var(--akcent); text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.76rem; }
+.chip { display: block; max-width: 100%; padding: 2px 6px; margin-bottom: 3px; border-radius: 4px; background: var(--akcent-tlo); color: var(--akcent); text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.76rem; }
 .chip.p-po_terminie { background: var(--czerwony-tlo); color: var(--czerwony); }
 .chip.p-dzis { background: var(--pomaranczowy-tlo); color: var(--pomaranczowy); }
 .chip.p-jutro { background: var(--zolty-tlo); color: var(--zolty); }
@@ -306,6 +306,12 @@ tr.wybrany td:first-child { box-shadow: inset 4px 0 var(--akcent); }
 tr.nieaktualny td { color: var(--tekst-2); }
 tr.nieaktualny .temat-sprawy { text-decoration: line-through; }
 tr.klikalny td { overflow-wrap: anywhere; }
+.nowrap, tr.klikalny td.nowrap { white-space: nowrap; overflow-wrap: normal; word-break: normal; }
+.naglowek-sort {
+  border: 0; background: none; padding: 0; font: inherit; color: inherit;
+  text-transform: inherit; letter-spacing: inherit; cursor: pointer; white-space: nowrap;
+}
+.naglowek-sort:hover { background: none; color: var(--akcent); }
 tr.klikalny .znaczek { white-space: normal; }
 ul.historia { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 ul.historia li { border-left: 3px solid var(--linia); padding-left: 10px; font-size: 0.9rem; }

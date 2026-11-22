@@ -9,8 +9,22 @@ import { Pozostalo, ZnaczekStatusu } from '../components/Znaczki';
 import type { ZWniosku } from './NowaSprawaArchiwum';
 
 type Wiersz = Wniosek & { lp: number; termin: string; pozostalo: number; pilnosc: Pilnosc };
+type Sortowanie = 'data_rosnaco' | 'data_malejaco' | 'termin_rosnaco' | 'termin_malejaco';
 
 const PILNE: Pilnosc[] = ['po_terminie', 'dzis', 'jutro'];
+
+function porownajWiersze(sortowanie: Sortowanie) {
+  return (a: Omit<Wiersz, 'lp'>, b: Omit<Wiersz, 'lp'>): number => {
+    if (sortowanie === 'data_malejaco') return -porownajWgDatyWplywu(a, b);
+    if (sortowanie === 'termin_rosnaco') {
+      return a.termin.localeCompare(b.termin) || porownajWgDatyWplywu(a, b);
+    }
+    if (sortowanie === 'termin_malejaco') {
+      return b.termin.localeCompare(a.termin) || -porownajWgDatyWplywu(a, b);
+    }
+    return porownajWgDatyWplywu(a, b);
+  };
+}
 
 export default function Wnioski() {
   const { wnioski, ladowanie, blad, odswiez, przywrocDaneTestowe } = useMagazyn();
@@ -43,6 +57,7 @@ export default function Wnioski() {
     });
   }
   const [widok, setWidok] = useState<'tabela' | 'miesiac'>('tabela');
+  const [sortowanie, setSortowanie] = useState<Sortowanie>('data_rosnaco');
   const [trwaReset, setTrwaReset] = useState(false);
   const [bladAkcji, setBladAkcji] = useState('');
 
@@ -51,9 +66,9 @@ export default function Wnioski() {
       wnioski
         .filter((w) => w.dataWplywu.startsWith(rok))
         .map((w) => ({ ...w, ...pilnosc(w, dzis) }))
-        .sort(porownajWgDatyWplywu)
+        .sort(porownajWiersze(sortowanie))
         .map((w, i) => ({ ...w, lp: i + 1 })),
-    [wnioski, rok, dzis],
+    [wnioski, rok, dzis, sortowanie],
   );
 
   const liczba = (p: Pilnosc) => wiersze.filter((w) => w.pilnosc === p).length;
@@ -138,6 +153,20 @@ export default function Wnioski() {
                 Tylko moje ({mojeId}: {moich})
               </label>
             )}
+            <label style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              Sortuj:
+              <select
+                aria-label="Sortowanie wniosków"
+                value={sortowanie}
+                onChange={(e) => setSortowanie(e.target.value as Sortowanie)}
+                style={{ width: 'auto' }}
+              >
+                <option value="data_rosnaco">Data wpływu (od najstarszych)</option>
+                <option value="data_malejaco">Data wpływu (od najnowszych)</option>
+                <option value="termin_rosnaco">Termin odpowiedzi (od najwcześniejszych)</option>
+                <option value="termin_malejaco">Termin odpowiedzi (od najpóźniejszych)</option>
+              </select>
+            </label>
             <button className="maly-p" onClick={przelaczWyslane} aria-pressed={!pokazWyslane}
               title="Wnioski, na które odpowiedź została już wysłana do wnioskodawcy">
               {pokazWyslane ? 'Ukryj' : 'Pokaż'} odesłane do wnioskodawcy ({wiersze.filter((w) => w.status === 'odpowiedz_wyslana').length})
@@ -153,7 +182,12 @@ export default function Wnioski() {
         {ladowanie ? (
           <p className="maly">Wczytuję wnioski…</p>
         ) : widok === 'tabela' ? (
-          <Tabela wiersze={widoczne} mojeId={mojeId} />
+          <Tabela
+            wiersze={widoczne}
+            mojeId={mojeId}
+            sortowanie={sortowanie}
+            onZmienSortowanie={setSortowanie}
+          />
         ) : (
           <Miesiac wiersze={widoczne} dzis={dzis} rok={rok} />
         )}
@@ -177,8 +211,26 @@ export default function Wnioski() {
   );
 }
 
-function Tabela({ wiersze, mojeId }: { wiersze: Wiersz[]; mojeId: string }) {
+function Tabela({
+  wiersze,
+  mojeId,
+  sortowanie,
+  onZmienSortowanie,
+}: {
+  wiersze: Wiersz[];
+  mojeId: string;
+  sortowanie: Sortowanie;
+  onZmienSortowanie: (s: Sortowanie) => void;
+}) {
   const nav = useNavigate();
+
+  function przelaczSortDaty() {
+    onZmienSortowanie(sortowanie === 'data_rosnaco' ? 'data_malejaco' : 'data_rosnaco');
+  }
+
+  function przelaczSortTerminu() {
+    onZmienSortowanie(sortowanie === 'termin_rosnaco' ? 'termin_malejaco' : 'termin_rosnaco');
+  }
 
   return (
     <div style={{ overflowX: 'auto' }}>
@@ -187,10 +239,28 @@ function Tabela({ wiersze, mojeId }: { wiersze: Wiersz[]; mojeId: string }) {
           <tr>
             <th>Lp.</th>
             <th>Nr wniosku</th>
-            <th>Data wpływu</th>
+            <th>
+              <button
+                type="button"
+                className="naglowek-sort"
+                onClick={przelaczSortDaty}
+                title="Kliknij, aby zmienić kolejność sortowania według daty wpływu"
+              >
+                Data wpływu {sortowanie === 'data_rosnaco' ? '↑' : sortowanie === 'data_malejaco' ? '↓' : '↕'}
+              </button>
+            </th>
             <th>Temat wniosku</th>
             <th>Os.</th>
-            <th>Termin</th>
+            <th>
+              <button
+                type="button"
+                className="naglowek-sort"
+                onClick={przelaczSortTerminu}
+                title="Kliknij, aby zmienić kolejność sortowania według terminu odpowiedzi"
+              >
+                Termin {sortowanie === 'termin_rosnaco' ? '↑' : sortowanie === 'termin_malejaco' ? '↓' : '↕'}
+              </button>
+            </th>
             <th>Pozostało</th>
             <th>Status</th>
             <th>Data odpowiedzi</th>
@@ -210,14 +280,14 @@ function Tabela({ wiersze, mojeId }: { wiersze: Wiersz[]; mojeId: string }) {
                 }
               }}
             >
-              <td>{w.lp}</td>
+              <td className="nowrap">{w.lp}</td>
               <td className="numer nowrap">{w.numer}</td>
               <td className="nowrap">{formatuj(w.dataWplywu)}</td>
               <td>
                 <span style={{ fontWeight: 500 }}>{w.temat}</span>
                 {w.wnioskodawca && <div className="maly">{w.wnioskodawca}</div>}
               </td>
-              <td title="Inicjały osoby prowadzącej">
+              <td className="nowrap" title="Inicjały osoby prowadzącej">
                 {mojeId && w.inicjaly.trim().toUpperCase() === mojeId ? (
                   <span className="os-moje">{w.inicjaly}</span>
                 ) : (
