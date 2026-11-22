@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 from .baza_wnioskow import WniosekZapisany
 from .podobienstwo import z_wynikiem
 
-PROG = 0.08  # poniżej tej miary dokument uznajemy za niepodobny
+PROG = 0.20  # poniżej tej miary dokument uznajemy za niepodobny
 
 
 class ZapytanieOPodobne(BaseModel):

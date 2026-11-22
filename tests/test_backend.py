@@ -483,6 +483,25 @@ def test_odpowiedzi_wydzialow_trafiaja_do_modelu_i_mieszcza_sie_w_limicie():
     assert "ODPOWIEDZI WYDZIAŁÓW" not in zbuduj_wiadomosci(WNIOSEK, WIEDZA, "wybrany", budzet)[0][1]["content"]
 
 
+def test_dluzszy_wniosek_z_odpowiedzia_wydzialu_miesci_sie_bez_przycinania():
+    from inteligentny_asystent_urzednika.propozycja import OdpowiedzWydzialuDoPisma
+
+    budzet = 8000 - 2000 - ZAPAS_TOKENOW
+    tresc_wniosku = ("Wnoszę o udostępnienie informacji publicznej o realizacji inwestycji miejskiej. " * 25).strip()
+    tresc_odp = ("Wydział informuje, że inwestycja została zrealizowana w 2026 r. kosztem 1 250 000 zł. " * 30).strip()
+    assert len(tresc_wniosku) > 1665 and len(tresc_odp) > 2400
+    w = Wniosek(
+        tresc=tresc_wniosku,
+        numer="BKS.IV.1431.701.2026",
+        odpowiedzi_wydzialow=[OdpowiedzWydzialuDoPisma(wydzial="Wydział Inwestycji Miasta", tresc=tresc_odp)],
+    )
+    wiadomosci, ostrzezenia = zbuduj_wiadomosci(w, WIEDZA, "wybrany", budzet)
+    assert szacuj_tokeny(wiadomosci) <= budzet
+    assert not ostrzezenia
+    assert tresc_wniosku in wiadomosci[1]["content"]
+    assert tresc_odp in wiadomosci[1]["content"]
+
+
 def test_podobne_sprawy_i_wnioski_z_ostatniego_roku():
     from inteligentny_asystent_urzednika.baza_wnioskow import WniosekZapisany
     from inteligentny_asystent_urzednika.podobne import ZapytanieOPodobne, znajdz

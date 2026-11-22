@@ -236,8 +236,9 @@ def zbuduj_wiadomosci(
     if tryb_kontekstu == "pelny":
         return zloz(wiedza.kontekst_pelny(), tresc), ostrzezenia
 
+    jednostki_odp = [o.wydzial.strip() for o in wniosek.odpowiedzi_wydzialow if o.wydzial.strip()]
     for wybor in STOPNIE_WYBORU:
-        wiadomosci = zloz(wiedza.kontekst_wybrany(tresc, wybor), tresc)
+        wiadomosci = zloz(wiedza.kontekst_wybrany(tresc, wybor, jednostki_odp), tresc)
         if budzet_tokenow is None or szacuj_tokeny(wiadomosci) <= budzet_tokenow:
             return wiadomosci, ostrzezenia
 
@@ -247,12 +248,12 @@ def zbuduj_wiadomosci(
     while szacuj_tokeny(wiadomosci) > budzet_tokenow and dlugosc > MIN_ZNAKOW_WNIOSKU:
         nadmiar_znakow = int((szacuj_tokeny(wiadomosci) - budzet_tokenow) * ZNAKOW_NA_TOKEN) + 200
         dlugosc = max(MIN_ZNAKOW_WNIOSKU, dlugosc - nadmiar_znakow)
-        wiadomosci = zloz(wiedza.kontekst_wybrany(tresc[:dlugosc], STOPNIE_WYBORU[-1]), tresc[:dlugosc])
+        wiadomosci = zloz(wiedza.kontekst_wybrany(tresc[:dlugosc], STOPNIE_WYBORU[-1], jednostki_odp), tresc[:dlugosc])
     # w ostateczności – krótsze fragmenty odpowiedzi wydziałów
     while wniosek.odpowiedzi_wydzialow and szacuj_tokeny(wiadomosci) > budzet_tokenow and maks_odpowiedzi[0] > MIN_ZNAKOW_ODPOWIEDZI:
         nadmiar_znakow = int((szacuj_tokeny(wiadomosci) - budzet_tokenow) * ZNAKOW_NA_TOKEN) + 100
         maks_odpowiedzi[0] = max(MIN_ZNAKOW_ODPOWIEDZI, maks_odpowiedzi[0] - nadmiar_znakow)
-        wiadomosci = zloz(wiedza.kontekst_wybrany(tresc[:dlugosc], STOPNIE_WYBORU[-1]), tresc[:dlugosc])
+        wiadomosci = zloz(wiedza.kontekst_wybrany(tresc[:dlugosc], STOPNIE_WYBORU[-1], jednostki_odp), tresc[:dlugosc])
     if maks_odpowiedzi[0] < MAKS_ZNAKOW_ODPOWIEDZI:
         ostrzezenia.append(
             f"Odpowiedzi wydziałów są długie – do modelu trafiło po ok. {maks_odpowiedzi[0]} znaków (limit planu Groq)."
