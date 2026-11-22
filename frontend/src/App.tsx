@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import Anonimizacja from './pages/Anonimizacja';
 import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import logoBydgoszcz from './assets/logoBydgoszcz.png';
@@ -11,10 +12,67 @@ import NowaSprawaArchiwum from './pages/NowaSprawaArchiwum';
 import BazaWiedzy from './pages/BazaWiedzy';
 import Logowanie from './pages/Logowanie';
 
+const KLUCZ_CZCIONKI = 'asystent.rozmiarTekstu';
+const KLUCZ_KONTRASTU = 'asystent.wysokiKontrast';
+const DOMYSLNY_ROZMIAR = 15;
+const MIN_ROZMIAR = 11;
+const MAKS_ROZMIAR = 23;
+const KROK_ROZMIARU = 2;
+
+function wczytajRozmiarTekstu(): number {
+  try {
+    const v = Number(localStorage.getItem(KLUCZ_CZCIONKI));
+    if (Number.isFinite(v) && v >= MIN_ROZMIAR && v <= MAKS_ROZMIAR) return v;
+  } catch {
+    /* brak dostępu do localStorage */
+  }
+  return DOMYSLNY_ROZMIAR;
+}
+
+function wczytajKontrast(): boolean {
+  try {
+    return localStorage.getItem(KLUCZ_KONTRASTU) === '1';
+  } catch {
+    return false;
+  }
+}
+
 export default function App() {
   const { pathname } = useLocation();
   const { sesja, ladowanie, wyloguj } = useSesja();
+  const [rozmiarTekstu, setRozmiarTekstu] = useState(wczytajRozmiarTekstu);
+  const [wysokiKontrast, setWysokiKontrast] = useState(wczytajKontrast);
+  const [pokazNaGore, setPokazNaGore] = useState(false);
   const aktywneWnioski = pathname === '/' || pathname.startsWith('/wnioski/');
+
+  useEffect(() => {
+    document.documentElement.style.fontSize = `${rozmiarTekstu}px`;
+    try {
+      localStorage.setItem(KLUCZ_CZCIONKI, String(rozmiarTekstu));
+    } catch {
+      /* brak dostępu do localStorage */
+    }
+  }, [rozmiarTekstu]);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('wysoki-kontrast', wysokiKontrast);
+    try {
+      localStorage.setItem(KLUCZ_KONTRASTU, wysokiKontrast ? '1' : '0');
+    } catch {
+      /* brak dostępu do localStorage */
+    }
+  }, [wysokiKontrast]);
+
+  useEffect(() => {
+    const sprawdzPrzewiniecie = () => setPokazNaGore(window.scrollY > 300);
+    sprawdzPrzewiniecie();
+    window.addEventListener('scroll', sprawdzPrzewiniecie, { passive: true });
+    return () => window.removeEventListener('scroll', sprawdzPrzewiniecie);
+  }, []);
+
+  function zmienRozmiar(delta: number) {
+    setRozmiarTekstu((r) => Math.min(MAKS_ROZMIAR, Math.max(MIN_ROZMIAR, r + delta)));
+  }
 
   if (ladowanie) {
     return (
@@ -43,6 +101,50 @@ export default function App() {
             <NavLink to="/baza-wiedzy">Baza wiedzy</NavLink>
             <NavLink to="/anonimizacja">Anonimizacja dokumentu</NavLink>
           </nav>
+          <div className="boczny-czcionka" role="group" aria-label="Rozmiar tekstu">
+            <span className="boczny-czcionka-opis">Rozmiar tekstu</span>
+            <div className="boczny-czcionka-przyciski">
+              <button
+                type="button"
+                className="boczny-przycisk"
+                disabled={rozmiarTekstu <= MIN_ROZMIAR}
+                onClick={() => zmienRozmiar(-KROK_ROZMIARU)}
+                title="Zmniejsz tekst"
+                aria-label="Zmniejsz tekst"
+              >
+                A−
+              </button>
+              <button
+                type="button"
+                className="boczny-przycisk"
+                disabled={rozmiarTekstu >= MAKS_ROZMIAR}
+                onClick={() => zmienRozmiar(KROK_ROZMIARU)}
+                title="Powiększ tekst"
+                aria-label="Powiększ tekst"
+              >
+                A+
+              </button>
+            </div>
+            {rozmiarTekstu !== DOMYSLNY_ROZMIAR && (
+              <button
+                type="button"
+                className="boczny-przycisk boczny-reset-czcionki"
+                onClick={() => setRozmiarTekstu(DOMYSLNY_ROZMIAR)}
+                title="Przywróć domyślny rozmiar tekstu"
+              >
+                Domyślny rozmiar
+              </button>
+            )}
+            <button
+              type="button"
+              className={`boczny-przycisk boczny-kontrast${wysokiKontrast ? ' aktywny' : ''}`}
+              aria-pressed={wysokiKontrast}
+              onClick={() => setWysokiKontrast((k) => !k)}
+              title="Przełącz tryb wysokiego kontrastu (WCAG)"
+            >
+              {wysokiKontrast ? '◐ Zwykły widok' : '◐ Duży kontrast'}
+            </button>
+          </div>
           <div className="boczny-sesja">
             <div className="boczny-sesja-tytul">Zalogowano:</div>
             <div className="boczny-sesja-pole">
@@ -67,6 +169,17 @@ export default function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
+        {pokazNaGore && (
+          <button
+            type="button"
+            className="przycisk-na-gore glowny"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            aria-label="Wróć na górę strony"
+            title="Wróć na górę strony"
+          >
+            ↑ Na górę
+          </button>
+        )}
       </div>
     </DostawcaMagazynu>
   );
