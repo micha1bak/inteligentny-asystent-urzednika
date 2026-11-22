@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import bydgoszczTlo from '../assets/bydgoszczTlo.jpg';
 import logoBydgoszcz from '../assets/logoBydgoszcz.png';
 import { useSesja } from '../sesja';
 
@@ -26,7 +27,12 @@ export default function Logowanie() {
   }
 
   return (
-    <div className="logowanie-ekran">
+    <div
+      className="logowanie-ekran"
+      style={{
+        backgroundImage: `linear-gradient(rgb(16 42 67 / 42%), rgb(16 42 67 / 52%)), url(${bydgoszczTlo})`,
+      }}
+    >
       <div className="karta logowanie-karta">
         <div className="logowanie-logo">
           <img src={logoBydgoszcz} alt="Bydgoszcz" />

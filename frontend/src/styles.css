@@ -73,8 +73,11 @@ h3 { font-size: 0.95rem; margin: 0 0 8px; }
   background: #243b53; border-color: #3b5b7c; color: #fff;
 }
 .boczny-wyloguj:hover { background: #2f4d6b; border-color: #4f7399; }
-.logowanie-ekran { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: var(--tlo); }
-.logowanie-karta { width: 100%; max-width: 400px; }
+.logowanie-ekran {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
+  background-color: var(--tlo); background-size: cover; background-position: center; background-repeat: no-repeat;
+}
+.logowanie-karta { width: 100%; max-width: 400px; box-shadow: 0 18px 44px rgb(16 24 40 / 32%); }
 .logowanie-logo { display: flex; justify-content: center; margin-bottom: 12px; }
 .logowanie-logo img { max-width: 160px; height: auto; display: block; }
 .os-moje {
@@ -477,6 +480,7 @@ html.wysoki-kontrast {
   --cien: none;
 }
 html.wysoki-kontrast body { background: #000; color: #fff; }
+html.wysoki-kontrast .logowanie-ekran { background: #000 !important; }
 html.wysoki-kontrast .boczny { background: #000; border-right: 2px solid #ffea00; color: #fff; }
 html.wysoki-kontrast .boczny a { color: #ffea00; border: 1px solid transparent; }
 html.wysoki-kontrast .boczny a:hover { background: #1f1c00; border-color: #ffea00; }
