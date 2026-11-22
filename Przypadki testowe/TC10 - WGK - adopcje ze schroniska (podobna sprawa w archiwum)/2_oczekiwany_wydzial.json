@@ -1,0 +1,26 @@
+{
+  "numer_wniosku": "BKS.IV.1431.710.2026",
+  "oczekiwany_wydzial": {
+    "symbol": "WGK",
+    "nazwa": "Wydział Zieleni i Gospodarki Komunalnej"
+  },
+  "dopuszczalne_alternatywy": [
+    {
+      "symbol": "WOŚ",
+      "nazwa": "Wydział Ochrony Środowiska"
+    }
+  ],
+  "niepoprawne_wybory": [
+    {
+      "symbol": "BZS",
+      "nazwa": "Biuro ds. Zdrowia i Polityki Społecznej"
+    },
+    {
+      "symbol": "BAS",
+      "nazwa": "Biuro Aktywności Społecznej"
+    }
+  ],
+  "podmiot_poza_umb": "",
+  "przekazac_do_wydzialu": true,
+  "uzasadnienie": "Opiekę nad bezdomnymi zwierzętami realizuje Schronisko dla Zwierząt w Bydgoszczy nadzorowane przez Wydział Zieleni i Gospodarki Komunalnej – tak przydzielono sprawy BKS.IV.1431.64.2025 i BKS.IV.1431.7.2026. WOŚ dopuszczalny jako 2. (program kastracji kotów – sprawa BKS.IV.1431.60.2025)."
+}

@@ -819,6 +819,92 @@ Halina Kaczmarek
     ],
 ))
 
+# TC10 ---------------------------------------------------------------- WGK, podobna (nie identyczna) sprawa w archiwum
+PRZYPADKI.append(Przypadek(
+    folder="TC10 - WGK - adopcje ze schroniska (podobna sprawa w archiwum)",
+    numer="BKS.IV.1431.710.2026",
+    data_wplywu=date(2026, 11, 17),
+    temat="Adopcje psów i kotów ze schroniska oraz czipowanie w 2025 r.",
+    opis="Temat bliski spraw z archiwum (BKS.IV.1431.64.2025 – psy i koty przyjęte do schroniska i koszt opieki; "
+         "BKS.IV.1431.7.2026 – opieka nad bezdomnymi zwierzętami za 2025 r.), ale pytania są inne: adopcje, zwroty "
+         "po adopcji, bezpłatne czipowanie i wolontariat. Aplikacja ma dobrać te sprawy jako podobne (ten sam wydział, "
+         "ten sam wzór pisma), a pismo nie może przepisać z nich liczb – fakty pochodzą wyłącznie z odpowiedzi wydziału.",
+    wnioskodawca="Natalia Górecka",
+    forma="pani",
+    adresat=["Pani", "Natalia Górecka", "n.gorecka@poczta-przyklad.pl"],
+    wniosek=linie("""
+Natalia Górecka
+e-mail: n.gorecka@poczta-przyklad.pl
+tel. 607 410 932
+
+Urząd Miasta Bydgoszczy
+Biuro Komunikacji Społecznej
+
+Wniosek o udostępnienie informacji publicznej
+
+Na podstawie ustawy z dnia 6 września 2001 r. o dostępie do informacji publicznej proszę o udostępnienie następujących informacji dotyczących Schroniska dla Zwierząt w Bydgoszczy za 2025 r.:
+1. ile psów i ile kotów zostało adoptowanych ze schroniska w 2025 r.,
+2. ile zwierząt zostało zwróconych do schroniska po adopcji w 2025 r.,
+3. ile zwierząt zaczipowano bezpłatnie w ramach miejskiego programu w 2025 r. i jaki był koszt tego programu,
+4. ilu wolontariuszy było zarejestrowanych w schronisku na koniec 2025 r.
+Odpowiedź proszę przesłać na mój adres e-mail.
+
+Z poważaniem
+Natalia Górecka
+"""),
+    frazy_do_anonimizacji=["Natalia Górecka", "n.gorecka@poczta-przyklad.pl", "607 410 932"],
+    symbol="WGK",
+    alternatywy=["WOŚ"],
+    niepoprawne=["BZS", "BAS"],
+    uzasadnienie="Opiekę nad bezdomnymi zwierzętami realizuje Schronisko dla Zwierząt w Bydgoszczy nadzorowane przez "
+                 "Wydział Zieleni i Gospodarki Komunalnej – tak przydzielono sprawy BKS.IV.1431.64.2025 "
+                 "i BKS.IV.1431.7.2026. WOŚ dopuszczalny jako 2. (program kastracji kotów – sprawa BKS.IV.1431.60.2025).",
+    data_odpowiedzi_wydzialu=date(2026, 11, 24),
+    odpowiedz_wydzialu=[
+        *naglowek_wydzialu("Wydział Zieleni i Gospodarki Komunalnej", date(2026, 11, 24), "WGK.1431.93.2026",
+                           "BKS.IV.1431.710.2026"),
+        P("Wydział Zieleni i Gospodarki Komunalnej, na podstawie danych przekazanych przez Schronisko dla Zwierząt "
+          "w Bydgoszczy, przekazuje odpowiedzi na pytania wnioskodawczyni:", wyrownanie="both"),
+        P("Ad 1", pogrubienie=True),
+        P("W 2025 r. ze schroniska adoptowano 684 psy i 457 kotów.", wyrownanie="both"),
+        P("Ad 2", pogrubienie=True),
+        P("W 2025 r. do schroniska zwrócono po adopcji 39 zwierząt (31 psów i 8 kotów).", wyrownanie="both"),
+        P("Ad 3", pogrubienie=True),
+        P("W ramach programu bezpłatnego znakowania zwierząt w 2025 r. zaczipowano 2 316 psów i kotów. Koszt "
+          "programu wyniósł 92 640,00 zł brutto.", wyrownanie="both"),
+        P("Ad 4", pogrubienie=True),
+        P("Na dzień 31 grudnia 2025 r. w schronisku zarejestrowanych było 147 wolontariuszy.", wyrownanie="both"),
+        P("Odpowiedź nie zawiera danych osobowych adoptujących ani wolontariuszy."),
+        *stopka_wydzialu("Sylwia Kubiak, tel. (52) 58 59 000 wew. 721",
+                         "Dyrektor Wydziału Zieleni i Gospodarki Komunalnej", "(podpis elektroniczny)"),
+    ],
+    data_pisma=date(2026, 11, 26),
+    werdykt="MOZNA_UDOSTEPNIC",
+    wzor="udostepnienie_punkt_po_punkcie",
+    pola={
+        "zakres_wniosku": "Schroniska dla Zwierząt w Bydgoszczy za 2025 r. – adopcji psów i kotów, zwrotów zwierząt "
+                          "po adopcji, bezpłatnego czipowania oraz liczby wolontariuszy",
+        "odpowiedzi": [
+            "W 2025 r. ze Schroniska dla Zwierząt w Bydgoszczy adoptowano 684 psy i 457 kotów.",
+            "W 2025 r. do schroniska zwrócono po adopcji 39 zwierząt (31 psów i 8 kotów).",
+            "W ramach programu bezpłatnego znakowania zwierząt w 2025 r. zaczipowano 2 316 psów i kotów. Koszt "
+            "programu wyniósł 92 640,00 zł brutto.",
+            "Na dzień 31 grudnia 2025 r. w schronisku zarejestrowanych było 147 wolontariuszy.",
+        ],
+    },
+    kryteria=[
+        "Podobne sprawy: 1. BKS.IV.1431.64.2025 (ok. 50%), 2. BKS.IV.1431.7.2026 (ok. 33%) – obie schronisko, WGK; "
+        "3. BKS.IV.1431.60.2025 (ok. 21%, WOŚ). Wynik niższy niż przy sprawie niemal identycznej "
+        "(TC06 ↔ BKS.IV.1431.56.2025: ok. 67%).",
+        "Wydział: WGK na 1. miejscu – wynika z wydziałów przypisanych podobnym sprawom (WOŚ akceptowalny jako 2.).",
+        "Pismo zawiera wyłącznie liczby z odpowiedzi wydziału: 684 psy, 457 kotów, 39 zwrotów, 2 316 zaczipowanych "
+        "zwierząt, 92 640,00 zł, 147 wolontariuszy.",
+        "Pismo NIE zawiera liczb z podobnych spraw archiwalnych (910 psów, 610 kotów, 3,3 mln zł z 2024 r.) – "
+        "test na halucynację z kontekstu archiwum.",
+        "Wzór jak w podobnych sprawach: punkt po punkcie (Ad 1 – Ad 4); zwrot „Szanowna Pani,”, forma „przez Panią”.",
+    ],
+))
+
 
 # ------------------------------------------------------------------ zapis plików
 def pismo_koncowe(p: Przypadek):

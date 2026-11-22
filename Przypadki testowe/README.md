@@ -17,3 +17,4 @@ Wszystkie osoby, adresy, telefony, e-maile, firmy i liczby są zmyślone. Regene
 | TC07 | Punktualność kursów linii autobusowej nr 69 | — (Zarząd Dróg Miejskich i Komunikacji Publicznej w Bydgoszczy) | nieposiadanie_wskazanie_dysponenta | NIE_MOZNA_PISMO_INFORMACYJNE |
 | TC08 | Wniosek o „wszystkie dokumenty w mojej sprawie” – niejasny | — (odesłanie) | pismo z akapitów (zloz_pismo_z_tekstu) | MOZNA_WARUNKOWO |
 | TC09 | Spór sąsiedzki – prośba o poradę i dane sąsiada | — (odesłanie) | pismo z akapitów (zloz_pismo_z_tekstu) | NIE_MOZNA_PISMO_INFORMACYJNE |
+| TC10 | Adopcje psów i kotów ze schroniska oraz czipowanie w 2025 r. | WGK | udostepnienie_punkt_po_punkcie | MOZNA_UDOSTEPNIC |
