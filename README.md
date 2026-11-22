@@ -77,6 +77,7 @@ Dane zostają na komputerze/serwerze urzędu: `wnioski.db` (SQLite), archiwum i 
 | POST | `/api/archiwum` | `{sprawa, autor}` → dodanie sprawy (409 – sygnatura już jest, 422 – nieznany werdykt lub dane osobowe) |
 | PUT | `/api/archiwum/{sygnatura}` | `{sprawa, autor}` → edycja, także `nieaktualna: true/false` |
 | DELETE | `/api/archiwum/{sygnatura}` | usunięcie sprawy |
+| POST | `/api/archiwum/przywroc` | przywraca początkowy stan archiwum z `archiwum_poczatkowe.json` → `{liczba_spraw}` |
 | POST | `/api/archiwum/propozycja` | `{wniosek, odpowiedz, sygnatura?}` (treść dokumentów) → zanonimizowana propozycja wpisu od modelu |
 | GET | `/api/baza-wiedzy` | wersje bazy wiedzy (ze statusem) i akty prawne z folderu dokumentów |
 | POST | `/api/baza-wiedzy/analizy` | multipart: `plik` (PDF/DOCX/TXT), `zastepuje`, `nazwa`, `skrot`, `publikator`, `obowiazuje_od` → analiza w tle |
@@ -106,7 +107,7 @@ oraz treść wniosku (oznaczona jako dane, nie polecenia). Tryb wiedzy (`KONTEKS
   z archiwum najbardziej podobne do wniosku, lista jednostek UMB, katalog anonimizacji oraz 2 wzory pism dobrane
   według werdyktów podobnych spraw. Gdy zapytanie nie mieści się w `GROQ_LIMIT_TPM`,
   backend stopniowo zmniejsza kontekst, a w ostateczności skraca bardzo długi wniosek (z ostrzeżeniem),
-- **`pelny`**: cały model oceny i całe archiwum (ok. 23 tys. tokenów – tylko przy płatnym planie).
+- **`pelny`**: cały model oceny i całe archiwum (ok. 53 tys. tokenów przy 109 sprawach – tylko przy płatnym planie).
 
 Darmowy plan mieści ok. jedno zapytanie na minutę – przy kolejnym w tej samej minucie pojawi się prośba o odczekanie. Odpowiedź (tryb JSON) zawiera: werdykt ze słownika, uzasadnienie,
 podstawy prawne, komórkę merytoryczną, podobne sprawy, dane do anonimizacji, listę rzeczy do sprawdzenia i projekt pisma.
@@ -129,6 +130,12 @@ jest link „Dodaj do archiwum”, który przenosi treść wniosku, sygnaturę i
   (pusta lista: nie przekazano, np. Urząd nie posiada informacji) – i `podmiot_poza_umb` (dysponent spoza Urzędu
   wskazany wnioskodawcy); po zatwierdzeniu odpowiedzi na wniosek wydziały są brane z wgranych odpowiedzi wydziałów,
   a propozycja wydziału dla nowego wniosku korzysta z nich jako z przykładów przydziału,
+- archiwum zawiera 9 prawdziwych spraw i 100 przykładowych, fikcyjnych (`BKS.IV.1431.10.2025`–`109.2025`, wszystkie
+  jednostki UMB i werdykty, w historii zmian adnotacja „sprawa przykładowa”); generuje je
+  `uv run python skrypty/archiwum_przykladowe.py` – ponowne uruchomienie podmienia tylko te wpisy i zapisuje stan
+  początkowy do `archiwum_poczatkowe.json`,
+- „Przywróć dane testowe” w kalendarzu przywraca też archiwum do stanu z `archiwum_poczatkowe.json` (zmiany w archiwum
+  są wtedy tracone; „Wczytaj dane testowe” przy pustym roku archiwum nie rusza),
 - podobieństwo spraw (0–100%) to pokrycie słów sprawy i wniosku z wagami TF-IDF; słowa wniosku nieobecne w archiwum
   (nazwiska, adresy, zwroty grzecznościowe) nie zaniżają wyniku – ta sama sprawa daje zwykle 50–80%, sprawa o podobnym
   temacie 20–40%; od 45% wynik jest oznaczony jako „bardzo podobna”,

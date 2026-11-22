@@ -24,10 +24,12 @@ class Ustawienia:
     # Maksymalna długość odpowiedzi modelu (liczy się do limitu TPM).
     groq_max_tokens: int
     # "wybrany" – streszczenie algorytmu + fragmenty dopasowane do wniosku (mieści się w darmowym planie);
-    # "pelny" – cały model oceny prawnej i całe archiwum (~23 tys. tokenów, wymaga wyższego planu)
+    # "pelny" – cały model oceny prawnej i całe archiwum (~53 tys. tokenów przy 109 sprawach, wymaga wyższego planu)
     kontekst_prawny: str
     plik_oceny: Path
     plik_werdyktow: Path
+    # Początkowy stan archiwum – przywracany przyciskiem „Przywróć dane testowe”
+    plik_archiwum_poczatkowego: Path
     plik_wzorow: Path
     katalog_dokumentow: Path
     plik_bazy: Path
@@ -68,6 +70,9 @@ def wczytaj_ustawienia() -> Ustawienia:
         kontekst_prawny=_tryb_kontekstu(os.getenv("KONTEKST_PRAWNY", "wybrany")),
         plik_oceny=Path(os.getenv("PLIK_OCENY", KATALOG_GLOWNY / "ocena_prawna_wniosku_dip_kompletny.json")),
         plik_werdyktow=Path(os.getenv("PLIK_WERDYKTOW", KATALOG_GLOWNY / "werdykty_wniosek_odpowiedz_dip.json")),
+        plik_archiwum_poczatkowego=Path(
+            os.getenv("PLIK_ARCHIWUM_POCZATKOWEGO", KATALOG_GLOWNY / "archiwum_poczatkowe.json")
+        ),
         plik_wzorow=Path(os.getenv("PLIK_WZOROW", KATALOG_GLOWNY / "wzory_pism.json")),
         katalog_dokumentow=Path(os.getenv("KATALOG_DOKUMENTOW", KATALOG_GLOWNY / "Dokumenty i podstawy prawne")),
         plik_bazy=Path(os.getenv("PLIK_BAZY", KATALOG_GLOWNY / "wnioski.db")),

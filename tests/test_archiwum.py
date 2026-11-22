@@ -222,4 +222,30 @@ def test_wpis_bez_pola_wydzialy_nie_daje_pustej_zmiany_w_historii(api):
 def test_archiwum_w_repozytorium_ma_wydzialy():
     for s in modul_archiwum.lista(U.plik_werdyktow):
         assert all(modul_archiwum.symbol_jednostki(w) for w in s.wydzialy)
-        assert s.wydzialy or s.podmiot_poza_umb or "brak" in s.komorka_merytoryczna.lower()
+        assert s.wydzialy or s.podmiot_poza_umb or "Biuro Komunikacji" in s.komorka_merytoryczna
+
+
+def test_przywrocenie_poczatkowego_archiwum(api, tmp_path):
+    klient, plik, u = api
+    wzorzec = tmp_path / "archiwum_poczatkowe.json"
+    shutil.copy(U.plik_archiwum_poczatkowego, wzorzec)
+    app.dependency_overrides[pobierz_ustawienia] = lambda: replace(u, plik_archiwum_poczatkowego=wzorzec)
+    poczatkowe = json.loads(wzorzec.read_text(encoding="utf-8"))["sprawy"]
+
+    klient.post("/api/archiwum", json=_zapis(NOWA_SPRAWA))
+    klient.delete(f"/api/archiwum/{poczatkowe[0]['sygnatura']}")
+    odp = klient.post("/api/archiwum/przywroc")
+    assert odp.status_code == 200 and odp.json() == {"liczba_spraw": len(poczatkowe)}
+    assert json.loads(plik.read_text(encoding="utf-8"))["sprawy"] == poczatkowe
+
+
+def test_przywrocenie_bez_pliku_poczatkowego(api, tmp_path):
+    klient, _, u = api
+    app.dependency_overrides[pobierz_ustawienia] = lambda: replace(u, plik_archiwum_poczatkowego=tmp_path / "brak.json")
+    odp = klient.post("/api/archiwum/przywroc")
+    assert odp.status_code == 500 and "brak.json" in odp.json()["detail"]
+
+
+def test_plik_poczatkowy_w_repozytorium_jest_poprawny():
+    sprawy = modul_archiwum.lista(U.plik_archiwum_poczatkowego)
+    assert len(sprawy) == 109 and len({s.sygnatura for s in sprawy}) == 109

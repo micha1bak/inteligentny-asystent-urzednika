@@ -29,7 +29,7 @@ ODPOWIEDZ_MODELU = {
     "podstawy_prawne": ["Art. 6 ust. 1 pkt 5 UDIP", "Art. 13 ust. 1 UDIP"],
     "komorka_merytoryczna": "Wydział Zieleni i Gospodarki Komunalnej",
     "podobne_sprawy": [
-        {"sygnatura": "BKS.IV.1431.543.2026", "dlaczego": "opieka nad bezdomnymi zwierzętami"},
+        {"sygnatura": "BKS.IV.1431.7.2026", "dlaczego": "opieka nad bezdomnymi zwierzętami"},
         {"sygnatura": "BKS.IV.1431.999.2026", "dlaczego": "wymyślona"},
     ],
     "dane_do_anonimizacji": ["imię i nazwisko wnioskodawcy", "adres e-mail"],
@@ -77,7 +77,7 @@ def test_wybrany_kontekst_miesci_sie_w_darmowym_planie():
     for etap in (f"ETAP_{i:02d}" for i in range(1, 13)):
         assert etap in tresc  # wszystkie etapy oceny zawsze są w kontekście
     assert "MOZNA_Z_ANONIMIZACJA" in tresc
-    assert "BKS.IV.1431.543.2026" in tresc  # najbardziej podobna sprawa (schronisko)
+    assert "BKS.IV.1431.7.2026" in tresc  # najbardziej podobna sprawa (schronisko)
     assert WNIOSEK.tresc in tresc
 
 
@@ -93,12 +93,12 @@ def test_podobne_sprawy_sa_dobierane_do_tresci():
     wiadomosci, _ = zbuduj_wiadomosci(
         Wniosek(tresc="Ile uczniów uczy się w szkołach podstawowych w Bydgoszczy i ilu jest obcokrajowców?"), WIEDZA
     )
-    assert "BKS.IV.1431.307.2025" in wiadomosci[1]["content"]
+    assert "BKS.IV.1431.1.2025" in wiadomosci[1]["content"]
 
 
 def test_weryfikacja_odsiewa_halucynacje():
     p = zweryfikuj("```json\n" + json.dumps(ODPOWIEDZ_MODELU) + "\n```", WIEDZA, "test-model")
-    assert [s.sygnatura for s in p.podobne_sprawy] == ["BKS.IV.1431.543.2026"]
+    assert [s.sygnatura for s in p.podobne_sprawy] == ["BKS.IV.1431.7.2026"]
     assert any("999" in o for o in p.ostrzezenia)
     assert p.werdykt_opis.startswith("Informacja podlega udostępnieniu")
 
@@ -518,14 +518,16 @@ def test_podobne_sprawy_i_wnioski_z_ostatniego_roku():
     z = ZapytanieOPodobne(tresc="Ile psów i kotów przyjęło schronisko i jaki był koszt opieki nad zwierzętami?",
                           data_odniesienia="2026-11-21", pomin_id="9")
     wynik = znajdz(z, WIEDZA.sprawy, wnioski)
-    assert wynik.sprawy[0].sygnatura == "BKS.IV.1431.543.2026" and 0 < wynik.sprawy[0].podobienstwo <= 1
+    # najpodobniejsze są sprawy schroniska (WGK) – prawdziwa 543.2026 i przykładowe z archiwum
+    assert wynik.sprawy[0].wydzialy[0]["symbol"] == "WGK" and 0 < wynik.sprawy[0].podobienstwo <= 1
+    assert "BKS.IV.1431.7.2026" in [s.sygnatura for s in wynik.sprawy[:3]]
     assert [x.id for x in wynik.wnioski] == ["1"]  # z ostatniego roku i podobny; „3” niepodobny, „2” za stary
     assert znajdz(ZapytanieOPodobne(tresc=z.tresc, pomin_id="1", data_odniesienia="2026-11-21"), [], wnioski).wnioski == []
 
 
 def test_endpoint_podobnych():
     odp = TestClient(app).post("/api/podobne", json={"tresc": "Liczba uczniów w szkołach podstawowych i obcokrajowców"})
-    assert odp.status_code == 200 and odp.json()["sprawy"][0]["sygnatura"] == "BKS.IV.1431.307.2025"
+    assert odp.status_code == 200 and odp.json()["sprawy"][0]["sygnatura"] == "BKS.IV.1431.1.2025"
 
 
 def test_konfiguracja_lokalnego_modelu(monkeypatch):
@@ -561,7 +563,7 @@ def test_podobienstwo_tej_samej_sprawy_wysokie_mimo_danych_wnioskodawcy():
     """Nazwiska, adresy i zwroty grzecznościowe we wniosku nie zaniżają wyniku dopasowania do archiwum."""
     from inteligentny_asystent_urzednika.podobne import ZapytanieOPodobne, znajdz
 
-    sprawa = next(s for s in WIEDZA.sprawy if s["sygnatura"] == "BKS.IV.1431.590.2026")
+    sprawa = next(s for s in WIEDZA.sprawy if s["sygnatura"] == "BKS.IV.1431.8.2026")
     tresc = ("Szanowni Państwo, nazywam się Bartłomiej Zawadzki-Kowalczyk, zamieszkały ul. Chabrowa 15, 85-001 Bydgoszcz. "
              f"{sprawa['wniosek_o_co']} Z wyrazami szacunku, Bartłomiej Zawadzki-Kowalczyk, tel. 600 100 200")
     wynik = znajdz(ZapytanieOPodobne(tresc=tresc), WIEDZA.sprawy, [])

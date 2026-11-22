@@ -33,7 +33,7 @@ def test_weryfikacja_odrzuca_jednostki_spoza_listy():
 
 def test_bez_modelu_wskazuje_wydzial_z_podobnej_sprawy():
     p = propozycja_bez_modelu(WIEDZA, "Proszę o aktualną liczbę uczniów w szkołach podstawowych.\n1. Liczba uczniów\n2. Obcokrajowcy")
-    assert p.jednostki[0].symbol == "WE" and "307" in p.jednostki[0].uzasadnienie
+    assert p.jednostki[0].symbol == "WE" and "BKS.IV.1431.1.2025" in p.jednostki[0].uzasadnienie
     assert p.ostrzezenia
 
 

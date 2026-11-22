@@ -657,6 +657,14 @@ def utworz_aplikacje() -> FastAPI:
             raise HTTPException(e.status, e.komunikat) from e
         return Response(status_code=204)
 
+    @app.post("/api/archiwum/przywroc")
+    def archiwum_przywroc(u: Ustawienia = Depends(pobierz_ustawienia)) -> dict:
+        """Przywraca początkowy stan archiwum (plik archiwum_poczatkowe.json) – razem z „Przywróć dane testowe”."""
+        try:
+            return {"liczba_spraw": archiwum.przywroc(u.plik_werdyktow, u.plik_archiwum_poczatkowego)}
+        except BladArchiwum as e:
+            raise HTTPException(e.status, e.komunikat) from e
+
     @app.post("/api/archiwum/propozycja", response_model=PropozycjaWpisu)
     async def archiwum_propozycja(
         zapytanie: ZapytanieOWpis,

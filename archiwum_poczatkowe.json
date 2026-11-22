@@ -1,0 +1,2435 @@
+{
+  "metadane": {
+    "nazwa": "werdykty_wniosek_odpowiedz_dip",
+    "wersja": "1.2.0",
+    "powiazanie": "ocena_prawna_wniosku_dip_kompletny.json",
+    "liczba_spraw": 109,
+    "urzad": "Urząd Miasta Bydgoszczy (Biuro Komunikacji Społecznej)",
+    "opis_pol": {
+      "wydzialy": "symbole jednostek UMB (zasoby/wydzialy.json), do których przekazano wniosek; pusta lista – nie przekazano",
+      "podmiot_poza_umb": "właściwy dysponent informacji spoza UMB wskazany wnioskodawcy (pusty, jeśli nie dotyczy)"
+    },
+    "sprawy_przykladowe": "BKS.IV.1431.10.2025–BKS.IV.1431.109.2025: sprawy fikcyjne wygenerowane skryptem skrypty/archiwum_przykladowe.py (do testów wyszukiwania podobnych spraw)"
+  },
+  "sprawy": [
+    {
+      "sygnatura": "BKS.IV.1431.1.2025",
+      "data_odpowiedzi": "2025-07-08",
+      "komorka_merytoryczna": "Wydział Edukacji i Sportu",
+      "wydzialy": [
+        "WE"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Aktualne zestawienie liczby uczniów w szkołach podstawowych oraz – jeśli dostępne – liczba obcokrajowców w poszczególnych szkołach.",
+      "jaka_odpowiedz": "Udostępniono żądane dane statystyczne w formie gotowego załącznika („Informacja_307”).",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo przewodnie + załącznik z zestawieniem danych (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1 pkt 4 lit. d, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T03:55:08",
+          "kto": "MB",
+          "zmiana": "zmieniono sygnaturę (pierwotnie BKS.IV.1431.307.2025)",
+          "pola": {
+            "sygnatura": {
+              "przed": "BKS.IV.1431.307.2025",
+              "po": "BKS.IV.1431.1.2025"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.2.2026",
+      "data_odpowiedzi": "2026-01-14",
+      "komorka_merytoryczna": "Biuro Komunikacji Społecznej (brak posiadania danych w UMB)",
+      "wydzialy": [],
+      "podmiot_poza_umb": "Kujawsko-Pomorski Wojewódzki Konserwator Zabytków – Delegatura w Bydgoszczy",
+      "wniosek_o_co": "Aktualny stan i lokalizacja przechowywania rzeźby Ludmiły Stehnovej usuniętej z wyspy Ronda Grunwaldzkiego w Bydgoszczy oraz plany dotyczące jej przyszłości.",
+      "jaka_odpowiedz": "Pismo informacyjne o nieposiadaniu danych przez Urząd Miasta Bydgoszczy (brak statusu dysponenta z art. 4 ust. 3 UDIP) wraz ze wskazaniem właściwego dysponenta i danych kontaktowych: Kujawsko-Pomorski Wojewódzki Konserwator Zabytków – Delegatura w Bydgoszczy.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 4 ust. 3 UDIP; § 11 ust. 3 Zarządzenia Nr 535/2024",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T03:55:08",
+          "kto": "MB",
+          "zmiana": "zmieniono sygnaturę (pierwotnie BKS.IV.1431.15.2026)",
+          "pola": {
+            "sygnatura": {
+              "przed": "BKS.IV.1431.15.2026",
+              "po": "BKS.IV.1431.2.2026"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.3.2026",
+      "data_odpowiedzi": "2026-01-15",
+      "komorka_merytoryczna": "Biuro Komunikacji Społecznej (brak posiadania danych w UMB)",
+      "wydzialy": [],
+      "podmiot_poza_umb": "Zarząd Dróg Miejskich i Komunikacji Publicznej w Bydgoszczy",
+      "wniosek_o_co": "Pełna dokumentacja realizacji umowy nr 102/TT/2019 z 27.05.2019 r. ze spółką Jakotako Sp. z o.o. (umowa, aneksy, protokoły konieczności/odbioru, faktury, przelewy, licencje, umowa o dofinansowanie, wnioski o płatność, protokoły pokontrolne) w PDF w osobnych folderach przez e-Doręczenia.",
+      "jaka_odpowiedz": "Pismo informacyjne o nieposiadaniu informacji przez Urząd Miasta Bydgoszczy (brak statusu dysponenta danych z art. 4 ust. 3 UDIP) wraz ze wskazaniem właściwego podmiotu i danych kontaktowych: Zarząd Dróg Miejskich i Komunikacji Publicznej w Bydgoszczy.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 4 ust. 3 UDIP; § 11 ust. 3 Zarządzenia Nr 535/2024",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T03:55:08",
+          "kto": "MB",
+          "zmiana": "zmieniono sygnaturę (pierwotnie BKS.IV.1431.17.2026)",
+          "pola": {
+            "sygnatura": {
+              "przed": "BKS.IV.1431.17.2026",
+              "po": "BKS.IV.1431.3.2026"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.4.2026",
+      "data_wplywu": "2026-01-09",
+      "data_odpowiedzi": "2026-01-20",
+      "komorka_merytoryczna": "Wydział Spraw Obywatelskich",
+      "wydzialy": [
+        "WSO"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Informacja, ile punktów sprzedaży alkoholu przybyło w Bydgoszczy od czasu objęcia funkcji Prezydenta przez R. Bruskiego do dnia złożenia wniosku.",
+      "jaka_odpowiedz": "Pismo informacyjne, że Urząd Miasta Bydgoszczy nie prowadzi statystyk, które umożliwiłyby udzielenie odpowiedzi na tak zadane pytanie.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne o nieposiadaniu żądanych statystyk (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 4 ust. 3 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T03:55:08",
+          "kto": "MB",
+          "zmiana": "zmieniono sygnaturę (pierwotnie BKS.IV.1431.16.2026)",
+          "pola": {
+            "sygnatura": {
+              "przed": "BKS.IV.1431.16.2026",
+              "po": "BKS.IV.1431.4.2026"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.5.2026",
+      "data_odpowiedzi": "2026-01-26",
+      "komorka_merytoryczna": "Wydział Gospodarki Odpadami",
+      "wydzialy": [
+        "WGO"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Liczba mieszkańców na podstawie opłat za gospodarowanie odpadami komunalnymi z bloków i posesji prywatnych z wymienionej listy ulic leżących na terenie Parafii św. Maksymiliana Kolbego w Bydgoszczy.",
+      "jaka_odpowiedz": "Udostępniono zagregowaną daną statystyczną: łączna liczba zadeklarowanych mieszkańców z wymienionych we wniosku ulic wynosi 5697 osób.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające zagregowaną informację statystyczną (czynność materialno-techniczna; brak ujawniania indywidualnych danych podatników/mieszkańców)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1 pkt 4 lit. d, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T03:55:08",
+          "kto": "MB",
+          "zmiana": "zmieniono sygnaturę (pierwotnie BKS.IV.1431.18.2026)",
+          "pola": {
+            "sygnatura": {
+              "przed": "BKS.IV.1431.18.2026",
+              "po": "BKS.IV.1431.5.2026"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.6.2026",
+      "data_odpowiedzi": "2026-08-10",
+      "komorka_merytoryczna": "Wydział Administracji Budowlanej",
+      "wydzialy": [
+        "WAB"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Przesłanie dokumentacji nowego apartamentowca (teren po budynku Astrum): projekt zagospodarowania terenu i zieleni, wizualizacje, parametry techniczne oraz informacja o uzgodnieniu i podziale kosztów przebudowy bulwarów i drogi dojazdowej.",
+      "jaka_odpowiedz": "Wezwanie do doprecyzowania w terminie 7 dni (wskazanie konkretnych akt sprawy pod rygorem pozostawienia bez rozpoznania), informacja o dostępie do pierwotnego projektu wyłącznie na miejscu (trwale spięty – brak możliwości skanowania), zapowiedź terminu dostępu najwcześniej w połowie września (złożona anonimizacja), brak możliwości udostępnienia najnowszej decyzji zmieniającej (nieustalona data ostateczności) oraz przedłużenie terminu rozpatrzenia wniosku do 18 września br.",
+      "werdykt": "MOZNA_WARUNKOWO",
+      "forma_zalatwienia": "Wezwanie do doprecyzowania + powiadomienie o formie zastępczej (wgląd na miejscu) + przedłużenie terminu (art. 13 ust. 2 UDIP)",
+      "etap_i_podstawa": "Art. 13 ust. 2, art. 14 ust. 1-2 UDIP; § 11 ust. 2, 5, 6, 8 Zarządzenia Nr 535/2024",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T03:55:08",
+          "kto": "MB",
+          "zmiana": "zmieniono sygnaturę (pierwotnie BKS.IV.1431.509.2026)",
+          "pola": {
+            "sygnatura": {
+              "przed": "BKS.IV.1431.509.2026",
+              "po": "BKS.IV.1431.6.2026"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.7.2026",
+      "sygnatura_na_odpowiedzi": "BKS.IV.1431.543.2025",
+      "data_wplywu": "2026-08-19",
+      "data_odpowiedzi": "2026-09-22",
+      "komorka_merytoryczna": "Wydział Zieleni i Gospodarki Komunalnej oraz Schronisko dla Zwierząt w Bydgoszczy",
+      "wydzialy": [
+        "WGK"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Dane za 2025 r. dot. zadania „opieka nad bezdomnymi zwierzętami i ich wyłapywanie”: podmioty wykonujące wyłapywanie i opiekę, liczba psów i kotów objętych opieką, faktyczny koszt realizacji zadania oraz treść umów o opiekę.",
+      "jaka_odpowiedz": "Udostępniono odpowiedź punkt po punkcie (Ad 1–5): zadanie wykonuje jednostka budżetowa Schronisko dla Zwierząt w Bydgoszczy (brak zewnętrznych umów na opiekę), w 2025 r. objęto opieką 839 psów i 560 kotów, budżet schroniska wyniósł 3.143.761,14 zł, realizowano Umowę 1/2022/SZ z Kliniką Weterynaryjną [zanonimizowano].",
+      "werdykt": "MOZNA_Z_ANONIMIZACJA",
+      "forma_zalatwienia": "Pismo udostępniające informację punkt po punkcie (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1 pkt 1 lit. c i pkt 5, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T03:55:08",
+          "kto": "MB",
+          "zmiana": "zmieniono sygnaturę (pierwotnie BKS.IV.1431.543.2026)",
+          "pola": {
+            "sygnatura": {
+              "przed": "BKS.IV.1431.543.2026",
+              "po": "BKS.IV.1431.7.2026"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.8.2026",
+      "data_odpowiedzi": "2026-09-25",
+      "komorka_merytoryczna": "Wydział Inwestycji Miasta",
+      "wydzialy": [
+        "WIM"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Informacja dot. inwestycji „Budowa kompleksu Astoria” (ul. Królowej Jadwigi 23): czy wskazana osoba pełniła funkcję kierownika robót teletechnicznych/telekomunikacyjnych oraz w jakim okresie (daty wpisu do dziennika budowy).",
+      "jaka_odpowiedz": "Udostępniono informację w piśmie: potwierdzono pełnienie funkcji kierownika robót specjalności telekomunikacyjnej (wprowadzony aneksem nr 6 z 30.12.2019 r.) w okresie od 02.01.2020 r. do 15.10.2020 r. (odbiór końcowy robót).",
+      "werdykt": "MOZNA_Z_ANONIMIZACJA",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna; w udostępnianym wzorze zanonimizowano dane osobowe osoby fizycznej)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1 pkt 4-5, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T03:55:08",
+          "kto": "MB",
+          "zmiana": "zmieniono sygnaturę (pierwotnie BKS.IV.1431.590.2026)",
+          "pola": {
+            "sygnatura": {
+              "przed": "BKS.IV.1431.590.2026",
+              "po": "BKS.IV.1431.8.2026"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.9.2026",
+      "data_odpowiedzi": "2026-11-22",
+      "komorka_merytoryczna": "Wydział Gospodarki Odpadami",
+      "wydzialy": [
+        "WGO"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Następujących informacji: 1",
+      "jaka_odpowiedz": "Wniosek dotyczy informacji publicznej będącej danymi statystycznymi o liczbie deklaracji i liczbie mieszkańców, które Urząd posiada i nie podlegają ograniczeniom ustawowym. Informacja jest już zagregowana, nie zawiera danych osobowych, więc może zostać udostępniona w całości w formie elektronicznej.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Udostępnienie informacji w treści pisma",
+      "etap_i_podstawa": "Art. 1 ust. 1 UDIP, Art. 6 ust. 1 pkt 4 lit. d UDIP, Art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T03:07:03",
+          "kto": "MB",
+          "zmiana": "dodano (zatwierdzona odpowiedź)",
+          "pola": {}
+        },
+        {
+          "kiedy": "2026-11-22T03:55:08",
+          "kto": "MB",
+          "zmiana": "zmieniono sygnaturę (pierwotnie BKS.IV.1431.611.2026)",
+          "pola": {
+            "sygnatura": {
+              "przed": "BKS.IV.1431.611.2026",
+              "po": "BKS.IV.1431.9.2026"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.10.2025",
+      "data_odpowiedzi": "2025-01-24",
+      "komorka_merytoryczna": "Wydział Inwestycji Miasta",
+      "wydzialy": [
+        "WIM"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Koszt przebudowy ul. Grunwaldzkiej (etap I) w 2024 r., nazwa wykonawcy i planowany termin zakończenia robót.",
+      "jaka_odpowiedz": "Udostępniono wartość umowy (18,4 mln zł brutto), nazwę wykonawcy wyłonionego w przetargu nieograniczonym i termin zakończenia robót (IV kwartał 2025 r.).",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.11.2025",
+      "data_odpowiedzi": "2025-01-27",
+      "komorka_merytoryczna": "Wydział Inwestycji Miasta",
+      "wydzialy": [
+        "WIM"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Wykaz remontów dróg gminnych wykonanych w 2024 r. wraz z kosztem każdego remontu.",
+      "jaka_odpowiedz": "Udostępniono w załączniku zestawienie 23 zadań remontowych dróg gminnych o łącznej wartości 9,7 mln zł.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.12.2025",
+      "data_odpowiedzi": "2025-01-29",
+      "komorka_merytoryczna": "Wydział Inwestycji Miasta",
+      "wydzialy": [
+        "WIM",
+        "WZP"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Budowa ronda na skrzyżowaniu ulic Fordońskiej i Toruńskiej: wykonawca, wartość umowy, aneksy i naliczone kary umowne.",
+      "jaka_odpowiedz": "Udostępniono punkt po punkcie: wykonawcę, wartość umowy (6,2 mln zł), dwa aneksy wydłużające termin oraz kary umowne za zwłokę (84 tys. zł).",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.13.2025",
+      "data_odpowiedzi": "2025-01-29",
+      "komorka_merytoryczna": "Wydział Inwestycji Miasta",
+      "wydzialy": [
+        "WIM"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Koszt budowy drogi rowerowej wzdłuż ul. Kujawskiej i wysokość dofinansowania ze środków zewnętrznych.",
+      "jaka_odpowiedz": "Udostępniono koszt inwestycji (2,1 mln zł) i kwotę dofinansowania z programu regionalnego (1,3 mln zł).",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.14.2025",
+      "data_odpowiedzi": "2025-01-31",
+      "komorka_merytoryczna": "Wydział Inwestycji Miasta",
+      "wydzialy": [
+        "WIM"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Kopie protokołów odbioru robót przy termomodernizacji budynku szkoły podstawowej.",
+      "jaka_odpowiedz": "Udostępniono skany protokołów odbioru; zanonimizowano podpisy i dane osób fizycznych niepełniących funkcji publicznych.",
+      "werdykt": "MOZNA_Z_ANONIMIZACJA",
+      "forma_zalatwienia": "Pismo udostępniające informację po anonimizacji danych osobowych (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 5 ust. 2, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.15.2025",
+      "data_odpowiedzi": "2025-02-03",
+      "komorka_merytoryczna": "Biuro Komunikacji Społecznej (Urząd nie przekazał wniosku do wydziału)",
+      "wydzialy": [],
+      "podmiot_poza_umb": "Zarząd Dróg Miejskich i Komunikacji Publicznej w Bydgoszczy",
+      "wniosek_o_co": "Harmonogram remontu torowiska tramwajowego i nawierzchni jezdni na ul. Gdańskiej.",
+      "jaka_odpowiedz": "Urząd Miasta nie posiada informacji – zadanie prowadzi miejska jednostka zarządzająca drogami; wskazano właściwy podmiot.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 4 ust. 3 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.16.2025",
+      "data_odpowiedzi": "2025-02-03",
+      "komorka_merytoryczna": "Wydział Inwestycji Miasta",
+      "wydzialy": [
+        "WIM"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Zestawienie wszystkich inwestycji miejskich z ostatnich 10 lat z kosztami, opóźnieniami i aneksami do umów.",
+      "jaka_odpowiedz": "Informacja wymaga przetworzenia (analiza kilkuset umów) – wezwano wnioskodawcę do wykazania szczególnie istotnego interesu publicznego.",
+      "werdykt": "MOZNA_WARUNKOWO",
+      "forma_zalatwienia": "Pismo wzywające wnioskodawcę (informacja przetworzona – wykazanie szczególnie istotnego interesu publicznego)",
+      "etap_i_podstawa": "Art. 3 ust. 1 pkt 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.17.2025",
+      "data_odpowiedzi": "2025-02-05",
+      "komorka_merytoryczna": "Wydział Inwestycji Miasta",
+      "wydzialy": [
+        "WIM"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Koszt i zakres remontu nawierzchni oraz chodników na ul. Gdańskiej w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono wartość robót (3,6 mln zł), zakres (nawierzchnia jezdni, chodniki, przejścia dla pieszych) i nazwę wykonawcy.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.18.2025",
+      "data_odpowiedzi": "2025-02-10",
+      "komorka_merytoryczna": "Wydział Administracji Budowlanej",
+      "wydzialy": [
+        "WAB"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Kopia pozwolenia na budowę budynku wielorodzinnego przy ul. Szubińskiej wraz z projektem zagospodarowania terenu.",
+      "jaka_odpowiedz": "Udostępniono decyzję i projekt zagospodarowania terenu; zanonimizowano dane inwestora będącego osobą fizyczną i projektanta.",
+      "werdykt": "MOZNA_Z_ANONIMIZACJA",
+      "forma_zalatwienia": "Pismo udostępniające informację po anonimizacji danych osobowych (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 5 ust. 2, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.19.2025",
+      "data_odpowiedzi": "2025-02-10",
+      "komorka_merytoryczna": "Wydział Administracji Budowlanej",
+      "wydzialy": [
+        "WAB"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Liczba pozwoleń na budowę budynków mieszkalnych wielorodzinnych wydanych w latach 2022–2024 z podziałem na lata.",
+      "jaka_odpowiedz": "Udostępniono liczby pozwoleń: 2022 r. – 41, 2023 r. – 37, 2024 r. – 45.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.20.2025",
+      "data_odpowiedzi": "2025-02-11",
+      "komorka_merytoryczna": "Wydział Administracji Budowlanej",
+      "wydzialy": [
+        "WAB"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Pełna dokumentacja projektowa (projekt techniczny) budynku biurowego realizowanego przez prywatnego inwestora.",
+      "jaka_odpowiedz": "Odmówiono udostępnienia projektu technicznego ze względu na tajemnicę przedsiębiorcy zastrzeżoną przez inwestora; udostępniono decyzję o pozwoleniu na budowę.",
+      "werdykt": "NIE_MOZNA_DECYZJA_ODMOWNA",
+      "forma_zalatwienia": "Decyzja administracyjna o odmowie udostępnienia informacji publicznej",
+      "etap_i_podstawa": "Art. 16 ust. 1 w zw. z art. 5 ust. 2 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.21.2025",
+      "data_odpowiedzi": "2025-02-13",
+      "komorka_merytoryczna": "Biuro Komunikacji Społecznej (Urząd nie przekazał wniosku do wydziału)",
+      "wydzialy": [],
+      "podmiot_poza_umb": "Powiatowy Inspektor Nadzoru Budowlanego dla Miasta Bydgoszczy",
+      "wniosek_o_co": "Informacja, czy wszczęto postępowanie w sprawie samowoli budowlanej na sąsiedniej posesji.",
+      "jaka_odpowiedz": "Urząd Miasta nie prowadzi postępowań w sprawie samowoli budowlanej; wskazano organ nadzoru budowlanego.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 4 ust. 3 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.22.2025",
+      "data_odpowiedzi": "2025-02-13",
+      "komorka_merytoryczna": "Wydział Administracji Budowlanej",
+      "wydzialy": [
+        "WAB"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Czy sąsiad otrzymał pozwolenie na rozbudowę domu jednorodzinnego, kiedy wydano decyzję i jakie prace obejmuje.",
+      "jaka_odpowiedz": "Udostępniono datę wydania decyzji i zakres robót (rozbudowa o część mieszkalną); dane osobowe inwestora zanonimizowano.",
+      "werdykt": "MOZNA_Z_ANONIMIZACJA",
+      "forma_zalatwienia": "Pismo udostępniające informację po anonimizacji danych osobowych (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 5 ust. 2, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.23.2025",
+      "data_odpowiedzi": "2025-02-17",
+      "komorka_merytoryczna": "Wydział Administracji Budowlanej",
+      "wydzialy": [
+        "WAB"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Liczba zgłoszeń robót budowlanych dotyczących instalacji fotowoltaicznych i pomp ciepła w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono liczbę zgłoszeń: 312 instalacji fotowoltaicznych i 97 pomp ciepła.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.24.2025",
+      "data_odpowiedzi": "2025-02-18",
+      "komorka_merytoryczna": "Wydział Edukacji i Sportu",
+      "wydzialy": [
+        "WE"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Liczba uczniów i oddziałów w poszczególnych szkołach podstawowych prowadzonych przez Miasto w roku szkolnym 2024/2025.",
+      "jaka_odpowiedz": "Udostępniono w załączniku zestawienie dla 58 szkół podstawowych (łącznie ok. 27 tys. uczniów w 1230 oddziałach).",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.25.2025",
+      "data_odpowiedzi": "2025-02-18",
+      "komorka_merytoryczna": "Wydział Edukacji i Sportu",
+      "wydzialy": [
+        "WE"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Zestawienie przedszkoli miejskich: liczba dzieci, liczba oddziałów i liczba wolnych miejsc.",
+      "jaka_odpowiedz": "Udostępniono w załączniku zestawienie 72 przedszkoli miejskich: liczbę dzieci, oddziałów i wolnych miejsc (łącznie 112).",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.26.2025",
+      "data_odpowiedzi": "2025-02-21",
+      "komorka_merytoryczna": "Wydział Edukacji i Sportu",
+      "wydzialy": [
+        "WE"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Wysokość wynagrodzeń dyrektorów szkół podstawowych prowadzonych przez Miasto w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono wysokość wynagrodzenia zasadniczego i dodatku funkcyjnego dyrektorów jako osób pełniących funkcje publiczne.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.27.2025",
+      "data_odpowiedzi": "2025-02-24",
+      "komorka_merytoryczna": "Wydział Edukacji i Sportu",
+      "wydzialy": [
+        "WE"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Wysokość dotacji dla klubów sportowych w 2024 r. z podziałem na kluby i dyscypliny.",
+      "jaka_odpowiedz": "Udostępniono wykaz 34 klubów sportowych z kwotami dotacji (łącznie 6,8 mln zł) i dyscyplinami.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.28.2025",
+      "data_odpowiedzi": "2025-02-24",
+      "komorka_merytoryczna": "Biuro Komunikacji Społecznej (Urząd nie przekazał wniosku do wydziału)",
+      "wydzialy": [],
+      "podmiot_poza_umb": "Okręgowa Komisja Egzaminacyjna w Gdańsku",
+      "wniosek_o_co": "Średnie wyniki egzaminu ósmoklasisty w poszczególnych szkołach podstawowych w Bydgoszczy.",
+      "jaka_odpowiedz": "Wyniki egzaminów opracowuje i publikuje komisja egzaminacyjna; Urząd nie jest dysponentem – wskazano właściwy podmiot.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 4 ust. 3 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.29.2025",
+      "data_odpowiedzi": "2025-02-26",
+      "komorka_merytoryczna": "Wydział Edukacji i Sportu",
+      "wydzialy": [
+        "WE"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Kopie umów najmu sal gimnastycznych szkół podmiotom zewnętrznym w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono umowy; zanonimizowano dane najemców będących osobami fizycznymi.",
+      "werdykt": "MOZNA_Z_ANONIMIZACJA",
+      "forma_zalatwienia": "Pismo udostępniające informację po anonimizacji danych osobowych (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 5 ust. 2, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.30.2025",
+      "data_odpowiedzi": "2025-03-03",
+      "komorka_merytoryczna": "Wydział Edukacji i Sportu",
+      "wydzialy": [
+        "WE"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Liczba nauczycieli zatrudnionych w szkołach miejskich i liczba wakatów na początku roku szkolnego.",
+      "jaka_odpowiedz": "Udostępniono liczbę etatów nauczycielskich (4120) i liczbę nieobsadzonych stanowisk (86) z podziałem na typy szkół.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.31.2025",
+      "data_odpowiedzi": "2025-02-28",
+      "komorka_merytoryczna": "Wydział Edukacji i Sportu",
+      "wydzialy": [
+        "WE"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Liczba i wysokość stypendiów sportowych przyznanych przez Prezydenta Miasta w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono liczbę stypendiów (148) i łączną kwotę (512 tys. zł) bez danych stypendystów.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.32.2025",
+      "data_odpowiedzi": "2025-03-03",
+      "komorka_merytoryczna": "Wydział Edukacji i Sportu",
+      "wydzialy": [
+        "WE",
+        "WIM"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Koszt remontu hali sportowej przy szkole podstawowej i termin oddania hali do użytku.",
+      "jaka_odpowiedz": "Udostępniono koszt remontu (1,9 mln zł), zakres prac i termin oddania hali do użytku.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.33.2025",
+      "data_odpowiedzi": "2025-03-06",
+      "komorka_merytoryczna": "Wydział Gospodarki Odpadami",
+      "wydzialy": [
+        "WGO"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Liczba złożonych deklaracji o wysokości opłaty za gospodarowanie odpadami komunalnymi i liczba zadeklarowanych mieszkańców.",
+      "jaka_odpowiedz": "Udostępniono liczbę deklaracji (ok. 41 tys.) i liczbę mieszkańców wskazanych w deklaracjach (ok. 289 tys.).",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.34.2025",
+      "data_odpowiedzi": "2025-03-05",
+      "komorka_merytoryczna": "Wydział Gospodarki Odpadami",
+      "wydzialy": [
+        "WGO"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Koszt systemu gospodarowania odpadami komunalnymi w 2024 r. i wysokość stawki opłaty dla mieszkańców.",
+      "jaka_odpowiedz": "Udostępniono koszt systemu (98 mln zł), wpływy z opłat oraz stawkę opłaty od mieszkańca.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.35.2025",
+      "data_odpowiedzi": "2025-03-10",
+      "komorka_merytoryczna": "Wydział Gospodarki Odpadami",
+      "wydzialy": [
+        "WGO"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Ilość odpadów przyjętych przez punkty selektywnej zbiórki odpadów komunalnych (PSZOK) w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono ilość przyjętych odpadów (ok. 6200 ton) z podziałem na frakcje.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.36.2025",
+      "data_odpowiedzi": "2025-03-11",
+      "komorka_merytoryczna": "Wydział Gospodarki Odpadami",
+      "wydzialy": [
+        "WGO",
+        "WW"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Kwota zaległości w opłatach za gospodarowanie odpadami i liczba wystawionych tytułów wykonawczych.",
+      "jaka_odpowiedz": "Udostępniono kwotę zaległości (7,4 mln zł) i liczbę tytułów wykonawczych (ok. 3900).",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.37.2025",
+      "data_odpowiedzi": "2025-03-10",
+      "komorka_merytoryczna": "Wydział Gospodarki Odpadami",
+      "wydzialy": [
+        "WGO"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Kopia umowy z firmą odbierającą odpady komunalne z nieruchomości zamieszkałych.",
+      "jaka_odpowiedz": "Udostępniono umowę wraz z aneksami; zanonimizowano dane pracowników wykonawcy.",
+      "werdykt": "MOZNA_Z_ANONIMIZACJA",
+      "forma_zalatwienia": "Pismo udostępniające informację po anonimizacji danych osobowych (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 5 ust. 2, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.38.2025",
+      "data_odpowiedzi": "2025-03-13",
+      "komorka_merytoryczna": "Wydział Podatków i Opłat Lokalnych",
+      "wydzialy": [
+        "WPL"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Łączna kwota zaległości w podatku od nieruchomości na koniec 2024 r.",
+      "jaka_odpowiedz": "Udostępniono łączną kwotę zaległości (21,3 mln zł) z podziałem na osoby fizyczne i prawne, bez danych podatników.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.39.2025",
+      "data_odpowiedzi": "2025-03-17",
+      "komorka_merytoryczna": "Wydział Podatków i Opłat Lokalnych",
+      "wydzialy": [
+        "WPL"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Kwota umorzeń w podatku od nieruchomości udzielonych przedsiębiorcom w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono łączną kwotę umorzeń (1,8 mln zł) i liczbę decyzji (142); wskazano wykaz publikowany w BIP na podstawie ustawy o finansach publicznych.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.40.2025",
+      "data_odpowiedzi": "2025-03-17",
+      "komorka_merytoryczna": "Wydział Podatków i Opłat Lokalnych",
+      "wydzialy": [
+        "WPL"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Czy wskazany przedsiębiorca ma zaległości w podatku od nieruchomości i w jakiej wysokości.",
+      "jaka_odpowiedz": "Odmówiono udostępnienia – informacja objęta tajemnicą skarbową (ograniczenie z art. 5 ust. 1 UDIP).",
+      "werdykt": "NIE_MOZNA_DECYZJA_ODMOWNA",
+      "forma_zalatwienia": "Decyzja administracyjna o odmowie udostępnienia informacji publicznej",
+      "etap_i_podstawa": "Art. 16 ust. 1 w zw. z art. 5 ust. 1 UDIP; art. 293 Ordynacji podatkowej",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.41.2025",
+      "data_odpowiedzi": "2025-03-18",
+      "komorka_merytoryczna": "Wydział Podatków i Opłat Lokalnych",
+      "wydzialy": [
+        "WPL"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Stawki podatku od nieruchomości obowiązujące w 2025 r.",
+      "jaka_odpowiedz": "Poinformowano, że stawki określa uchwała Rady Miasta opublikowana w Biuletynie Informacji Publicznej i dzienniku urzędowym województwa.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 10 ust. 1 UDIP (informacja udostępniona w BIP)",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.42.2025",
+      "data_odpowiedzi": "2025-03-21",
+      "komorka_merytoryczna": "Wydział Organizacyjno-Administracyjny",
+      "wydzialy": [
+        "WOA"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Wysokość wynagrodzeń (brutto, z nagrodami) Prezydenta Miasta, zastępców, Sekretarza i Skarbnika Miasta za 2024 r.",
+      "jaka_odpowiedz": "Udostępniono roczne wynagrodzenia brutto osób pełniących funkcje publiczne wraz z nagrodami i dodatkami.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.43.2025",
+      "data_odpowiedzi": "2025-03-21",
+      "komorka_merytoryczna": "Wydział Organizacyjno-Administracyjny",
+      "wydzialy": [
+        "WOA"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Liczba samochodów służbowych Urzędu Miasta, wykaz marek i modeli oraz koszt paliwa w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono wykaz 27 pojazdów (marka, model, rok produkcji) i koszt paliwa (186 tys. zł).",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.44.2025",
+      "data_odpowiedzi": "2025-03-24",
+      "komorka_merytoryczna": "Wydział Organizacyjno-Administracyjny",
+      "wydzialy": [
+        "WOA"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Liczba pracowników Urzędu Miasta na koniec 2024 r. i przeciętne wynagrodzenie.",
+      "jaka_odpowiedz": "Udostępniono liczbę etatów (ok. 1640) i przeciętne wynagrodzenie brutto w urzędzie.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.45.2025",
+      "data_odpowiedzi": "2025-03-26",
+      "komorka_merytoryczna": "Wydział Organizacyjno-Administracyjny",
+      "wydzialy": [
+        "WOA"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Kopia akt osobowych i ocen okresowych pracownika wydziału.",
+      "jaka_odpowiedz": "Odmówiono udostępnienia – prywatność osoby fizycznej niepełniącej funkcji publicznej (art. 5 ust. 2 UDIP).",
+      "werdykt": "NIE_MOZNA_DECYZJA_ODMOWNA",
+      "forma_zalatwienia": "Decyzja administracyjna o odmowie udostępnienia informacji publicznej",
+      "etap_i_podstawa": "Art. 16 ust. 1 w zw. z art. 5 ust. 2 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.46.2025",
+      "data_odpowiedzi": "2025-03-26",
+      "komorka_merytoryczna": "Wydział Organizacyjno-Administracyjny",
+      "wydzialy": [
+        "WOA"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Łączna kwota nagród wypłaconych kadrze kierowniczej Urzędu Miasta w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono łączną kwotę nagród i liczbę nagrodzonych osób na stanowiskach kierowniczych.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.47.2025",
+      "data_odpowiedzi": "2025-03-28",
+      "komorka_merytoryczna": "Wydział Organizacyjno-Administracyjny",
+      "wydzialy": [
+        "WOA"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Aktualny regulamin organizacyjny Urzędu Miasta Bydgoszczy.",
+      "jaka_odpowiedz": "Poinformowano, że regulamin organizacyjny jest opublikowany w Biuletynie Informacji Publicznej i wskazano adres strony.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 10 ust. 1 UDIP (informacja udostępniona w BIP)",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.48.2025",
+      "data_odpowiedzi": "2025-03-31",
+      "komorka_merytoryczna": "Wydział Organizacyjno-Administracyjny",
+      "wydzialy": [
+        "WOA"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Wszystkie umowy zlecenia i o dzieło zawarte przez Urząd Miasta w latach 2015–2024 z kwotami i przedmiotem umów.",
+      "jaka_odpowiedz": "Informacja wymaga przetworzenia (kwerenda kilku tysięcy umów) – wezwano do wykazania szczególnie istotnego interesu publicznego.",
+      "werdykt": "MOZNA_WARUNKOWO",
+      "forma_zalatwienia": "Pismo wzywające wnioskodawcę (informacja przetworzona – wykazanie szczególnie istotnego interesu publicznego)",
+      "etap_i_podstawa": "Art. 3 ust. 1 pkt 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.49.2025",
+      "data_odpowiedzi": "2025-03-31",
+      "komorka_merytoryczna": "Wydział Księgowości",
+      "wydzialy": [
+        "WK"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Wydatki Urzędu Miasta na obsługę prawną przez zewnętrzne kancelarie w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono wykaz płatności na rzecz kancelarii prawnych (łącznie 640 tys. zł) z nazwami kancelarii.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.50.2025",
+      "data_odpowiedzi": "2025-04-03",
+      "komorka_merytoryczna": "Wydział Zarządzania Budżetem Miasta",
+      "wydzialy": [
+        "WZB"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Wysokość zadłużenia Miasta Bydgoszczy na koniec 2024 r. i prognoza na kolejne lata.",
+      "jaka_odpowiedz": "Udostępniono kwotę zadłużenia i wskazano wieloletnią prognozę finansową.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.51.2025",
+      "data_odpowiedzi": "2025-04-07",
+      "komorka_merytoryczna": "Wydział Zarządzania Budżetem Miasta",
+      "wydzialy": [
+        "WZB"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Planowane i wykonane wydatki inwestycyjne budżetu Miasta w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono plan i wykonanie wydatków majątkowych z podziałem na działy klasyfikacji budżetowej.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.52.2025",
+      "data_odpowiedzi": "2025-04-07",
+      "komorka_merytoryczna": "Wydział Mienia i Geodezji",
+      "wydzialy": [
+        "WMG"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Wykaz nieruchomości miejskich sprzedanych w przetargach w 2024 r. z cenami sprzedaży.",
+      "jaka_odpowiedz": "Udostępniono wykaz 31 nieruchomości z położeniem, powierzchnią i ceną uzyskaną w przetargu.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.53.2025",
+      "data_odpowiedzi": "2025-04-08",
+      "komorka_merytoryczna": "Wydział Mienia i Geodezji",
+      "wydzialy": [
+        "WMG"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Kopia umowy dzierżawy gruntu miejskiego wykorzystywanego jako parking.",
+      "jaka_odpowiedz": "Udostępniono umowę dzierżawy; zanonimizowano dane dzierżawcy będącego osobą fizyczną.",
+      "werdykt": "MOZNA_Z_ANONIMIZACJA",
+      "forma_zalatwienia": "Pismo udostępniające informację po anonimizacji danych osobowych (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 5 ust. 2, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.54.2025",
+      "data_odpowiedzi": "2025-04-10",
+      "komorka_merytoryczna": "Wydział Mienia i Geodezji",
+      "wydzialy": [
+        "WMG"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Liczba aktualizacji opłat za użytkowanie wieczyste w 2024 r. i wpływy z tych opłat.",
+      "jaka_odpowiedz": "Udostępniono liczbę aktualizacji i roczne wpływy z opłat za użytkowanie wieczyste.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.55.2025",
+      "data_odpowiedzi": "2025-04-10",
+      "komorka_merytoryczna": "Biuro Komunikacji Społecznej (Urząd nie przekazał wniosku do wydziału)",
+      "wydzialy": [],
+      "podmiot_poza_umb": "Sąd Rejonowy w Bydgoszczy – Wydział Ksiąg Wieczystych",
+      "wniosek_o_co": "Kto jest właścicielem wskazanej działki i czy jest obciążona hipoteką.",
+      "jaka_odpowiedz": "Poinformowano, że informacje zawiera księga wieczysta, dostępna w odrębnym trybie (art. 1 ust. 2 UDIP); wskazano wydział ksiąg wieczystych sądu.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 1 ust. 2 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.56.2025",
+      "data_odpowiedzi": "2025-04-14",
+      "komorka_merytoryczna": "Wydział Ochrony Środowiska",
+      "wydzialy": [
+        "WOŚ"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Zezwolenie na usunięcie drzew przy ul. Leśnej: liczba drzew, gatunki i nasadzenia zastępcze.",
+      "jaka_odpowiedz": "Udostępniono decyzję (usunięcie 3 dębów, nasadzenia zastępcze 9 drzew); zanonimizowano dane wnioskodawcy – osoby fizycznej.",
+      "werdykt": "MOZNA_Z_ANONIMIZACJA",
+      "forma_zalatwienia": "Pismo udostępniające informację po anonimizacji danych osobowych (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 5 ust. 2, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.57.2025",
+      "data_odpowiedzi": "2025-04-15",
+      "komorka_merytoryczna": "Wydział Ochrony Środowiska",
+      "wydzialy": [
+        "WOŚ"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Liczba zezwoleń na wycinkę drzew wydanych w 2024 r., liczba usuniętych drzew i nasadzeń zastępczych.",
+      "jaka_odpowiedz": "Udostępniono liczbę zezwoleń (640), liczbę usuniętych drzew (ok. 2900) i nasadzeń zastępczych (ok. 3400).",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.58.2025",
+      "data_odpowiedzi": "2025-04-15",
+      "komorka_merytoryczna": "Wydział Ochrony Środowiska",
+      "wydzialy": [
+        "WOŚ"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Dotacje na wymianę źródeł ciepła (pieców węglowych) w 2024 r.: liczba i kwota.",
+      "jaka_odpowiedz": "Udostępniono liczbę przyznanych dotacji (410) i łączną kwotę (4,1 mln zł).",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.59.2025",
+      "data_odpowiedzi": "2025-04-18",
+      "komorka_merytoryczna": "Biuro Komunikacji Społecznej (Urząd nie przekazał wniosku do wydziału)",
+      "wydzialy": [],
+      "podmiot_poza_umb": "Wojewódzki Inspektorat Ochrony Środowiska w Bydgoszczy",
+      "wniosek_o_co": "Wyniki pomiarów hałasu emitowanego przez zakład przemysłowy przy ul. Przemysłowej.",
+      "jaka_odpowiedz": "Urząd nie posiada pomiarów hałasu tego zakładu; wskazano organ inspekcji ochrony środowiska.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 4 ust. 3 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.60.2025",
+      "data_odpowiedzi": "2025-04-21",
+      "komorka_merytoryczna": "Wydział Ochrony Środowiska",
+      "wydzialy": [
+        "WOŚ"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Koszt programu kastracji i sterylizacji kotów wolno żyjących w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono liczbę zabiegów i łączny koszt programu.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.61.2025",
+      "data_odpowiedzi": "2025-04-21",
+      "komorka_merytoryczna": "Wydział Ochrony Środowiska",
+      "wydzialy": [
+        "WOŚ"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Kopia decyzji o środowiskowych uwarunkowaniach dla inwestycji magazynowej.",
+      "jaka_odpowiedz": "Udostępniono decyzję; zanonimizowano dane osób fizycznych będących stronami postępowania.",
+      "werdykt": "MOZNA_Z_ANONIMIZACJA",
+      "forma_zalatwienia": "Pismo udostępniające informację po anonimizacji danych osobowych (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 5 ust. 2, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.62.2025",
+      "data_odpowiedzi": "2025-04-23",
+      "komorka_merytoryczna": "Wydział Zieleni i Gospodarki Komunalnej",
+      "wydzialy": [
+        "WGK"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Liczba drzew posadzonych przez Miasto w 2024 r. i koszt nasadzeń.",
+      "jaka_odpowiedz": "Udostępniono liczbę nasadzonych drzew (ok. 1850) i koszt (2,3 mln zł).",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.63.2025",
+      "data_odpowiedzi": "2025-04-28",
+      "komorka_merytoryczna": "Wydział Zieleni i Gospodarki Komunalnej",
+      "wydzialy": [
+        "WGK"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Koszt utrzymania parków i zieleńców miejskich w 2024 r. oraz wykonawcy usług.",
+      "jaka_odpowiedz": "Udostępniono koszt utrzymania zieleni z podziałem na rejony i nazwy wykonawców.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.64.2025",
+      "data_odpowiedzi": "2025-04-25",
+      "komorka_merytoryczna": "Wydział Zieleni i Gospodarki Komunalnej",
+      "wydzialy": [
+        "WGK"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Liczba psów i kotów przyjętych do schroniska dla zwierząt w 2024 r. i koszt opieki nad bezdomnymi zwierzętami.",
+      "jaka_odpowiedz": "Udostępniono liczbę przyjętych zwierząt (910 psów, 610 kotów) i budżet schroniska (3,3 mln zł).",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.65.2025",
+      "data_odpowiedzi": "2025-04-28",
+      "komorka_merytoryczna": "Wydział Zieleni i Gospodarki Komunalnej",
+      "wydzialy": [
+        "WGK"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Koszt energii i konserwacji oświetlenia ulicznego oraz liczba punktów świetlnych w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono liczbę punktów świetlnych i koszty energii oraz konserwacji.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.66.2025",
+      "data_odpowiedzi": "2025-05-01",
+      "komorka_merytoryczna": "Biuro Komunikacji Społecznej (Urząd nie przekazał wniosku do wydziału)",
+      "wydzialy": [],
+      "podmiot_poza_umb": "Miejskie Wodociągi i Kanalizacja w Bydgoszczy sp. z o.o.",
+      "wniosek_o_co": "Liczba awarii sieci wodociągowej w 2024 r. i czas ich usuwania.",
+      "jaka_odpowiedz": "Urząd Miasta nie posiada tych danych – sieć eksploatuje miejska spółka wodociągowa; wskazano właściwy podmiot.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 4 ust. 3 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.67.2025",
+      "data_odpowiedzi": "2025-04-30",
+      "komorka_merytoryczna": "Wydział Spraw Obywatelskich",
+      "wydzialy": [
+        "WSO"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Liczba dowodów osobistych wydanych przez Urząd Miasta w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono liczbę wydanych dowodów osobistych z podziałem na miesiące.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.68.2025",
+      "data_odpowiedzi": "2025-05-05",
+      "komorka_merytoryczna": "Biuro Komunikacji Społecznej (Urząd nie przekazał wniosku do wydziału)",
+      "wydzialy": [],
+      "podmiot_poza_umb": "Minister Rozwoju i Technologii (CEIDG)",
+      "wniosek_o_co": "Przyczyny zamknięcia działalności gospodarczych przez przedsiębiorców z Bydgoszczy w 2024 r.",
+      "jaka_odpowiedz": "Urząd nie prowadzi statystyk przyczyn zamknięcia działalności; rejestr CEIDG prowadzi minister właściwy do spraw gospodarki.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 4 ust. 3 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.69.2025",
+      "data_odpowiedzi": "2025-05-06",
+      "komorka_merytoryczna": "Wydział Spraw Obywatelskich",
+      "wydzialy": [
+        "WSO"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Liczba zezwoleń na sprzedaż napojów alkoholowych i liczba punktów sprzedaży alkoholu w mieście.",
+      "jaka_odpowiedz": "Udostępniono liczbę punktów sprzedaży (ok. 1140) i zezwoleń z podziałem na rodzaje.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.70.2025",
+      "data_odpowiedzi": "2025-05-06",
+      "komorka_merytoryczna": "Wydział Spraw Obywatelskich",
+      "wydzialy": [
+        "WSO"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Adres zameldowania wskazanej osoby fizycznej.",
+      "jaka_odpowiedz": "Poinformowano, że dane z rejestru mieszkańców udostępnia się w odrębnym trybie ustawy o ewidencji ludności, po wykazaniu interesu prawnego.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 1 ust. 2 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.71.2025",
+      "data_odpowiedzi": "2025-05-08",
+      "komorka_merytoryczna": "Wydział Spraw Obywatelskich",
+      "wydzialy": [
+        "WSO"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Liczba zgłoszonych zgromadzeń publicznych w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono liczbę zgłoszonych zgromadzeń (96) i liczbę zakazów zgromadzeń.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.72.2025",
+      "data_odpowiedzi": "2025-05-12",
+      "komorka_merytoryczna": "Wydział Spraw Obywatelskich",
+      "wydzialy": [
+        "WSO"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Kopie zawiadomień o zgromadzeniach publicznych w centrum miasta w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono zawiadomienia; zanonimizowano dane organizatorów będących osobami fizycznymi.",
+      "werdykt": "MOZNA_Z_ANONIMIZACJA",
+      "forma_zalatwienia": "Pismo udostępniające informację po anonimizacji danych osobowych (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 5 ust. 2, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.73.2025",
+      "data_odpowiedzi": "2025-05-12",
+      "komorka_merytoryczna": "Wydział Świadczeń Rodzinnych",
+      "wydzialy": [
+        "WSR"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Liczba osób pobierających świadczenia z funduszu alimentacyjnego i kwota wypłat w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono liczbę uprawnionych i łączną kwotę wypłaconych świadczeń.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.74.2025",
+      "data_odpowiedzi": "2025-05-13",
+      "komorka_merytoryczna": "Wydział Świadczeń Rodzinnych",
+      "wydzialy": [
+        "WSR"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Czy wskazana osoba pobiera zasiłek rodzinny i w jakiej wysokości.",
+      "jaka_odpowiedz": "Odmówiono udostępnienia – prywatność osoby fizycznej (art. 5 ust. 2 UDIP).",
+      "werdykt": "NIE_MOZNA_DECYZJA_ODMOWNA",
+      "forma_zalatwienia": "Decyzja administracyjna o odmowie udostępnienia informacji publicznej",
+      "etap_i_podstawa": "Art. 16 ust. 1 w zw. z art. 5 ust. 2 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.75.2025",
+      "data_odpowiedzi": "2025-05-16",
+      "komorka_merytoryczna": "Wydział Uprawnień Komunikacyjnych",
+      "wydzialy": [
+        "WUK"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Liczba zarejestrowanych w mieście samochodów elektrycznych na koniec 2024 r.",
+      "jaka_odpowiedz": "Udostępniono liczbę zarejestrowanych pojazdów elektrycznych i hybrydowych.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.76.2025",
+      "data_odpowiedzi": "2025-05-16",
+      "komorka_merytoryczna": "Biuro Komunikacji Społecznej (Urząd nie przekazał wniosku do wydziału)",
+      "wydzialy": [],
+      "podmiot_poza_umb": "Wojewódzki Ośrodek Ruchu Drogowego w Bydgoszczy",
+      "wniosek_o_co": "Zdawalność egzaminów na prawo jazdy kategorii B w Bydgoszczy.",
+      "jaka_odpowiedz": "Urząd nie przeprowadza egzaminów; wskazano ośrodek egzaminowania.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 4 ust. 3 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.77.2025",
+      "data_odpowiedzi": "2025-05-19",
+      "komorka_merytoryczna": "Wydział Uprawnień Komunikacyjnych",
+      "wydzialy": [
+        "WUK"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Dane właściciela pojazdu o wskazanym numerze rejestracyjnym.",
+      "jaka_odpowiedz": "Poinformowano, że dane z centralnej ewidencji pojazdów udostępnia się w odrębnym trybie ustawy Prawo o ruchu drogowym.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 1 ust. 2 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.78.2025",
+      "data_odpowiedzi": "2025-05-21",
+      "komorka_merytoryczna": "Wydział Windykacji",
+      "wydzialy": [
+        "WW"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Łączna kwota należności Miasta dochodzonych w postępowaniach egzekucyjnych w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono łączną kwotę należności skierowanych do egzekucji i kwotę wyegzekwowaną.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.79.2025",
+      "data_odpowiedzi": "2025-05-21",
+      "komorka_merytoryczna": "Wydział Zamówień Publicznych",
+      "wydzialy": [
+        "WZP"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Przetargi na usługi sprzątania budynków Urzędu w 2024 r.: oferty i ceny.",
+      "jaka_odpowiedz": "Udostępniono informacje z otwarcia ofert: wykonawców i zaoferowane ceny.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.80.2025",
+      "data_odpowiedzi": "2025-05-26",
+      "komorka_merytoryczna": "Wydział Zamówień Publicznych",
+      "wydzialy": [
+        "WZP"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Oferty złożone w przetargu na dostawę sprzętu komputerowego dla szkół.",
+      "jaka_odpowiedz": "Udostępniono oferty z wyłączeniem części zastrzeżonych przez wykonawców jako tajemnica przedsiębiorstwa.",
+      "werdykt": "MOZNA_Z_ANONIMIZACJA",
+      "forma_zalatwienia": "Pismo udostępniające informację po anonimizacji danych osobowych (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 5 ust. 2, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.81.2025",
+      "data_odpowiedzi": "2025-05-26",
+      "komorka_merytoryczna": "Wydział Zamówień Publicznych",
+      "wydzialy": [
+        "WZP"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Umowy na usługi doradcze i eksperckie zawarte przez Urząd w 2024 r. z wartościami.",
+      "jaka_odpowiedz": "Udostępniono wykaz umów: wykonawca, przedmiot i wartość.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.82.2025",
+      "data_odpowiedzi": "2025-05-26",
+      "komorka_merytoryczna": "Wydział Zarządzania Kryzysowego i Ochrony Ludności",
+      "wydzialy": [
+        "WZK"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Wykaz i lokalizacja schronów oraz budowli ochronnych na terenie miasta wraz z ich stanem technicznym.",
+      "jaka_odpowiedz": "Odmówiono udostępnienia w zakresie objętym ochroną informacji niejawnych; poinformowano o publicznie dostępnych miejscach doraźnego schronienia.",
+      "werdykt": "NIE_MOZNA_DECYZJA_ODMOWNA",
+      "forma_zalatwienia": "Decyzja administracyjna o odmowie udostępnienia informacji publicznej",
+      "etap_i_podstawa": "Art. 16 ust. 1 w zw. z art. 5 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.83.2025",
+      "data_odpowiedzi": "2025-05-29",
+      "komorka_merytoryczna": "Wydział Informatyki",
+      "wydzialy": [
+        "WI"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Koszt licencji oprogramowania biurowego i systemów dziedzinowych Urzędu w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono łączny koszt licencji z podziałem na rodzaje oprogramowania.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.84.2025",
+      "data_odpowiedzi": "2025-06-02",
+      "komorka_merytoryczna": "Wydział Informatyki",
+      "wydzialy": [
+        "WI"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Szczegółowa konfiguracja sieci komputerowej i zabezpieczeń systemów informatycznych Urzędu.",
+      "jaka_odpowiedz": "Odmówiono udostępnienia ze względu na bezpieczeństwo systemów teleinformatycznych (tajemnica prawnie chroniona).",
+      "werdykt": "NIE_MOZNA_DECYZJA_ODMOWNA",
+      "forma_zalatwienia": "Decyzja administracyjna o odmowie udostępnienia informacji publicznej",
+      "etap_i_podstawa": "Art. 16 ust. 1 w zw. z art. 5 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.85.2025",
+      "data_odpowiedzi": "2025-06-02",
+      "komorka_merytoryczna": "Wydział Funduszy Europejskich",
+      "wydzialy": [
+        "WF"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Projekty Miasta dofinansowane ze środków Unii Europejskiej w perspektywie 2021–2027 i kwoty dofinansowania.",
+      "jaka_odpowiedz": "Udostępniono wykaz projektów z wartością i kwotą dofinansowania.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.86.2025",
+      "data_odpowiedzi": "2025-06-03",
+      "komorka_merytoryczna": "Biuro ZIT",
+      "wydzialy": [
+        "BZIT"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Projekty realizowane w ramach Zintegrowanych Inwestycji Terytorialnych obszaru metropolitalnego.",
+      "jaka_odpowiedz": "Udostępniono listę projektów ZIT z beneficjentami i stanem realizacji.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.87.2025",
+      "data_odpowiedzi": "2025-06-05",
+      "komorka_merytoryczna": "Biuro Aktywności Społecznej",
+      "wydzialy": [
+        "BAS"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Stan realizacji projektów wybranych w Bydgoskim Budżecie Obywatelskim na 2024 r. i ich koszt.",
+      "jaka_odpowiedz": "Udostępniono wykaz projektów ze statusem (zrealizowany, w trakcie, niezrealizowany) i kosztem.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.88.2025",
+      "data_odpowiedzi": "2025-06-05",
+      "komorka_merytoryczna": "Biuro Aktywności Społecznej",
+      "wydzialy": [
+        "BAS"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Dotacje dla organizacji pozarządowych w otwartych konkursach ofert w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono wykaz organizacji, zadań i kwot dotacji.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.89.2025",
+      "data_odpowiedzi": "2025-06-09",
+      "komorka_merytoryczna": "Biuro Aktywności Społecznej",
+      "wydzialy": [
+        "BAS"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Listy poparcia projektów zgłoszonych do budżetu obywatelskiego.",
+      "jaka_odpowiedz": "Udostępniono listy poparcia po zanonimizowaniu danych osobowych mieszkańców (imion, nazwisk, adresów, podpisów).",
+      "werdykt": "MOZNA_Z_ANONIMIZACJA",
+      "forma_zalatwienia": "Pismo udostępniające informację po anonimizacji danych osobowych (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 5 ust. 2, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.90.2025",
+      "data_odpowiedzi": "2025-06-11",
+      "komorka_merytoryczna": "Biuro Cyfryzacji i Bezpieczeństwa Informacji",
+      "wydzialy": [
+        "BCB"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Liczba naruszeń ochrony danych osobowych zgłoszonych przez Urząd organowi nadzorczemu w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono liczbę zgłoszonych naruszeń i ich rodzaje.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.91.2025",
+      "data_odpowiedzi": "2025-06-10",
+      "komorka_merytoryczna": "Biuro ds. Zdrowia i Polityki Społecznej",
+      "wydzialy": [
+        "BZS"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Wydatki Miasta na program szczepień przeciw HPV i liczba zaszczepionych osób w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono koszt programu i liczbę wykonanych szczepień.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.92.2025",
+      "data_odpowiedzi": "2025-06-13",
+      "komorka_merytoryczna": "Biuro Komunikacji Społecznej (Urząd nie przekazał wniosku do wydziału)",
+      "wydzialy": [],
+      "podmiot_poza_umb": "Miejski Ośrodek Pomocy Społecznej w Bydgoszczy",
+      "wniosek_o_co": "Liczba osób korzystających z zasiłków z pomocy społecznej w 2024 r.",
+      "jaka_odpowiedz": "Urząd Miasta nie jest dysponentem – świadczenia przyznaje miejski ośrodek pomocy społecznej; wskazano właściwy podmiot.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 4 ust. 3 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.93.2025",
+      "data_odpowiedzi": "2025-06-16",
+      "komorka_merytoryczna": "Biuro Konserwatora Zabytków",
+      "wydzialy": [
+        "BKZ"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Dotacje Miasta na prace konserwatorskie przy zabytkach w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono wykaz obiektów objętych dotacją, zakres prac i kwoty.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.94.2025",
+      "data_odpowiedzi": "2025-06-16",
+      "komorka_merytoryczna": "Biuro Komunikacji Społecznej (Urząd nie przekazał wniosku do wydziału)",
+      "wydzialy": [],
+      "podmiot_poza_umb": "Kujawsko-Pomorski Wojewódzki Konserwator Zabytków – Delegatura w Bydgoszczy",
+      "wniosek_o_co": "Czy kamienica przy ul. Gdańskiej jest wpisana do rejestru zabytków i od kiedy.",
+      "jaka_odpowiedz": "Rejestr zabytków prowadzi wojewódzki konserwator zabytków; wskazano właściwy podmiot.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 4 ust. 3 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.95.2025",
+      "data_odpowiedzi": "2025-06-18",
+      "komorka_merytoryczna": "Biuro Kultury Bydgoskiej",
+      "wydzialy": [
+        "BKB"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Dotacje podmiotowe dla miejskich instytucji kultury w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono kwoty dotacji dla poszczególnych instytucji kultury.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.96.2025",
+      "data_odpowiedzi": "2025-06-23",
+      "komorka_merytoryczna": "Biuro Kultury Bydgoskiej",
+      "wydzialy": [
+        "BKB"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Koszt organizacji festiwalu i wydarzeń z okazji Dni Bydgoszczy oraz wykonawcy.",
+      "jaka_odpowiedz": "Udostępniono łączny koszt wydarzeń i wykaz umów z wykonawcami.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.97.2025",
+      "data_odpowiedzi": "2025-06-20",
+      "komorka_merytoryczna": "Biuro Prasowe",
+      "wydzialy": [
+        "BPR"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Umowy zawarte przez Urząd w 2024 r. na promocję miasta w mediach (prasa, radio, telewizja, internet): kontrahent, przedmiot, kwota.",
+      "jaka_odpowiedz": "Udostępniono zestawienie umów medialnych z kontrahentami, przedmiotem i kwotami.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.98.2025",
+      "data_odpowiedzi": "2025-06-23",
+      "komorka_merytoryczna": "Biuro Promocji Miasta i Współpracy z Zagranicą",
+      "wydzialy": [
+        "BP"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Koszt kampanii promocyjnej miasta i wyjazdów do miast partnerskich w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono koszt kampanii i wykaz wyjazdów z kosztami.",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.99.2025",
+      "data_odpowiedzi": "2025-06-26",
+      "komorka_merytoryczna": "Biuro Rady Miasta",
+      "wydzialy": [
+        "BRM"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Wysokość diet wypłaconych poszczególnym radnym Rady Miasta w 2024 r.",
+      "jaka_odpowiedz": "Udostępniono wysokość diet poszczególnych radnych (osoby pełniące funkcje publiczne).",
+      "werdykt": "MOZNA_UDOSTEPNIC",
+      "forma_zalatwienia": "Pismo udostępniające informację (czynność materialno-techniczna)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.100.2025",
+      "data_odpowiedzi": "2025-06-26",
+      "komorka_merytoryczna": "Biuro Komunikacji Społecznej (Urząd nie przekazał wniosku do wydziału)",
+      "wydzialy": [],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Udostępnienie nagrania z sesji Rady Miasta.",
+      "jaka_odpowiedz": "Poinformowano, że nagrania sesji są udostępnione w Biuletynie Informacji Publicznej Rady Miasta.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 10 ust. 1 UDIP (informacja udostępniona w BIP)",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.101.2025",
+      "data_odpowiedzi": "2025-06-30",
+      "komorka_merytoryczna": "Biuro Komunikacji Społecznej (Urząd nie przekazał wniosku do wydziału)",
+      "wydzialy": [],
+      "podmiot_poza_umb": "Zarząd Dróg Miejskich i Komunikacji Publicznej w Bydgoszczy",
+      "wniosek_o_co": "Punktualność kursów linii autobusowej i liczba opóźnionych kursów w 2024 r.",
+      "jaka_odpowiedz": "Urząd Miasta nie posiada danych o punktualności komunikacji miejskiej; wskazano właściwą jednostkę.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 4 ust. 3 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.102.2025",
+      "data_odpowiedzi": "2025-07-01",
+      "komorka_merytoryczna": "Biuro Komunikacji Społecznej (Urząd nie przekazał wniosku do wydziału)",
+      "wydzialy": [],
+      "podmiot_poza_umb": "Miejskie Zakłady Komunikacyjne sp. z o.o. w Bydgoszczy",
+      "wniosek_o_co": "Wynagrodzenia kierowców autobusów i tramwajów komunikacji miejskiej.",
+      "jaka_odpowiedz": "Urząd nie jest pracodawcą kierowców; wskazano miejską spółkę przewozową jako dysponenta informacji.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 4 ust. 3 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.103.2025",
+      "data_odpowiedzi": "2025-07-01",
+      "komorka_merytoryczna": "Biuro Komunikacji Społecznej (Urząd nie przekazał wniosku do wydziału)",
+      "wydzialy": [],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Wniosek o „wszystkie dokumenty w mojej sprawie” bez wskazania, o jaką sprawę chodzi.",
+      "jaka_odpowiedz": "Wezwano wnioskodawcę do doprecyzowania wniosku (wskazania sprawy i rodzaju dokumentów).",
+      "werdykt": "MOZNA_WARUNKOWO",
+      "forma_zalatwienia": "Pismo wzywające do doprecyzowania wniosku",
+      "etap_i_podstawa": "Art. 2 ust. 1, art. 10 ust. 1 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.104.2025",
+      "data_odpowiedzi": "2025-07-03",
+      "komorka_merytoryczna": "Biuro Komunikacji Społecznej (Urząd nie przekazał wniosku do wydziału)",
+      "wydzialy": [],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Prośba o poradę prawną w sporze sąsiedzkim i udostępnienie danych kontaktowych sąsiada.",
+      "jaka_odpowiedz": "Poinformowano, że porada prawna i dane osobowe sąsiada nie są informacją publiczną; wskazano bezpłatną pomoc prawną.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 1 ust. 1, art. 6 UDIP (żądanie nie dotyczy informacji publicznej)",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.105.2025",
+      "data_odpowiedzi": "2025-07-07",
+      "komorka_merytoryczna": "Biuro Komunikacji Społecznej (Urząd nie przekazał wniosku do wydziału)",
+      "wydzialy": [],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Skarga na sposób obsługi w wydziale połączona z żądaniem informacji o ukaraniu pracownika.",
+      "jaka_odpowiedz": "Poinformowano, że skarga podlega rozpatrzeniu w trybie działu VIII KPA, a informacja o odpowiedzialności służbowej pracownika nie jest informacją publiczną.",
+      "werdykt": "NIE_MOZNA_PISMO_INFORMACYJNE",
+      "forma_zalatwienia": "Zwykłe pismo informacyjne (bez wydawania decyzji administracyjnej)",
+      "etap_i_podstawa": "Art. 1 ust. 2 UDIP; art. 227 KPA",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.106.2025",
+      "data_odpowiedzi": "2025-07-07",
+      "komorka_merytoryczna": "Wydział Organizacyjno-Administracyjny",
+      "wydzialy": [
+        "WOA"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Kopie nagrań z monitoringu wizyjnego budynku Urzędu na wskazanym nośniku.",
+      "jaka_odpowiedz": "Powiadomiono o braku możliwości udostępnienia w żądanej formie i wskazano inną formę; wnioskodawca nie odpowiedział w terminie 14 dni – postępowanie umorzono.",
+      "werdykt": "NIE_MOZNA_UMORZENIE_DECYZJA",
+      "forma_zalatwienia": "Decyzja administracyjna o umorzeniu postępowania",
+      "etap_i_podstawa": "Art. 14 ust. 2 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.107.2025",
+      "data_odpowiedzi": "2025-07-08",
+      "komorka_merytoryczna": "Wydział Mienia i Geodezji",
+      "wydzialy": [
+        "WMG"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Mapy zasobu nieruchomości miejskich w nietypowym formacie pliku wskazanym przez wnioskodawcę.",
+      "jaka_odpowiedz": "Powiadomiono, że udostępnienie w żądanym formacie nie jest możliwe; brak odpowiedzi wnioskodawcy w terminie – umorzenie postępowania.",
+      "werdykt": "NIE_MOZNA_UMORZENIE_DECYZJA",
+      "forma_zalatwienia": "Decyzja administracyjna o umorzeniu postępowania",
+      "etap_i_podstawa": "Art. 14 ust. 2 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.108.2025",
+      "data_odpowiedzi": "2025-07-11",
+      "komorka_merytoryczna": "Wydział Inwestycji Miasta",
+      "wydzialy": [
+        "WIM"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Wniosek o udostępnienie umów inwestycyjnych, w sprawie zakończonej decyzją, bez podpisu wnioskodawcy.",
+      "jaka_odpowiedz": "Wnioskodawca nie usunął braku formalnego (podpisu) w wyznaczonym terminie – wniosek pozostawiono bez rozpoznania.",
+      "werdykt": "POZOSTAWIENIE_BEZ_ROZPOZNANIA",
+      "forma_zalatwienia": "Pismo o pozostawieniu wniosku bez rozpoznania",
+      "etap_i_podstawa": "Art. 64 § 2 KPA w zw. z art. 16 ust. 2 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    },
+    {
+      "sygnatura": "BKS.IV.1431.109.2025",
+      "data_odpowiedzi": "2025-07-11",
+      "komorka_merytoryczna": "Wydział Administracji Budowlanej",
+      "wydzialy": [
+        "WAB"
+      ],
+      "podmiot_poza_umb": "",
+      "wniosek_o_co": "Odwołanie od odmowy udostępnienia dokumentacji budowlanej złożone bez danych umożliwiających doręczenie.",
+      "jaka_odpowiedz": "Wnioskodawca nie uzupełnił adresu do doręczeń mimo wezwania – wniosek pozostawiono bez rozpoznania.",
+      "werdykt": "POZOSTAWIENIE_BEZ_ROZPOZNANIA",
+      "forma_zalatwienia": "Pismo o pozostawieniu wniosku bez rozpoznania",
+      "etap_i_podstawa": "Art. 64 § 2 KPA w zw. z art. 16 ust. 2 UDIP",
+      "historia": [
+        {
+          "kiedy": "2026-11-22T00:00:00",
+          "kto": "generator",
+          "zmiana": "dodano (sprawa przykładowa, fikcyjna – skrypty/archiwum_przykladowe.py)",
+          "pola": {}
+        }
+      ]
+    }
+  ]
+}

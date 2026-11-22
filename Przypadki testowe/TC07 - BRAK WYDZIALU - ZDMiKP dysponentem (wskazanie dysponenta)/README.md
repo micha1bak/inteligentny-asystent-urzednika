@@ -1,6 +1,6 @@
 # TC07 - BRAK WYDZIALU - ZDMiKP dysponentem (wskazanie dysponenta)
 
-Żądane dane posiada miejska jednostka organizacyjna (ZDMiKP), a nie Urząd Miasta. Wniosku nie przekazuje się do wydziału – BKS od razu informuje wnioskodawcę o właściwym dysponencie (jak BKS.IV.1431.17.2026).
+Żądane dane posiada miejska jednostka organizacyjna (ZDMiKP), a nie Urząd Miasta. Wniosku nie przekazuje się do wydziału – BKS od razu informuje wnioskodawcę o właściwym dysponencie (jak BKS.IV.1431.3.2026).
 
 - Numer sprawy: `BKS.IV.1431.707.2026`, wpływ: 2026-11-12
 - Wnioskodawca: Krzysztof Jankowski (zwrot: pan)
@@ -21,5 +21,5 @@
 
 - Brak wydziału UMB do wysłania prośby; aplikacja wskazuje podmiot_poza_umb = ZDMiKP.
 - WUK (transport) NIE jest poprawnym wyborem – uprawnienia komunikacyjne to prawa jazdy i rejestracja pojazdów.
-- Wzór: UMB nie jest dysponentem informacji – z danymi kontaktowymi ZDMiKP (jak w BKS.IV.1431.17.2026).
+- Wzór: UMB nie jest dysponentem informacji – z danymi kontaktowymi ZDMiKP (jak w BKS.IV.1431.3.2026).
 - Odpowiedź może być wysłana od razu, bez czekania na wydział (krótki czas obsługi).

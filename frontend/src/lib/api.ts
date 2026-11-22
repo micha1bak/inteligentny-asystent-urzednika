@@ -218,6 +218,11 @@ export const PUSTA_SPRAWA: Sprawa = {
 
 const JSON_NAGLOWKI = { 'Content-Type': 'application/json' };
 
+/** Przywraca początkowy stan archiwum spraw (9 prawdziwych + 100 przykładowych). */
+export async function przywrocArchiwumApi(): Promise<{ liczba_spraw: number }> {
+  return (await wyslij('/api/archiwum/przywroc', { method: 'POST' })).json();
+}
+
 export async function pobierzArchiwum(sygnal?: AbortSignal): Promise<Archiwum> {
   return (await wyslij('/api/archiwum', { signal: sygnal })).json();
 }

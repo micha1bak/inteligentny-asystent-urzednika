@@ -87,11 +87,11 @@ export default function Wnioski() {
   }, [wiersze, tylkoPilne, tylkoMoje, mojeId, pokazWyslane, fraza]);
 
   async function resetujDane(potwierdz: boolean) {
-    if (potwierdz && !confirm('Usunąć obecne wnioski i wczytać dane testowe?')) return;
+    if (potwierdz && !confirm('Usunąć obecne wnioski, wczytać dane testowe i przywrócić początkowe archiwum spraw (zmiany w archiwum zostaną utracone)?')) return;
     setTrwaReset(true);
     setBladAkcji('');
     try {
-      await przywrocDaneTestowe();
+      await przywrocDaneTestowe(potwierdz);
     } catch (e) {
       setBladAkcji(e instanceof Error ? e.message : String(e));
     } finally {

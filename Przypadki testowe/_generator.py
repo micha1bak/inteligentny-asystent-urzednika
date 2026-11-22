@@ -220,7 +220,7 @@ Tomasz Wiśniewski
     alternatywy=[],
     niepoprawne=["WPL"],
     uzasadnienie="Deklaracje o wysokości opłaty za gospodarowanie odpadami komunalnymi i liczba zadeklarowanych "
-                 "mieszkańców to dane prowadzone przez Wydział Gospodarki Odpadami (por. sprawa BKS.IV.1431.18.2026).",
+                 "mieszkańców to dane prowadzone przez Wydział Gospodarki Odpadami (por. sprawa BKS.IV.1431.5.2026).",
     data_odpowiedzi_wydzialu=date(2026, 11, 9),
     odpowiedz_wydzialu=[
         *naglowek_wydzialu("Wydział Gospodarki Odpadami", date(2026, 11, 9), "WGO.1431.48.2026", "BKS.IV.1431.701.2026"),
@@ -304,7 +304,7 @@ tel. 698 765 432
     alternatywy=[],
     niepoprawne=["BZS"],
     uzasadnienie="Przedszkola prowadzone przez Miasto, liczba dzieci i oddziałów to sprawy oświaty – Wydział Edukacji "
-                 "i Sportu (por. sprawy BKS.IV.1431.307.2025 i 599.2026 o liczbie uczniów).",
+                 "i Sportu (por. sprawy BKS.IV.1431.1.2025 i 599.2026 o liczbie uczniów).",
     data_odpowiedzi_wydzialu=date(2026, 11, 10),
     odpowiedz_wydzialu=[
         *naglowek_wydzialu("Wydział Edukacji i Sportu", date(2026, 11, 10), "WE.1431.112.2026", "BKS.IV.1431.702.2026"),
@@ -372,7 +372,7 @@ Piotr Zając
     alternatywy=["WZP"],
     niepoprawne=["WAB"],
     uzasadnienie="Inwestycja drogowa realizowana przez Miasto – umowę z wykonawcą, aneksy, terminy i kary umowne "
-                 "prowadzi Wydział Inwestycji Miasta (por. sprawa BKS.IV.1431.590.2026). WZP dopuszczalny jako druga "
+                 "prowadzi Wydział Inwestycji Miasta (por. sprawa BKS.IV.1431.8.2026). WZP dopuszczalny jako druga "
                  "jednostka (umowa z wykonawcą po przetargu).",
     data_odpowiedzi_wydzialu=date(2026, 11, 12),
     odpowiedz_wydzialu=[
@@ -434,7 +434,7 @@ PRZYPADKI.append(Przypadek(
     data_wplywu=date(2026, 11, 6),
     temat="Przyczyny zamknięcia działalności gospodarczych w 2025 r.",
     opis="Wniosek trafia do właściwego wydziału, ale urząd nie prowadzi takich danych. Odpowiedź: pismo "
-         "informacyjne „urząd nie prowadzi statystyk” (wzór jak BKS.IV.1431.16.2026).",
+         "informacyjne „urząd nie prowadzi statystyk” (wzór jak BKS.IV.1431.4.2026).",
     wnioskodawca="Joanna Malinowska",
     forma="pani",
     adresat=["Pani", "Joanna Malinowska", "j.malinowska@skrzynka-przyklad.pl"],
@@ -452,7 +452,7 @@ j.malinowska@skrzynka-przyklad.pl
     alternatywy=[],
     niepoprawne=["WPL", "WW"],
     uzasadnienie="Sprawy działalności gospodarczej (CEIDG) prowadzi Wydział Spraw Obywatelskich (por. sprawa "
-                 "BKS.IV.1431.16.2026).",
+                 "BKS.IV.1431.4.2026).",
     data_odpowiedzi_wydzialu=date(2026, 11, 10),
     odpowiedz_wydzialu=[
         *naglowek_wydzialu("Wydział Spraw Obywatelskich", date(2026, 11, 10), "WSO.1431.39.2026", "BKS.IV.1431.704.2026"),
@@ -663,7 +663,7 @@ PRZYPADKI.append(Przypadek(
     data_wplywu=date(2026, 11, 12),
     temat="Punktualność kursów linii autobusowej nr 69",
     opis="Żądane dane posiada miejska jednostka organizacyjna (ZDMiKP), a nie Urząd Miasta. Wniosku nie przekazuje "
-         "się do wydziału – BKS od razu informuje wnioskodawcę o właściwym dysponencie (jak BKS.IV.1431.17.2026).",
+         "się do wydziału – BKS od razu informuje wnioskodawcę o właściwym dysponencie (jak BKS.IV.1431.3.2026).",
     wnioskodawca="Krzysztof Jankowski",
     forma="pan",
     adresat=["Pan", "Krzysztof Jankowski", "k.jankowski@poczta-przyklad.pl"],
@@ -696,7 +696,7 @@ tel. 723 456 789
     kryteria=[
         "Brak wydziału UMB do wysłania prośby; aplikacja wskazuje podmiot_poza_umb = ZDMiKP.",
         "WUK (transport) NIE jest poprawnym wyborem – uprawnienia komunikacyjne to prawa jazdy i rejestracja pojazdów.",
-        "Wzór: UMB nie jest dysponentem informacji – z danymi kontaktowymi ZDMiKP (jak w BKS.IV.1431.17.2026).",
+        "Wzór: UMB nie jest dysponentem informacji – z danymi kontaktowymi ZDMiKP (jak w BKS.IV.1431.3.2026).",
         "Odpowiedź może być wysłana od razu, bez czekania na wydział (krótki czas obsługi).",
     ],
 ))

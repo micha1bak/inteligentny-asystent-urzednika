@@ -1,6 +1,6 @@
 # TC04 - WSO - CEIDG brak statystyk (brak danych)
 
-Wniosek trafia do właściwego wydziału, ale urząd nie prowadzi takich danych. Odpowiedź: pismo informacyjne „urząd nie prowadzi statystyk” (wzór jak BKS.IV.1431.16.2026).
+Wniosek trafia do właściwego wydziału, ale urząd nie prowadzi takich danych. Odpowiedź: pismo informacyjne „urząd nie prowadzi statystyk” (wzór jak BKS.IV.1431.4.2026).
 
 - Numer sprawy: `BKS.IV.1431.704.2026`, wpływ: 2026-11-06
 - Wnioskodawca: Joanna Malinowska (zwrot: pani)

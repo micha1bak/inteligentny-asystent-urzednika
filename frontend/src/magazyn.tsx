@@ -6,6 +6,7 @@ import {
   dodajWniosekApi,
   dodajWnioskiWsadowoApi,
   pobierzWnioski,
+  przywrocArchiwumApi,
   usunWniosekApi,
   zastapWnioskiApi,
   zatwierdzOdpowiedzApi,
@@ -28,7 +29,8 @@ interface Magazyn {
   /** podmienia wniosek w stanie po zmianie zapisanej osobnym wywołaniem API (np. odpowiedzi wydziałów) */
   podmienWniosek: (w: Wniosek) => void;
   nastepnyNumer: (rok: string, przesuniecie?: number) => string;
-  przywrocDaneTestowe: () => Promise<void>;
+  /** zArchiwum – także początkowy stan archiwum spraw (przycisk „Przywróć dane testowe”) */
+  przywrocDaneTestowe: (zArchiwum?: boolean) => Promise<void>;
 }
 
 const KLUCZ_INIT = 'asystent-urzednika.sqlite-zainicjalizowano';
@@ -118,8 +120,9 @@ export function DostawcaMagazynu({ children }: { children: ReactNode }) {
     setWnioski((prev) => prev.filter((x) => x.id !== id));
   }, []);
 
-  const przywrocDaneTestowe = useCallback(async () => {
+  const przywrocDaneTestowe = useCallback(async (zArchiwum = false) => {
     setBlad('');
+    if (zArchiwum) await przywrocArchiwumApi();
     const zapisane = await zastapWnioskiApi(wnioskiTestowe(dzisIso()));
     setWnioski(zapisane);
     try {

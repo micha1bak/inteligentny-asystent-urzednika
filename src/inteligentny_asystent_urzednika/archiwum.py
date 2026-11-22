@@ -237,6 +237,21 @@ def zapisz_lub_aktualizuj(
         return SprawaZArchiwum.model_validate(nowa), False
 
 
+def przywroc(plik: Path, wzorzec: Path) -> int:
+    """Zastępuje archiwum jego stanem początkowym (`wzorzec`). Zwraca liczbę spraw po przywróceniu."""
+    try:
+        dane = wczytaj(wzorzec)
+        for s in dane["sprawy"]:
+            SprawaZArchiwum.model_validate(s)
+    except FileNotFoundError as e:
+        raise BladArchiwum(f"Brak pliku z początkowym stanem archiwum ({wzorzec.name}).", 500) from e
+    except (ValueError, KeyError, TypeError) as e:
+        raise BladArchiwum(f"Plik z początkowym stanem archiwum ({wzorzec.name}) jest uszkodzony.", 500) from e
+    with _blokada:
+        _zapisz(plik, dane)
+    return len(dane["sprawy"])
+
+
 def usun(plik: Path, sygnatura: str) -> None:
     with _blokada:
         dane = wczytaj(plik)

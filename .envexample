@@ -3,7 +3,7 @@ GROQ_API_KEY=
 # Model Groq (domyślnie openai/gpt-oss-120b)
 GROQ_MODEL=openai/gpt-oss-120b
 # wybrany – streszczenie algorytmu oceny + fragmenty matrycy i archiwum dopasowane do wniosku (~4 tys. tokenów, mieści się w darmowym planie)
-# pelny   – cały model oceny prawnej i całe archiwum (~23 tys. tokenów, wymaga płatnego planu Groq)
+# pelny   – cały model oceny prawnej i całe archiwum (~53 tys. tokenów przy 109 sprawach, wymaga płatnego planu Groq)
 KONTEKST_PRAWNY=wybrany
 # Limit tokenów na minutę planu Groq (darmowy: 8000) – zapytanie jest przycinane, żeby się zmieścić
 GROQ_LIMIT_TPM=8000
