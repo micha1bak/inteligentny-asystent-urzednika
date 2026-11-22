@@ -18,7 +18,7 @@ Wsparcie obsługi wniosków o dostęp do informacji publicznej w Urzędzie Miast
 | Wgrywanie plików PDF / Word | „Dodaj wniosek” (wiele plików naraz), odczyt Word i PDF lokalnie; skany i pismo odręczne – model wizyjny |
 | Kalendarz wniosków | tabela + widok miesiąca, sortowanie wg daty wpływu rosnąco, Lp., nr, temat, inicjały, data wpływu, termin (z dniami wolnymi), data odpowiedzi, wybór roku; podświetlenie: po terminie, termin dziś, termin w następny dzień roboczy |
 | Statusy na każdym kroku | brak działań → zapytania do wydziałów (po oznaczeniu wysłania prośby) → kwerenda + dni → odpowiedź przygotowana (po zatwierdzeniu pisma) → odpowiedź wysłana + data |
-| Podobne wnioski z ostatniego roku / przeszukiwanie archiwum | karta „Podobne sprawy i wnioski” po wgraniu i w szczegółach sprawy (TF-IDF, lokalnie) |
+| Podobne wnioski z ostatniego roku / przeszukiwanie archiwum | karta „Podobne sprawy i wnioski” po wgraniu i w szczegółach sprawy (TF-IDF, lokalnie), z wydziałami, do których przekazano podobne sprawy |
 | Wskazywanie ścieżki – wydziały z BIP | karta „Zapytanie do wydziału”: 3 propozycje jednostek z uzasadnieniem, wybór urzędnika, treść prośby wg Zarządzenia 535/2024 |
 | Odpowiedzi z wydziałów → projekt pisma | karta „Odpowiedzi z wydziałów” (wgranie PDF/Word), model opiera na nich pola pisma; pismo składa kod ze wzorów BKS |
 | Anonimizacja (szare → czarne po akceptacji) | w podglądzie pisma (tryb anonimizacji) i na stronie „Anonimizacja dokumentu”; wykrywanie lokalne (imiona i nazwiska, adresy, PESEL, NIP, dowód, telefon, e-mail, konto); ukryte dane nie trafiają do pliku |
@@ -125,6 +125,13 @@ nieaktualne (model ich wtedy nie używa) i usuwa. Nową sprawę dodaje ręcznie 
 odpowiedź. Model proponuje wtedy wpis, a urzędnik go poprawia i zatwierdza. Przy wniosku ze statusem „Odpowiedź wysłana” w kalendarzu
 jest link „Dodaj do archiwum”, który przenosi treść wniosku, sygnaturę i datę odpowiedzi.
 
+- każda sprawa ma pole `wydzialy` – symbole jednostek UMB (`zasoby/wydzialy.json`), do których przekazano wniosek
+  (pusta lista: nie przekazano, np. Urząd nie posiada informacji) – i `podmiot_poza_umb` (dysponent spoza Urzędu
+  wskazany wnioskodawcy); po zatwierdzeniu odpowiedzi na wniosek wydziały są brane z wgranych odpowiedzi wydziałów,
+  a propozycja wydziału dla nowego wniosku korzysta z nich jako z przykładów przydziału,
+- podobieństwo spraw (0–100%) to pokrycie słów sprawy i wniosku z wagami TF-IDF; słowa wniosku nieobecne w archiwum
+  (nazwiska, adresy, zwroty grzecznościowe) nie zaniżają wyniku – ta sama sprawa daje zwykle 50–80%, sprawa o podobnym
+  temacie 20–40%; od 45% wynik jest oznaczony jako „bardzo podobna”,
 - zmiany są zapisywane w `werdykty_wniosek_odpowiedz_dip.json` (zapis atomowy) razem z historią: kto, kiedy,
   które pola (przed → po); plik nadal można edytować ręcznie, a backend wczytuje go ponownie po każdej zmianie,
 - przed zapisem backend sprawdza werdykt (musi być w słowniku) i blokuje dane osobowe o jednoznacznym formacie
