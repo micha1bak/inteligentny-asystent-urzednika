@@ -45,6 +45,22 @@ describe('metadane z treści', () => {
     expect(m.wnioskodawca).toBe('Monika Testowa');
     expect(m.kontakt).toBe('monika@example.com');
   });
+
+  it('pomija zwrot wprowadzający i numerację punktów (np. TC01, TC05)', () => {
+    const tc01 = wyciagnijMetadane(
+      'Na podstawie art. 2 ust. 1 ustawy zwracam się z prośbą o udostępnienie następujących informacji:\n' +
+        '1. liczby deklaracji o wysokości opłaty za gospodarowanie odpadami komunalnymi złożonych dla nieruchomości zamieszkałych.\n' +
+        '2. łącznej liczby mieszkańców.',
+    );
+    expect(tc01.temat).toMatch(/^Liczby deklaracji o wysokości opłaty za gospodarowanie odpadami/);
+
+    const tc05 = wyciagnijMetadane(
+      'Na podstawie ustawy o dostępie do informacji publicznej proszę o:\n' +
+        '1. podanie liczby samochodów służbowych będących w dyspozycji Urzędu Miasta Bydgoszczy,\n' +
+        '2. wykaz tych samochodów.',
+    );
+    expect(tc05.temat).toMatch(/^Liczby samochodów służbowych będących w dyspozycji/);
+  });
 });
 
 describe('formaty plików', () => {

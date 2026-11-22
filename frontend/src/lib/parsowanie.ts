@@ -52,15 +52,15 @@ export function wyciagnijMetadane(tekst: string): Metadane {
 
 // Od najbardziej do najmniej charakterystycznych zwrotów, którymi wnioskodawcy zapowiadają przedmiot wniosku.
 const ZWROTY_TEMATU = [
-  /w zakresie\s*:?\s*([^.?!]{10,})/i,
+  /w zakresie\s*:?\s*(?:1[.)]\s*|[-–•]\s*)?([^.?!]{10,})/i,
   /na temat\s+([^.?!]{10,})/i,
-  /informacji publicznej\s*:\s*([^.?!]{10,})/i,
+  /informacji publicznej\s*:\s*(?:1[.)]\s*|[-–•]\s*)?([^.?!]{10,})/i,
   /zapytać\s+(?:o to\s*,?\s*)?([^.?!]{10,})/i,
-  /(?:wnosz[eę]|wnosi(?:my)?|prosz[eę]|prosimy|prośbą)\s+o\s+(?!(?:przes|przys)[łl]anie\s+(?:pocztą|na adres|odpowiedzi))(?:udostępnienie\s+|przesłanie\s+)?(?:informacj[ięa]\s+)?(?:o\s+)?([^.?!]{10,})/i,
+  /(?:wnosz[eę]|wnosi(?:my)?|prosz[eę]|prosimy|prośbą)\s+o\s*:?\s*(?!(?:przes|przys)[łl]anie\s+(?:pocztą|na adres|odpowiedzi))(?:udostępnienie\s+|przesłanie\s+|udzielenie\s+|podanie\s+)?(?:w\s+trybie\s+(?:ustawy\s+o\s+dostępie\s+do\s+)?informacji\s+publicznej\s+)?(?:(?:następujących|poniższych)\s+)?(?:informacj[ięa]|danych)?(?:\s+publiczn(?:ej|ych))?(?:\s+dotyczących|\s+o(?:\s+tym)?)?[\s,:–-]*(?:1[.)]\s*|[-–•]\s*)?(?:podanie\s+)?([^.?!]{10,})/i,
 ];
 const POWITANIE = /^(dzień dobry|szanowni|szanowny|szanowna|wniosek o|biuro|urząd)/i;
 
-// Skróty z kropką, które nie kończą zdania (np. „inwestycji pn. Budowa…”, „ul. Gdańskiej”).
+// Skróty z kropką, które nie kończą zdania (np. „inwestycji pn. Budowa…”, „ul. Gdańskiej”, „2026 r.”).
 const SKROTY = /\b(pn|ul|al|os|nr|im|tj|ok|godz|zm|poz|ust|pkt|art|dz|sp|św)\./gi;
 const ZASLONA = '․'; // kropka zastępcza, przywracana na końcu
 
@@ -74,7 +74,7 @@ function wyciagnijTematZaslonieta(tekst: string): string {
   for (const wzorzec of ZWROTY_TEMATU) {
     const m = plaski.match(wzorzec);
     if (m) {
-      zdanie = m[1].trim();
+      zdanie = m[1].replace(/^[\s,:;–-]+/, '').replace(/[,;:\s]+$/, '').trim();
       break;
     }
   }
@@ -85,6 +85,9 @@ function wyciagnijTematZaslonieta(tekst: string): string {
         .map((s) => s.trim())
         .find((s) => s.split(' ').length >= 5 && !POWITANIE.test(s)) ?? plaski.slice(0, 120);
   }
-  const krotko = zdanie.length > 90 ? zdanie.slice(0, 90).replace(/\s+\S*$/, '') + '…' : zdanie;
+  const krotko =
+    zdanie.length > 90
+      ? zdanie.slice(0, 90).replace(/\s+\S*$/, '').replace(/[,;:\s]+$/, '') + '…'
+      : zdanie;
   return krotko.charAt(0).toUpperCase() + krotko.slice(1);
 }

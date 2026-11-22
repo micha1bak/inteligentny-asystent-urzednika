@@ -196,6 +196,22 @@ function WidokSzczegolow({
 
   const gotowe = !!dane.numer.trim() && !!dane.dataWplywu && !!dane.temat.trim() && !duplikat;
 
+  useEffect(() => {
+    if (!zmieniono) return;
+    const przedZamknieciem = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener('beforeunload', przedZamknieciem);
+    return () => window.removeEventListener('beforeunload', przedZamknieciem);
+  }, [zmieniono]);
+
+  function wrocDoListy() {
+    if (zmieniono && !confirm('Masz niezapisane zmiany w danych wniosku. Czy na pewno chcesz opuścić stronę bez zapisywania?')) {
+      return;
+    }
+    nav('/');
+  }
+
   const sekcjaDaneRef = useRef<HTMLDivElement>(null);
   const sekcjaZapytanieRef = useRef<HTMLDivElement>(null);
   const sekcjaOdpowiedziRef = useRef<HTMLDivElement>(null);
@@ -309,7 +325,7 @@ function WidokSzczegolow({
     <>
       <div className="rzad rozsun" style={{ marginBottom: 18 }}>
         <div className="rzad">
-          <Link className="przycisk maly-p" to="/">← Wnioski</Link>
+          <button type="button" className="maly-p" onClick={wrocDoListy}>← Wnioski</button>
           <h1 style={{ margin: 0 }}>{dane.numer || 'Szczegóły wniosku'}</h1>
           <ZnaczekStatusu status={dane.status} dniKwerendy={dane.status === 'kwerenda' ? dane.dniKwerendy : undefined} />
           <Pozostalo pilnosc={ocenaTerminu.pilnosc} pozostalo={ocenaTerminu.pozostalo} />
@@ -437,8 +453,13 @@ function WidokSzczegolow({
                 )}
               </div>
             </div>
-            {blad && <div className="blad" style={{ marginTop: 12 }}>{blad}</div>}
-            {info && <div className="info" style={{ marginTop: 12 }}>{info}</div>}
+            {zmieniono && !blad && (
+              <div className="uwaga" role="status" style={{ marginTop: 12 }}>
+                Masz niezapisane zmiany w danych wniosku — kliknij <strong>„Zapisz zmiany”</strong>, aby je zachować.
+              </div>
+            )}
+            {blad && <div className="blad" role="alert" style={{ marginTop: 12 }}>{blad}</div>}
+            {info && <div className="sukces" role="status" aria-live="polite" style={{ marginTop: 12 }}>✓ {info}</div>}
             <div className="rzad" style={{ marginTop: 14 }}>
               <button className="glowny" disabled={trwaZapis || !gotowe || !zmieniono} onClick={() => void zapisz()}>
                 {trwaZapis ? 'Zapisywanie…' : 'Zapisz zmiany'}
