@@ -9,18 +9,18 @@ import { Pozostalo, ZnaczekStatusu } from '../components/Znaczki';
 import type { ZWniosku } from './NowaSprawaArchiwum';
 
 type Wiersz = Wniosek & { lp: number; termin: string; pozostalo: number; pilnosc: Pilnosc };
-type Sortowanie = 'data_rosnaco' | 'data_malejaco' | 'termin';
+type Sortowanie = 'data_rosnaco' | 'data_malejaco' | 'termin_rosnaco' | 'termin_malejaco';
 
 const PILNE: Pilnosc[] = ['po_terminie', 'dzis', 'jutro'];
 
 function porownajWiersze(sortowanie: Sortowanie) {
   return (a: Omit<Wiersz, 'lp'>, b: Omit<Wiersz, 'lp'>): number => {
     if (sortowanie === 'data_malejaco') return -porownajWgDatyWplywu(a, b);
-    if (sortowanie === 'termin') {
-      const aKoniec = a.status === 'odpowiedz_wyslana' ? 1 : 0;
-      const bKoniec = b.status === 'odpowiedz_wyslana' ? 1 : 0;
-      if (aKoniec !== bKoniec) return aKoniec - bKoniec;
-      return a.pozostalo - b.pozostalo || porownajWgDatyWplywu(a, b);
+    if (sortowanie === 'termin_rosnaco') {
+      return a.termin.localeCompare(b.termin) || porownajWgDatyWplywu(a, b);
+    }
+    if (sortowanie === 'termin_malejaco') {
+      return b.termin.localeCompare(a.termin) || -porownajWgDatyWplywu(a, b);
     }
     return porownajWgDatyWplywu(a, b);
   };
@@ -163,7 +163,8 @@ export default function Wnioski() {
               >
                 <option value="data_rosnaco">Data wpływu (od najstarszych)</option>
                 <option value="data_malejaco">Data wpływu (od najnowszych)</option>
-                <option value="termin">Termin odpowiedzi (najpilniejsze)</option>
+                <option value="termin_rosnaco">Termin odpowiedzi (od najwcześniejszych)</option>
+                <option value="termin_malejaco">Termin odpowiedzi (od najpóźniejszych)</option>
               </select>
             </label>
             <button className="maly-p" onClick={przelaczWyslane} aria-pressed={!pokazWyslane}
@@ -227,6 +228,10 @@ function Tabela({
     onZmienSortowanie(sortowanie === 'data_rosnaco' ? 'data_malejaco' : 'data_rosnaco');
   }
 
+  function przelaczSortTerminu() {
+    onZmienSortowanie(sortowanie === 'termin_rosnaco' ? 'termin_malejaco' : 'termin_rosnaco');
+  }
+
   return (
     <div style={{ overflowX: 'auto' }}>
       <table>
@@ -250,10 +255,10 @@ function Tabela({
               <button
                 type="button"
                 className="naglowek-sort"
-                onClick={() => onZmienSortowanie('termin')}
-                title="Sortuj według najpilniejszego terminu odpowiedzi"
+                onClick={przelaczSortTerminu}
+                title="Kliknij, aby zmienić kolejność sortowania według terminu odpowiedzi"
               >
-                Termin {sortowanie === 'termin' ? '↑' : '↕'}
+                Termin {sortowanie === 'termin_rosnaco' ? '↑' : sortowanie === 'termin_malejaco' ? '↓' : '↕'}
               </button>
             </th>
             <th>Pozostało</th>
