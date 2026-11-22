@@ -16,7 +16,7 @@ Wsparcie obsługi wniosków o dostęp do informacji publicznej w Urzędzie Miast
 | Wymaganie / krok instrukcji | Jak jest zrealizowane |
 |---|---|
 | Wgrywanie plików PDF / Word | „Dodaj wniosek” (wiele plików naraz), odczyt Word i PDF lokalnie; skany i pismo odręczne – model wizyjny |
-| Kalendarz wniosków | tabela + widok miesiąca, sortowanie wg czasu na odpowiedź (najpilniejsze na górze, wysłane na końcu), Lp., nr, temat, inicjały, data wpływu, termin (z dniami wolnymi), data odpowiedzi, wybór roku; podświetlenie: po terminie, termin dziś, termin w następny dzień roboczy |
+| Kalendarz wniosków | tabela + widok miesiąca, sortowanie wg daty wpływu rosnąco, Lp., nr, temat, inicjały, data wpływu, termin (z dniami wolnymi), data odpowiedzi, wybór roku; podświetlenie: po terminie, termin dziś, termin w następny dzień roboczy |
 | Statusy na każdym kroku | brak działań → zapytania do wydziałów (po oznaczeniu wysłania prośby) → kwerenda + dni → odpowiedź przygotowana (po zatwierdzeniu pisma) → odpowiedź wysłana + data |
 | Podobne wnioski z ostatniego roku / przeszukiwanie archiwum | karta „Podobne sprawy i wnioski” po wgraniu i w szczegółach sprawy (TF-IDF, lokalnie) |
 | Wskazywanie ścieżki – wydziały z BIP | karta „Zapytanie do wydziału”: 3 propozycje jednostek z uzasadnieniem, wybór urzędnika, treść prośby wg Zarządzenia 535/2024 |

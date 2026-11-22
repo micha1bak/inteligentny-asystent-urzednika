@@ -107,18 +107,14 @@ export function opisPozostalo(pozostalo: number): string {
 }
 
 /**
- * Kolejność listy wniosków: najmniej czasu na odpowiedź na górze (po terminie, dziś, jutro…),
- * wnioski z wysłaną odpowiedzią na końcu; przy tym samym terminie – starszy wpływ, potem numer.
+ * Kolejność listy wniosków: według daty wpływu rosnąco (najstarsze na górze);
+ * przy tej samej dacie – numer.
  */
-export function porownajWgCzasuNaOdpowiedz(
-  a: { status: Wniosek['status']; termin: string; dataWplywu: string; numer: string },
-  b: { status: Wniosek['status']; termin: string; dataWplywu: string; numer: string },
+export function porownajWgDatyWplywu(
+  a: { dataWplywu: string; numer: string },
+  b: { dataWplywu: string; numer: string },
 ): number {
-  const zakA = a.status === 'odpowiedz_wyslana' ? 1 : 0;
-  const zakB = b.status === 'odpowiedz_wyslana' ? 1 : 0;
   return (
-    zakA - zakB ||
-    a.termin.localeCompare(b.termin) ||
     a.dataWplywu.localeCompare(b.dataWplywu) ||
     a.numer.localeCompare(b.numer, 'pl', { numeric: true })
   );

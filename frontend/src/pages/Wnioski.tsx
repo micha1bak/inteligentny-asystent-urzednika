@@ -4,7 +4,7 @@ import { useMagazyn } from '../magazyn';
 import { useSesja } from '../sesja';
 import type { Wniosek } from '../types';
 import { dodajDni, doIso, dzisIso, formatuj, zIso } from '../lib/daty';
-import { czyDzienWolny, pilnosc, type Pilnosc, porownajWgCzasuNaOdpowiedz } from '../lib/terminy';
+import { czyDzienWolny, pilnosc, type Pilnosc, porownajWgDatyWplywu } from '../lib/terminy';
 import { Pozostalo, ZnaczekStatusu } from '../components/Znaczki';
 import type { ZWniosku } from './NowaSprawaArchiwum';
 
@@ -51,7 +51,7 @@ export default function Wnioski() {
       wnioski
         .filter((w) => w.dataWplywu.startsWith(rok))
         .map((w) => ({ ...w, ...pilnosc(w, dzis) }))
-        .sort(porownajWgCzasuNaOdpowiedz)
+        .sort(porownajWgDatyWplywu)
         .map((w, i) => ({ ...w, lp: i + 1 })),
     [wnioski, rok, dzis],
   );
