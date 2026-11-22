@@ -38,7 +38,9 @@ h3 { font-size: 0.95rem; margin: 0 0 8px; }
 .boczny { background: #102a43; color: #d9e2ec; padding: 20px 14px; display: flex; flex-direction: column; gap: 4px; }
 .boczny .logo { font-weight: 700; color: #fff; font-size: 1.05rem; margin: 0 8px 4px; }
 .boczny .logo small { display: block; font-weight: 400; color: #9fb3c8; font-size: 0.8rem; }
-.boczny nav { display: flex; flex-direction: column; gap: 2px; margin-top: 18px; }
+.boczny-logo { background: #fff; border-radius: 8px; padding: 6px 10px; margin: 10px 8px 0; display: flex; justify-content: center; }
+.boczny-logo img { width: 100%; max-width: 150px; height: auto; display: block; object-fit: contain; }
+.boczny nav { display: flex; flex-direction: column; gap: 2px; margin-top: 14px; }
 .boczny a { color: #d9e2ec; text-decoration: none; padding: 9px 10px; border-radius: 6px; }
 .boczny a:hover { background: #1f3a56; }
 .boczny a.active { background: #243b53; color: #fff; font-weight: 600; }
@@ -150,6 +152,8 @@ tr.p-jutro td:first-child { box-shadow: inset 4px 0 #e0b400; }
 @media (max-width: 1000px) {
   .uklad { grid-template-columns: 1fr; }
   .boczny { flex-direction: row; align-items: center; flex-wrap: wrap; }
+  .boczny-logo { margin: 0 8px; padding: 4px 8px; }
+  .boczny-logo img { max-width: 72px; }
   .boczny nav { flex-direction: row; margin: 0; }
   .boczny .stopka { display: none; }
   .siatka-2 { grid-template-columns: 1fr; }

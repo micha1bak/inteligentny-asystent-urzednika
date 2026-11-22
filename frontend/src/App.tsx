@@ -1,5 +1,6 @@
 import Anonimizacja from './pages/Anonimizacja';
 import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import logoBydgoszcz from './assets/logoBydgoszcz.png';
 import Wnioski from './pages/Wnioski';
 import SzczegolyWniosku from './pages/SzczegolyWniosku';
 import NowyWniosek from './pages/NowyWniosek';
@@ -15,6 +16,9 @@ export default function App() {
     <div className="uklad">
       <aside className="boczny">
         <div className="logo">Asystent urzędnika</div>
+        <div className="boczny-logo">
+          <img src={logoBydgoszcz} alt="Bydgoszcz" />
+        </div>
         <nav>
           <NavLink to="/" end className={() => (aktywneWnioski ? 'active' : '')}>Wnioski</NavLink>
           <NavLink to="/nowy">Dodaj wniosek</NavLink>

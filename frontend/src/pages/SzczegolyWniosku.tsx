@@ -269,9 +269,8 @@ function WidokSzczegolow({
         </div>
       </div>
 
-      <div className="siatka-2">
-        <div className="stos">
-          <div className="karta">
+      <div className="stos">
+        <div className="karta">
             <h2>Dane wniosku</h2>
             <div className="formularz">
               <label>
@@ -372,10 +371,8 @@ function WidokSzczegolow({
               </button>
             </div>
           </div>
-        </div>
 
-        <div className="stos">
-          {wniosek.zatwierdzonaOdpowiedz && (
+        {wniosek.zatwierdzonaOdpowiedz && (
             <KartaZatwierdzonejOdpowiedzi
               key={wniosek.zatwierdzonaOdpowiedz.zatwierdzono}
               odpowiedz={wniosek.zatwierdzonaOdpowiedz}
@@ -420,7 +417,6 @@ function WidokSzczegolow({
             }}
             onZatwierdz={zatwierdz}
           />
-        </div>
       </div>
     </>
   );
