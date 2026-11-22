@@ -347,7 +347,7 @@ export default function ZapytanieDoWydzialu({
                 {recznie && <button className="maly-p" onClick={() => setRecznie(false)}>Złóż ponownie z pól</button>}
                 {status === 'brak_dzialan' ? (
                   <button className="glowny" disabled={oznaczanie} onClick={() => void oznacz()}>
-                    {oznaczanie ? 'Zapisuję…' : 'Oznacz: zapytanie wysłane'}
+                    {oznaczanie ? 'Zapisuję…' : 'Oznacz: wysłane do wydziału'}
                   </button>
                 ) : (
                   <span className="info-statusu" title="Status zmienisz w karcie „Dane wniosku”">

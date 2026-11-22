@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import AnonimizacjaTekstu from '../components/AnonimizacjaTekstu';
 import PelnyPodgladPisma from '../components/PelnyPodgladPisma';
@@ -196,6 +196,62 @@ function WidokSzczegolow({
 
   const gotowe = !!dane.numer.trim() && !!dane.dataWplywu && !!dane.temat.trim() && !duplikat;
 
+  const sekcjaDaneRef = useRef<HTMLDivElement>(null);
+  const sekcjaZapytanieRef = useRef<HTMLDivElement>(null);
+  const sekcjaOdpowiedziRef = useRef<HTMLDivElement>(null);
+  const sekcjaPropozycjaRef = useRef<HTMLDivElement>(null);
+  const [aktywnyKrok, setAktywnyKrok] = useState(0);
+
+  const maOdpowiedziWydzialu = (wniosek.odpowiedziWydzialow?.length ?? 0) > 0;
+  const maZatwierdzona = !!wniosek.zatwierdzonaOdpowiedz || dane.status === 'odpowiedz_przygotowana' || dane.status === 'odpowiedz_wyslana';
+  const kroki = [
+    {
+      id: 'dane',
+      etykieta: 'Dane wniosku',
+      ref: sekcjaDaneRef,
+      gotowe: gotowe && dane.tresc.trim().length >= 20,
+    },
+    {
+      id: 'zapytanie',
+      etykieta: 'Zapytanie do wydziału',
+      ref: sekcjaZapytanieRef,
+      gotowe: dane.status !== 'brak_dzialan' || !!wybranyWydzial || maOdpowiedziWydzialu || maZatwierdzona,
+    },
+    {
+      id: 'odpowiedzi',
+      etykieta: 'Odpowiedzi z wydziałów',
+      ref: sekcjaOdpowiedziRef,
+      gotowe: maOdpowiedziWydzialu || maZatwierdzona,
+    },
+    {
+      id: 'propozycja',
+      etykieta: 'Propozycja odpowiedzi',
+      ref: sekcjaPropozycjaRef,
+      gotowe: maZatwierdzona,
+    },
+  ];
+
+  useEffect(() => {
+    const refs = [sekcjaDaneRef, sekcjaZapytanieRef, sekcjaOdpowiedziRef, sekcjaPropozycjaRef];
+    function aktualizujKrok() {
+      const prog = 140;
+      let indeks = 0;
+      refs.forEach((r, i) => {
+        const el = r.current;
+        if (el && el.getBoundingClientRect().top <= prog) indeks = i;
+      });
+      setAktywnyKrok(indeks);
+    }
+    aktualizujKrok();
+    window.addEventListener('scroll', aktualizujKrok, { passive: true });
+    return () => window.removeEventListener('scroll', aktualizujKrok);
+  }, []);
+
+  function przejdzDoKroku(i: number) {
+    setAktywnyKrok(i);
+    kroki[i]?.ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   /** Zapis wniosku; `status` pozwala kartom (zapytanie do wydziału, odpowiedź wysłana) od razu zmienić status. */
   async function zapisz(status: Status = dane.status) {
     setTrwaZapis(true);
@@ -272,7 +328,26 @@ function WidokSzczegolow({
       </div>
 
       <div className="stos">
-        <div className="karta">
+        <nav className="karta pasek-etapow" aria-label="Etapy obsługi wniosku">
+          <div className="pasek-progresu pasek-progresu-etapy">
+            <div style={{ width: `${((aktywnyKrok + 1) / kroki.length) * 100}%` }} />
+          </div>
+          <div className="etapy-lista">
+            {kroki.map((k, i) => (
+              <button
+                key={k.id}
+                type="button"
+                className={`etap-krok${aktywnyKrok === i ? ' aktywny' : ''}${k.gotowe ? ' gotowy' : ''}`}
+                onClick={() => przejdzDoKroku(i)}
+              >
+                <span className="etap-kropka">{k.gotowe ? '✓' : i + 1}</span>
+                <span>{k.etykieta}</span>
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        <div ref={sekcjaDaneRef} className="karta sekcja-kotwica">
             <h2>Dane wniosku</h2>
             <div className="formularz">
               <label>
@@ -385,40 +460,46 @@ function WidokSzczegolow({
             />
           )}
           <PodobneSprawy tresc={dane.tresc} pominId={wniosek.id} dataOdniesienia={dane.dataWplywu} />
-          <ZapytanieDoWydzialu
-            key={`wydzial-${wniosek.id}`}
-            wniosekId={wniosek.id}
-            wniosek={{
-              tresc: dane.tresc,
-              numer: dane.numer,
-              data_wplywu: dane.dataWplywu,
-              temat: dane.temat,
-              wnioskodawca: dane.wnioskodawca,
-              kontakt: dane.kontakt,
-            }}
-            wybranyWydzial={wybranyWydzial}
-            onWybierzWydzial={wybierzWydzial}
-            status={dane.status}
-            onOznaczWyslane={() => zapisz('zapytania_wyslane')}
-          />
-          <OdpowiedziWydzialow
-            wniosekId={wniosek.id}
-            odpowiedzi={wniosek.odpowiedziWydzialow ?? []}
-            wybranyWydzial={wybranyWydzial}
-            onZmiana={onPodmien}
-          />
-          <PropozycjaOdpowiedzi
-            key={wniosek.id}
-            wniosek={{
-              tresc: dane.tresc,
-              temat: dane.temat,
-              numer: dane.numer,
-              data_wplywu: dane.dataWplywu,
-              wnioskodawca: dane.wnioskodawca,
-              odpowiedzi_wydzialow: (wniosek.odpowiedziWydzialow ?? []).map((o) => ({ wydzial: o.wydzial, tresc: o.tresc })),
-            }}
-            onZatwierdz={zatwierdz}
-          />
+          <div ref={sekcjaZapytanieRef} className="sekcja-kotwica">
+            <ZapytanieDoWydzialu
+              key={`wydzial-${wniosek.id}`}
+              wniosekId={wniosek.id}
+              wniosek={{
+                tresc: dane.tresc,
+                numer: dane.numer,
+                data_wplywu: dane.dataWplywu,
+                temat: dane.temat,
+                wnioskodawca: dane.wnioskodawca,
+                kontakt: dane.kontakt,
+              }}
+              wybranyWydzial={wybranyWydzial}
+              onWybierzWydzial={wybierzWydzial}
+              status={dane.status}
+              onOznaczWyslane={() => zapisz('zapytania_wyslane')}
+            />
+          </div>
+          <div ref={sekcjaOdpowiedziRef} className="sekcja-kotwica">
+            <OdpowiedziWydzialow
+              wniosekId={wniosek.id}
+              odpowiedzi={wniosek.odpowiedziWydzialow ?? []}
+              wybranyWydzial={wybranyWydzial}
+              onZmiana={onPodmien}
+            />
+          </div>
+          <div ref={sekcjaPropozycjaRef} className="sekcja-kotwica">
+            <PropozycjaOdpowiedzi
+              key={wniosek.id}
+              wniosek={{
+                tresc: dane.tresc,
+                temat: dane.temat,
+                numer: dane.numer,
+                data_wplywu: dane.dataWplywu,
+                wnioskodawca: dane.wnioskodawca,
+                odpowiedzi_wydzialow: (wniosek.odpowiedziWydzialow ?? []).map((o) => ({ wydzial: o.wydzial, tresc: o.tresc })),
+              }}
+              onZatwierdz={zatwierdz}
+            />
+          </div>
       </div>
     </>
   );
@@ -528,10 +609,10 @@ function KartaZatwierdzonejOdpowiedzi({
           <button
             className="maly-p"
             disabled={wyslana}
-            title="Program niczego nie wysyła – po wysłaniu odpowiedzi ze swojej poczty oznacz ją tutaj"
+            title="Program niczego nie wysyła – po wysłaniu odpowiedzi ze swojej poczty oznacz wniosek jako rozpatrzony"
             onClick={() => void onOznaczWyslana()}
           >
-            {wyslana ? 'Odpowiedź wysłana' : 'Oznacz: odpowiedź wysłana do wnioskodawcy'}
+            {wyslana ? 'Rozpatrzone' : 'Oznacz jako rozpatrzone'}
           </button>
         </div>
       </div>

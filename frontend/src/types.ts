@@ -8,11 +8,11 @@ export type Status =
   | 'odpowiedz_wyslana';
 
 export const STATUSY: { id: Status; etykieta: string }[] = [
-  { id: 'brak_dzialan', etykieta: 'Brak działań' },
-  { id: 'zapytania_wyslane', etykieta: 'Zapytania do wydziałów' },
+  { id: 'brak_dzialan', etykieta: 'Nierozpatrzone' },
+  { id: 'zapytania_wyslane', etykieta: 'Wysłane do wydziału' },
   { id: 'kwerenda', etykieta: 'Kwerenda' },
   { id: 'odpowiedz_przygotowana', etykieta: 'Odpowiedź przygotowana' },
-  { id: 'odpowiedz_wyslana', etykieta: 'Odpowiedź wysłana' },
+  { id: 'odpowiedz_wyslana', etykieta: 'Rozpatrzone' },
 ];
 
 export function etykietaStatusu(s: Status): string {
