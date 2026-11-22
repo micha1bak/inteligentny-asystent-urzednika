@@ -16,7 +16,7 @@ from .wiedza import JEDNOSTKI_UMB
 
 _NAZWY = {j["symbol"]: j["nazwa"] for j in JEDNOSTKI_UMB}
 
-PROG = 0.12  # poniżej tej miary dokument uznajemy za niepodobny
+PROG = 0.20  # poniżej tej miary dokument uznajemy za niepodobny
 
 
 class ZapytanieOPodobne(BaseModel):

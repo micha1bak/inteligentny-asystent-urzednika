@@ -29,9 +29,14 @@ class Wybor:
     wzory: int = 2
     anonimizacja: bool = True
     dlugosc_rozstrzygniecia: int = 220
+    dlugosc_sprawy: int = 0  # 0 = pełna treść spraw z archiwum
+    dlugosc_werdyktu: int = 0  # 0 = pełny opis w słowniku werdyktów
+    pelne_jednostki: bool = True  # False = tylko dopasowane / odpowiadające jednostki zamiast wszystkich 29
+    pelne_etapy: bool = True  # False = skrócone nazwy etapów (wszystkie ETAP_01–ETAP_12 nadal obecne)
 
 
-# Kolejne, coraz oszczędniejsze warianty kontekstu.
+# Kolejne, coraz oszczędniejsze warianty kontekstu – najpierw odchudzamy kontekst pomocniczy,
+# zanim zaczniemy przycinać treść wniosku lub odpowiedzi wydziałów.
 STOPNIE_WYBORU = [
     Wybor(),
     Wybor(anonimizacja=False),
@@ -39,6 +44,27 @@ STOPNIE_WYBORU = [
     Wybor(matryca=2, sprawy=2, wzory=1, anonimizacja=False, dlugosc_rozstrzygniecia=120),
     Wybor(matryca=1, sprawy=1, wzory=1, anonimizacja=False, dlugosc_rozstrzygniecia=120),
     Wybor(matryca=1, sprawy=1, wzory=1, anonimizacja=False, dlugosc_rozstrzygniecia=0),
+    Wybor(matryca=1, sprawy=1, wzory=1, anonimizacja=False, dlugosc_rozstrzygniecia=0, dlugosc_sprawy=220, dlugosc_werdyktu=80),
+    Wybor(
+        matryca=0,
+        sprawy=1,
+        wzory=1,
+        anonimizacja=False,
+        dlugosc_rozstrzygniecia=0,
+        dlugosc_sprawy=160,
+        dlugosc_werdyktu=50,
+        pelne_jednostki=False,
+    ),
+    Wybor(
+        matryca=0,
+        sprawy=0,
+        wzory=1,
+        anonimizacja=False,
+        dlugosc_rozstrzygniecia=0,
+        dlugosc_werdyktu=40,
+        pelne_jednostki=False,
+        pelne_etapy=False,
+    ),
 ]
 
 
@@ -88,32 +114,58 @@ class Wiedza:
 
     # --- tryb „wybrany”: streszczenie algorytmu + fragmenty dopasowane do treści wniosku ---
 
-    def kontekst_wybrany(self, tresc_wniosku: str, wybor: Wybor = Wybor()) -> str:
+    def kontekst_wybrany(
+        self,
+        tresc_wniosku: str,
+        wybor: Wybor = Wybor(),
+        jednostki_priorytetowe: list[str] | None = None,
+    ) -> str:
         ocena = self.ocena
         etapy = []
         for e in ocena["algorytm_oceny_krokowej"]:
-            etap = {"id": e["etap_id"], "nazwa": e["nazwa"], "podstawa": e.get("podstawa_prawna", [])}
+            nazwa = e["nazwa"] if wybor.pelne_etapy else _skroc(e["nazwa"], 45)
+            etap = {"id": e["etap_id"], "nazwa": nazwa, "podstawa": e.get("podstawa_prawna", [])}
             rozstrzygniecie = (e.get("werdykt") or {}).get("rozstrzygniecie", "")
             if wybor.dlugosc_rozstrzygniecia and rozstrzygniecie:
                 etap["rozstrzygniecie"] = _skroc(rozstrzygniecie, wybor.dlugosc_rozstrzygniecia)
             etapy.append(etap)
 
         matryca = ocena["matryca_oceny_informacji"]
-        dopasowana = najpodobniejsze(
-            tresc_wniosku, matryca, [f"{m['informacja']} {m['zalozenia']}" for m in matryca], wybor.matryca
+        dopasowana = (
+            najpodobniejsze(
+                tresc_wniosku, matryca, [f"{m['informacja']} {m['zalozenia']}" for m in matryca], wybor.matryca
+            )
+            if wybor.matryca
+            else []
         )
         podobne = self.podobne_sprawy(tresc_wniosku, 3)
 
-        model = {
+        slownik = (
+            {k: _skroc(v, wybor.dlugosc_werdyktu) for k, v in self.slownik_werdyktow.items()}
+            if wybor.dlugosc_werdyktu
+            else self.slownik_werdyktow
+        )
+        if wybor.pelne_jednostki:
+            jednostki = [j["nazwa"] for j in JEDNOSTKI_UMB]
+        elif jednostki_priorytetowe:
+            jednostki = list(dict.fromkeys(jednostki_priorytetowe))
+        else:
+            dopasowane_j = najpodobniejsze(
+                tresc_wniosku, JEDNOSTKI_UMB, [f"{j['nazwa']} {j['zakres']}" for j in JEDNOSTKI_UMB], 5
+            )
+            jednostki = [j["nazwa"] for j in dopasowane_j]
+
+        model: dict = {
             "akty_prawne": [
                 {"skrot": a["skrot"], "nazwa": a["pelna_nazwa"], "publikator": a["publikator"]}
                 for a in ocena["metadane"]["akty_prawne_i_zrodla"][:3]
             ],
-            "slownik_werdyktow": self.slownik_werdyktow,
+            "slownik_werdyktow": slownik,
             "etapy_oceny": etapy,
-            "matryca_dopasowana_do_wniosku": dopasowana,
-            "jednostki_umb": [j["nazwa"] for j in JEDNOSTKI_UMB],
+            "jednostki_umb": jednostki,
         }
+        if dopasowana:
+            model["matryca_dopasowana_do_wniosku"] = dopasowana
         if wybor.anonimizacja:
             model["katalog_anonimizacji"] = [
                 p["informacja"] for p in ocena["katalog_danych_podlegajacych_anonimizacji"]["pozycje"]
@@ -123,16 +175,20 @@ class Wiedza:
             "werdykt", "etap_i_podstawa",
         )
         nazwy = {j["symbol"]: j["nazwa"] for j in JEDNOSTKI_UMB}
-        archiwum = [
-            {k: ([nazwy.get(w, w) for w in s[k]] if k == "wydzialy" else s[k]) for k in pola if k in s}
-            for s in podobne[: wybor.sprawy]
-        ]
+        archiwum = []
+        for s in podobne[: wybor.sprawy]:
+            wpis = {k: ([nazwy.get(w, w) for w in s[k]] if k == "wydzialy" else s[k]) for k in pola if k in s}
+            if wybor.dlugosc_sprawy:
+                for pole_txt in ("wniosek_o_co", "jaka_odpowiedz"):
+                    if pole_txt in wpis and isinstance(wpis[pole_txt], str):
+                        wpis[pole_txt] = _skroc(wpis[pole_txt], wybor.dlugosc_sprawy)
+            archiwum.append(wpis)
         wzory = self.wybierz_wzory(tresc_wniosku, podobne, wybor.wzory)
-        return (
-            f"MODEL OCENY PRAWNEJ (wybrane fragmenty):\n{_zwarty(model)}\n\n"
-            f"ARCHIWUM SPRAW (najbardziej podobne):\n{_zwarty(archiwum)}\n\n"
-            f"WZORY PISM UMB (dobrane do sprawy):\n{_zwarty(self._wzory_do_kontekstu(wzory))}"
-        )
+        sekcje = [f"MODEL OCENY PRAWNEJ (wybrane fragmenty):\n{_zwarty(model)}"]
+        if archiwum:
+            sekcje.append(f"ARCHIWUM SPRAW (najbardziej podobne):\n{_zwarty(archiwum)}")
+        sekcje.append(f"WZORY PISM UMB (dobrane do sprawy):\n{_zwarty(self._wzory_do_kontekstu(wzory, wybor.pelne_etapy))}")
+        return "\n\n".join(sekcje)
 
     def podobne_sprawy(self, tresc_wniosku: str, limit: int) -> list[dict]:
         sprawy = self.sprawy
@@ -163,28 +219,29 @@ class Wiedza:
                 wybrane.append(domyslny)
         return [w for i in wybrane[:limit] if (w := self.wzor(i))]
 
-    def _wzory_do_kontekstu(self, wzory: list[dict]) -> dict:
+    def _wzory_do_kontekstu(self, wzory: list[dict], z_zasadami: bool = True) -> dict:
         # Modelowi wystarczą: id, kiedy, treść (żeby fragmenty pasowały do zdania) i opis pól.
         # Nagłówek, podpis i stopkę wstawia kod (wzor/pismo.py). Uwagi tylko przy najlepiej dopasowanym wzorze.
-        return {
-            "zasady_wypelniania": self.wzory["zasady_wypelniania"],
-            "wzory": [
-                {
-                    "id": w["id"],
-                    "kiedy": w["kiedy"],
-                    "tresc": w["tresc"],
-                    "pola": {
-                        k: (f"[{p['typ']}] " if p.get("typ", "tekst") != "tekst" else "")
-                        + ("(opcjonalne) " if p.get("opcjonalne") else "")
-                        + p["opis"]
-                        for k, p in w.get("pola", {}).items()
-                    },
-                    **({"zalaczniki": True} if w.get("zalaczniki") else {}),
-                    **({"uwagi": w["uwagi"]} if i == 0 and w.get("uwagi") else {}),
-                }
-                for i, w in enumerate(wzory)
-            ],
-        }
+        wynik: dict = {}
+        if z_zasadami:
+            wynik["zasady_wypelniania"] = self.wzory["zasady_wypelniania"]
+        wynik["wzory"] = [
+            {
+                "id": w["id"],
+                "kiedy": w["kiedy"],
+                "tresc": w["tresc"],
+                "pola": {
+                    k: (f"[{p['typ']}] " if p.get("typ", "tekst") != "tekst" else "")
+                    + ("(opcjonalne) " if p.get("opcjonalne") else "")
+                    + p["opis"]
+                    for k, p in w.get("pola", {}).items()
+                },
+                **({"zalaczniki": True} if w.get("zalaczniki") else {}),
+                **({"uwagi": w["uwagi"]} if z_zasadami and i == 0 and w.get("uwagi") else {}),
+            }
+            for i, w in enumerate(wzory)
+        ]
+        return wynik
 
 
 def _skroc(tekst: str, dlugosc: int) -> str:
