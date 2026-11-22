@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMagazyn } from '../magazyn';
+import { useSesja } from '../sesja';
 import type { Wniosek } from '../types';
 import { dodajDni, doIso, dzisIso, formatuj, zIso } from '../lib/daty';
 import { czyDzienWolny, pilnosc, type Pilnosc, porownajWgCzasuNaOdpowiedz } from '../lib/terminy';
@@ -13,6 +14,7 @@ const PILNE: Pilnosc[] = ['po_terminie', 'dzis', 'jutro'];
 
 export default function Wnioski() {
   const { wnioski, ladowanie, blad, odswiez, przywrocDaneTestowe } = useMagazyn();
+  const { sesja } = useSesja();
   const dzis = dzisIso();
   const lata = useMemo(
     () => [...new Set([dzis.slice(0, 4), ...wnioski.map((w) => w.dataWplywu.slice(0, 4))])].sort().reverse(),
@@ -21,6 +23,7 @@ export default function Wnioski() {
   const [rok, setRok] = useState(dzis.slice(0, 4));
   const [fraza, setFraza] = useState('');
   const [tylkoPilne, setTylkoPilne] = useState(false);
+  const [tylkoMoje, setTylkoMoje] = useState(false);
   // wnioski z odpowiedzią odesłaną do wnioskodawcy – wybór zapamiętany w przeglądarce
   const [pokazWyslane, setPokazWyslane] = useState(() => {
     try {
@@ -55,15 +58,18 @@ export default function Wnioski() {
 
   const liczba = (p: Pilnosc) => wiersze.filter((w) => w.pilnosc === p).length;
   const pilnych = wiersze.filter((w) => PILNE.includes(w.pilnosc)).length;
+  const mojeId = sesja?.inicjaly.trim().toUpperCase() ?? '';
+  const moich = mojeId ? wiersze.filter((w) => w.inicjaly.trim().toUpperCase() === mojeId).length : 0;
   const widoczne = useMemo(() => {
     const f = fraza.trim().toLowerCase();
     return wiersze.filter((w) => {
       if (tylkoPilne && !PILNE.includes(w.pilnosc)) return false;
+      if (tylkoMoje && mojeId && w.inicjaly.trim().toUpperCase() !== mojeId) return false;
       if (!pokazWyslane && w.status === 'odpowiedz_wyslana') return false;
       if (!f) return true;
       return [w.numer, w.temat, w.wnioskodawca, w.inicjaly].some((t) => t.toLowerCase().includes(f));
     });
-  }, [wiersze, tylkoPilne, pokazWyslane, fraza]);
+  }, [wiersze, tylkoPilne, tylkoMoje, mojeId, pokazWyslane, fraza]);
 
   async function resetujDane(potwierdz: boolean) {
     if (potwierdz && !confirm('Usunąć obecne wnioski i wczytać dane testowe?')) return;
@@ -126,6 +132,12 @@ export default function Wnioski() {
               <input type="checkbox" style={{ width: 'auto' }} checked={tylkoPilne} onChange={(e) => setTylkoPilne(e.target.checked)} />
               Tylko pilne ({pilnych})
             </label>
+            {mojeId && (
+              <label style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <input type="checkbox" style={{ width: 'auto' }} checked={tylkoMoje} onChange={(e) => setTylkoMoje(e.target.checked)} />
+                Tylko moje ({mojeId}: {moich})
+              </label>
+            )}
             <button className="maly-p" onClick={przelaczWyslane} aria-pressed={!pokazWyslane}
               title="Wnioski, na które odpowiedź została już wysłana do wnioskodawcy">
               {pokazWyslane ? 'Ukryj' : 'Pokaż'} odesłane do wnioskodawcy ({wiersze.filter((w) => w.status === 'odpowiedz_wyslana').length})
@@ -141,7 +153,7 @@ export default function Wnioski() {
         {ladowanie ? (
           <p className="maly">Wczytuję wnioski…</p>
         ) : widok === 'tabela' ? (
-          <Tabela wiersze={widoczne} />
+          <Tabela wiersze={widoczne} mojeId={mojeId} />
         ) : (
           <Miesiac wiersze={widoczne} dzis={dzis} rok={rok} />
         )}
@@ -165,7 +177,7 @@ export default function Wnioski() {
   );
 }
 
-function Tabela({ wiersze }: { wiersze: Wiersz[] }) {
+function Tabela({ wiersze, mojeId }: { wiersze: Wiersz[]; mojeId: string }) {
   const nav = useNavigate();
 
   return (
@@ -205,7 +217,13 @@ function Tabela({ wiersze }: { wiersze: Wiersz[] }) {
                 <span style={{ fontWeight: 500 }}>{w.temat}</span>
                 {w.wnioskodawca && <div className="maly">{w.wnioskodawca}</div>}
               </td>
-              <td title="Inicjały osoby prowadzącej">{w.inicjaly}</td>
+              <td title="Inicjały osoby prowadzącej">
+                {mojeId && w.inicjaly.trim().toUpperCase() === mojeId ? (
+                  <span className="os-moje">{w.inicjaly}</span>
+                ) : (
+                  w.inicjaly
+                )}
+              </td>
               <td className="nowrap">{formatuj(w.termin)}</td>
               <td className="nowrap"><Pozostalo pilnosc={w.pilnosc} pozostalo={w.pozostalo} /></td>
               <td>

@@ -1,16 +1,16 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { HashRouter } from 'react-router-dom';
-import { DostawcaMagazynu } from './magazyn';
+import { DostawcaSesji } from './sesja';
 import App from './App';
 import './styles.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <HashRouter>
-      <DostawcaMagazynu>
+      <DostawcaSesji>
         <App />
-      </DostawcaMagazynu>
+      </DostawcaSesji>
     </HashRouter>
   </StrictMode>,
 );

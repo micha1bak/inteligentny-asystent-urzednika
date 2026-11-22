@@ -93,6 +93,9 @@ const NAZWY_POL: Record<string, string> = {
   autor: 'kto zmienia',
   wniosek: 'treść wniosku',
   odpowiedz: 'treść odpowiedzi',
+  id_u: 'identyfikator urzędnika',
+  inicjaly: 'inicjały (Os.)',
+  haslo: 'hasło',
 };
 
 function opisBledowWalidacji(bledy: { loc?: (string | number)[]; type?: string }[]): string {
@@ -664,4 +667,60 @@ export async function zlozWiadomoscDoWydzialu(
     signal: sygnal,
   });
   return odp.json();
+}
+
+// ---------------------------------------------------------------- logowanie urzędnika (id_u + hasło)
+
+export interface SesjaUrzednika {
+  id_u: string;
+  inicjaly: string;
+  token: string;
+}
+
+export interface StanSesjiApi {
+  zalogowany: boolean;
+  id_u: string | null;
+  inicjaly: string | null;
+}
+
+export async function zalogujApi(id_u: string, haslo: string): Promise<SesjaUrzednika> {
+  const odp = await wyslij('/api/logowanie', {
+    method: 'POST',
+    headers: JSON_NAGLOWKI,
+    credentials: 'include',
+    body: JSON.stringify({ id_u, haslo }),
+  });
+  return odp.json();
+}
+
+export async function zarejestrujUrzednikaApi(id_u: string, inicjaly: string, haslo: string): Promise<SesjaUrzednika> {
+  const odp = await wyslij('/api/urzednicy', {
+    method: 'POST',
+    headers: JSON_NAGLOWKI,
+    credentials: 'include',
+    body: JSON.stringify({ id_u, inicjaly, haslo }),
+  });
+  return odp.json();
+}
+
+export async function sprawdzSesjeApi(token?: string | null, sygnal?: AbortSignal): Promise<StanSesjiApi> {
+  const headers: Record<string, string> = {};
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const odp = await wyslij('/api/sesja', {
+    method: 'GET',
+    headers,
+    credentials: 'include',
+    signal: sygnal,
+  });
+  return odp.json();
+}
+
+export async function wylogujApi(token?: string | null): Promise<void> {
+  const headers: Record<string, string> = {};
+  if (token) headers.Authorization = `Bearer ${token}`;
+  await wyslij('/api/wyloguj', {
+    method: 'POST',
+    headers,
+    credentials: 'include',
+  });
 }

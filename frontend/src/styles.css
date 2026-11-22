@@ -35,8 +35,8 @@ h3 { font-size: 0.95rem; margin: 0 0 8px; }
 
 /* układ */
 .uklad { display: grid; grid-template-columns: 230px 1fr; min-height: 100vh; }
-.boczny { background: #102a43; color: #d9e2ec; padding: 20px 14px; display: flex; flex-direction: column; gap: 4px; }
-.boczny .logo { font-weight: 700; color: #fff; font-size: 1.05rem; margin: 0 8px 4px; }
+.boczny { background: #102a43; color: #d9e2ec; padding: 20px 14px; display: flex; flex-direction: column; gap: 4px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.boczny .logo { font-weight: 700; color: #fff; font-size: 1.05rem; margin: 0 8px 4px; text-align: center; }
 .boczny .logo small { display: block; font-weight: 400; color: #9fb3c8; font-size: 0.8rem; }
 .boczny-logo { background: #fff; border-radius: 8px; padding: 6px 10px; margin: 10px 8px 0; display: flex; justify-content: center; }
 .boczny-logo img { width: 100%; max-width: 150px; height: auto; display: block; object-fit: contain; }
@@ -45,6 +45,27 @@ h3 { font-size: 0.95rem; margin: 0 0 8px; }
 .boczny a:hover { background: #1f3a56; }
 .boczny a.active { background: #243b53; color: #fff; font-weight: 600; }
 .boczny .stopka { margin-top: auto; font-size: 0.78rem; color: #829ab1; padding: 8px; line-height: 1.4; }
+.boczny-sesja {
+  margin-top: auto; padding: 10px 12px; border-radius: 8px;
+  background: #1b3652; border: 1px solid #2b4c6f; color: #d9e2ec;
+  font-size: 0.82rem; line-height: 1.5; display: flex; flex-direction: column; gap: 4px;
+}
+.boczny-sesja strong { color: #fff; }
+.boczny-sesja-pole { display: flex; flex-direction: column; line-height: 1.35; }
+.boczny-sesja-tytul { font-weight: 700; color: #9fb3c8; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.04em; }
+.boczny-wyloguj {
+  margin-top: 6px; padding: 4px 10px; font-size: 0.8rem; justify-content: center;
+  background: #243b53; border-color: #3b5b7c; color: #fff;
+}
+.boczny-wyloguj:hover { background: #2f4d6b; border-color: #4f7399; }
+.logowanie-ekran { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: var(--tlo); }
+.logowanie-karta { width: 100%; max-width: 400px; }
+.logowanie-logo { display: flex; justify-content: center; margin-bottom: 12px; }
+.logowanie-logo img { max-width: 160px; height: auto; display: block; }
+.os-moje {
+  display: inline-block; padding: 1px 6px; border-radius: 4px;
+  background: var(--akcent-tlo); color: var(--akcent); font-weight: 700;
+}
 .tresc { padding: 24px 32px 48px; max-width: 1320px; width: 100%; }
 
 /* karty i siatki */
@@ -151,10 +172,12 @@ tr.p-jutro td:first-child { box-shadow: inset 4px 0 #e0b400; }
 
 @media (max-width: 1000px) {
   .uklad { grid-template-columns: 1fr; }
-  .boczny { flex-direction: row; align-items: center; flex-wrap: wrap; }
+  .boczny { flex-direction: row; align-items: center; flex-wrap: wrap; position: static; height: auto; overflow-y: visible; }
   .boczny-logo { margin: 0 8px; padding: 4px 8px; }
   .boczny-logo img { max-width: 72px; }
   .boczny nav { flex-direction: row; margin: 0; }
+  .boczny-sesja { margin: 0 0 0 auto; flex-direction: row; align-items: center; gap: 10px; padding: 6px 10px; }
+  .boczny-wyloguj { margin-top: 0; }
   .boczny .stopka { display: none; }
   .siatka-2 { grid-template-columns: 1fr; }
   .kafle { grid-template-columns: repeat(2, 1fr); }

@@ -31,6 +31,7 @@ class Ustawienia:
     plik_wzorow: Path
     katalog_dokumentow: Path
     plik_bazy: Path
+    plik_bazy_urzednikow: Path
     dozwolone_originy: list[str]
 
 
@@ -70,6 +71,7 @@ def wczytaj_ustawienia() -> Ustawienia:
         plik_wzorow=Path(os.getenv("PLIK_WZOROW", KATALOG_GLOWNY / "wzory_pism.json")),
         katalog_dokumentow=Path(os.getenv("KATALOG_DOKUMENTOW", KATALOG_GLOWNY / "Dokumenty i podstawy prawne")),
         plik_bazy=Path(os.getenv("PLIK_BAZY", KATALOG_GLOWNY / "wnioski.db")),
+        plik_bazy_urzednikow=Path(os.getenv("PLIK_BAZY_URZEDNIKOW", KATALOG_GLOWNY / "urzednicy.db")),
         dozwolone_originy=os.getenv(
             "DOZWOLONE_ORIGINY", "http://localhost:5173,http://127.0.0.1:5173"
         ).split(","),

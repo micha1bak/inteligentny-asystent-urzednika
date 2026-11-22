@@ -18,6 +18,7 @@ import { zapamietajInicjaly } from '../lib/inicjaly';
 import { pismoNaTekst, type StrukturaPisma } from '../lib/pismo';
 import { maksDniKwerendy, pilnosc, terminOdpowiedzi } from '../lib/terminy';
 import { useMagazyn } from '../magazyn';
+import { useSesja } from '../sesja';
 import { STATUSY, type Status, type Wniosek, type ZatwierdzonaOdpowiedz } from '../types';
 import { ZnaczekWerdyktu } from './Archiwum';
 import type { ZWniosku } from './NowaSprawaArchiwum';
@@ -112,6 +113,7 @@ function WidokSzczegolow({
   onPodmien: (w: Wniosek) => void;
 }) {
   const nav = useNavigate();
+  const { sesja } = useSesja();
   const dzis = dzisIso();
 
   const [dane, setDane] = useState({
@@ -227,7 +229,7 @@ function WidokSzczegolow({
   }
 
   async function zatwierdz(wejscie: ZatwierdzenieOdpowiedziWejscie): Promise<WynikZatwierdzenia> {
-    const autor = dane.inicjaly.trim().toUpperCase();
+    const autor = dane.inicjaly.trim().toUpperCase() || sesja?.inicjaly || '';
     if (autor) zapamietajInicjaly(autor);
     const rez = await onZatwierdzOdpowiedz({ ...wejscie, autor });
     setDane((d) => ({ ...d, status: rez.wniosek.status }));
@@ -300,8 +302,8 @@ function WidokSzczegolow({
                 <input value={dane.temat} onChange={(e) => ustaw('temat', e.target.value)} />
               </label>
               <label>
-                Inicjały osoby prowadzącej
-                <input value={dane.inicjaly} maxLength={4} onChange={(e) => ustaw('inicjaly', e.target.value)} />
+                Inicjały osoby prowadzącej (Os.)
+                <input value={dane.inicjaly} maxLength={16} onChange={(e) => ustaw('inicjaly', e.target.value)} />
               </label>
               <label>
                 Status

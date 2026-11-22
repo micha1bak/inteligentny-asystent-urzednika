@@ -7,6 +7,7 @@ import { zapamietajInicjaly, zapamietaneInicjaly } from '../lib/inicjaly';
 import { odczytajWniosek, wyciagnijMetadane } from '../lib/parsowanie';
 import PodobneSprawy from '../components/PodobneSprawy';
 import { useMagazyn } from '../magazyn';
+import { useSesja } from '../sesja';
 
 interface PozycjaPliku {
   lokalneId: string;
@@ -25,13 +26,14 @@ function nazwaBezRozszerzenia(nazwa: string): string {
 
 export default function NowyWniosek() {
   const { dodajWniosek, dodajWnioskiWsadowo, nastepnyNumer } = useMagazyn();
+  const { sesja } = useSesja();
   const nav = useNavigate();
   const wejscie = useRef<HTMLInputElement>(null);
   const przetwarzane = useRef(false);
   const przerwij = useRef<AbortController | null>(null);
 
   const [dataWplywu, setDataWplywu] = useState(dzisIso);
-  const [inicjaly, setInicjaly] = useState(zapamietaneInicjaly);
+  const [inicjaly, setInicjaly] = useState(() => sesja?.inicjaly || zapamietaneInicjaly());
   const [aktywna, setAktywna] = useState(false);
   const [pozycje, setPozycje] = useState<PozycjaPliku[]>([]);
   const [podglad, setPodglad] = useState<File | null>(null);
@@ -179,9 +181,9 @@ export default function NowyWniosek() {
               Data wpływu
               <input type="date" value={dataWplywu} onChange={(e) => setDataWplywu(e.target.value)} />
             </label>
-            <label style={{ width: 120 }}>
-              Inicjały
-              <input value={inicjaly} maxLength={4} onChange={(e) => setInicjaly(e.target.value.toUpperCase())} />
+            <label style={{ width: 150 }}>
+              Inicjały (Os.)
+              <input value={inicjaly} maxLength={16} onChange={(e) => setInicjaly(e.target.value.toUpperCase())} />
             </label>
           </div>
 

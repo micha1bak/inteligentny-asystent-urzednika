@@ -8,15 +8,16 @@ import tempfile
 from datetime import date
 from pathlib import Path
 
-from fastapi import BackgroundTasks, Depends, FastAPI, Form, HTTPException, Query, Response, UploadFile
+from fastapi import BackgroundTasks, Cookie, Depends, FastAPI, Form, Header, HTTPException, Query, Response, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import analiza_aktu, anonimizacja, archiwum, baza_wiedzy, baza_wnioskow
+from . import analiza_aktu, anonimizacja, archiwum, baza_urzednikow, baza_wiedzy, baza_wnioskow
 from .analiza_aktu import ROZSZERZENIA_AKTU, Analiza
 from .archiwum import BladArchiwum, Sprawa, SprawaZArchiwum, ZmianaSprawy
+from .baza_urzednikow import BladLogowania, LogowanieWejscie, RejestracjaWejscie, SesjaOdpowiedz, StanSesji
 from .baza_wiedzy import BladBazyWiedzy, Wersja, WersjaZeStatusem
 from .baza_wnioskow import (
     BladBazy,
@@ -183,9 +184,70 @@ def utworz_aplikacje() -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=wczytaj_ustawienia().dozwolone_originy,
+        allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "DELETE"],
-        allow_headers=["Content-Type"],
+        allow_headers=["Content-Type", "Authorization"],
     )
+
+    NAZWA_CIASTECZKA = "sesja_urzednika"
+
+    def _wyciagnij_token(ciasteczko: str | None, naglowek: str | None) -> str | None:
+        if naglowek and naglowek.lower().startswith("bearer "):
+            return naglowek[7:].strip() or None
+        return ciasteczko or None
+
+    # ------------------------------------------------------------ logowanie urzędnika (SQLite: id_u + hasło)
+
+    @app.post("/api/logowanie", response_model=SesjaOdpowiedz)
+    def logowanie(
+        dane: LogowanieWejscie,
+        response: Response,
+        u: Ustawienia = Depends(pobierz_ustawienia),
+    ) -> SesjaOdpowiedz:
+        try:
+            sesja = baza_urzednikow.zaloguj(u.plik_bazy_urzednikow, dane)
+        except BladLogowania as e:
+            raise HTTPException(e.status, e.komunikat) from e
+        response.set_cookie(NAZWA_CIASTECZKA, sesja.token, httponly=True, samesite="lax")
+        return sesja
+
+    @app.post("/api/urzednicy", response_model=SesjaOdpowiedz, status_code=201)
+    def urzednicy_dodaj(
+        dane: RejestracjaWejscie,
+        response: Response,
+        u: Ustawienia = Depends(pobierz_ustawienia),
+    ) -> SesjaOdpowiedz:
+        try:
+            sesja = baza_urzednikow.zarejestruj(u.plik_bazy_urzednikow, dane)
+        except BladLogowania as e:
+            raise HTTPException(e.status, e.komunikat) from e
+        response.set_cookie(NAZWA_CIASTECZKA, sesja.token, httponly=True, samesite="lax")
+        return sesja
+
+    @app.get("/api/sesja", response_model=StanSesji)
+    def sesja_stan(
+        sesja_urzednika: str | None = Cookie(default=None),
+        authorization: str | None = Header(default=None),
+        u: Ustawienia = Depends(pobierz_ustawienia),
+    ) -> StanSesji:
+        token = _wyciagnij_token(sesja_urzednika, authorization)
+        wynik = baza_urzednikow.sprawdz_sesje(u.plik_bazy_urzednikow, token)
+        if not wynik:
+            return StanSesji(zalogowany=False)
+        id_u, inicjaly = wynik
+        return StanSesji(zalogowany=True, id_u=id_u, inicjaly=inicjaly)
+
+    @app.post("/api/wyloguj", status_code=204)
+    def wyloguj(
+        response: Response,
+        sesja_urzednika: str | None = Cookie(default=None),
+        authorization: str | None = Header(default=None),
+        u: Ustawienia = Depends(pobierz_ustawienia),
+    ) -> Response:
+        token = _wyciagnij_token(sesja_urzednika, authorization)
+        baza_urzednikow.wyloguj(u.plik_bazy_urzednikow, token)
+        response.delete_cookie(NAZWA_CIASTECZKA)
+        return Response(status_code=204)
 
     @app.get("/api/zdrowie")
     def zdrowie(
