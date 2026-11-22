@@ -13,12 +13,27 @@ export function ZnaczekWerdyktu({ werdykt, opis }: { werdykt: string; opis?: str
 const NAZWY_POL: Record<string, string> = {
   data_odpowiedzi: 'data odpowiedzi',
   komorka_merytoryczna: 'komórka',
+  wydzialy: 'przekazano do',
+  podmiot_poza_umb: 'podmiot spoza UMB',
   wniosek_o_co: 'wniosek',
   jaka_odpowiedz: 'odpowiedź',
   werdykt: 'werdykt',
   forma_zalatwienia: 'forma załatwienia',
   etap_i_podstawa: 'podstawa prawna',
 };
+
+/** Do kogo przekazano wniosek: symbole jednostek UMB (pełna nazwa w podpowiedzi) albo dysponent spoza UMB. */
+export function Wydzialy({ symbole, jednostki, podmiot }: { symbole: string[]; jednostki: { symbol: string; nazwa: string }[]; podmiot?: string }) {
+  if (!symbole.length && !podmiot) return <span className="maly">nie przekazano do wydziału</span>;
+  return (
+    <>
+      {symbole.map((s) => (
+        <span key={s} className="znaczek wydzial" title={jednostki.find((j) => j.symbol === s)?.nazwa ?? s}>{s}</span>
+      ))}
+      {podmiot && <span className="maly" title="Właściwy dysponent spoza UMB">→ {podmiot}</span>}
+    </>
+  );
+}
 
 function skrot(tekst: string, dlugosc: number): string {
   return tekst.length <= dlugosc ? tekst : tekst.slice(0, dlugosc).replace(/\s+\S*$/, '') + '…';
@@ -27,8 +42,11 @@ function skrot(tekst: string, dlugosc: number): string {
 function pasuje(s: SprawaZArchiwum, fraza: string): boolean {
   if (!fraza) return true;
   const f = fraza.toLowerCase();
-  return [s.sygnatura, s.wniosek_o_co, s.jaka_odpowiedz, s.komorka_merytoryczna, s.werdykt].some((t) => t.toLowerCase().includes(f));
+  return [s.sygnatura, s.wniosek_o_co, s.jaka_odpowiedz, s.komorka_merytoryczna, s.werdykt, s.podmiot_poza_umb ?? '', ...(s.wydzialy ?? [])]
+    .some((t) => t.toLowerCase().includes(f));
 }
+
+const tekstPola = (v: unknown) => (Array.isArray(v) ? v.join(', ') : String(v ?? ''));
 
 export default function Archiwum() {
   const [dane, setDane] = useState<DaneArchiwum>();
@@ -74,7 +92,7 @@ export default function Archiwum() {
           <div className="rzad" style={{ marginBottom: 12 }}>
             <input
               type="search"
-              placeholder="Szukaj: sygnatura, temat, komórka, werdykt…"
+              placeholder="Szukaj: sygnatura, temat, wydział (np. WGO), werdykt…"
               value={fraza}
               onChange={(e) => setFraza(e.target.value)}
               style={{ flex: 1, minWidth: 220, width: 'auto' }}
@@ -109,7 +127,7 @@ export default function Archiwum() {
                         <span className="temat-sprawy">{skrot(s.wniosek_o_co, 170)}</span>
                         <div className="rzad maly" style={{ marginTop: 4, gap: 6 }}>
                           <ZnaczekWerdyktu werdykt={s.werdykt} opis={dane.werdykty[s.werdykt]} />
-                          {s.komorka_merytoryczna}
+                          <Wydzialy symbole={s.wydzialy ?? []} jednostki={dane.jednostki} podmiot={s.podmiot_poza_umb} />
                           {s.nieaktualna ? ' · nieaktualna' : ''}
                         </div>
                       </td>
@@ -240,7 +258,7 @@ function Edycja({
                 <strong>{h.zmiana}</strong> · {h.kto} · <span className="maly">{new Date(h.kiedy).toLocaleString('pl-PL')}</span>
                 {Object.entries(h.pola).map(([pole, { przed, po }]) => (
                   <div key={pole} className="maly">
-                    {NAZWY_POL[pole] ?? pole}: <s>{String(przed) || '—'}</s> → {String(po) || '—'}
+                    {NAZWY_POL[pole] ?? pole}: <s>{tekstPola(przed) || '—'}</s> → {tekstPola(po) || '—'}
                   </div>
                 ))}
               </li>

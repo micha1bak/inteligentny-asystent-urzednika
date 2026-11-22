@@ -148,6 +148,7 @@ def test_zatwierdzenie_odpowiedzi_zapisuje_w_bazie_i_aktualizuje_werdykty(api_ba
     wpis = next(s for s in werdykty["sprawy"] if s["sygnatura"] == w["numer"])
     assert wpis["werdykt"] == "MOZNA_UDOSTEPNIC"
     assert wpis["komorka_merytoryczna"] == "Wydział Inwestycji Miasta"
+    assert wpis["wydzialy"] == ["WIM"]  # bez wgranych odpowiedzi wydziałów – z komórki merytorycznej
     assert "jan.nowicki@example.com" not in wpis["jaka_odpowiedz"]
 
     # ponowne zatwierdzenie aktualizuje istniejący wpis w werdykty.json zamiast tworzyć duplikat
@@ -177,3 +178,23 @@ def test_odpowiedzi_wydzialow(api_bazy):
     po = klient.delete(f"/api/wnioski/{w['id']}/odpowiedzi-wydzialow/{lista[0]['id']}").json()
     assert po["odpowiedzi_wydzialow"] == []
     assert klient.post("/api/wnioski/nie-ma/odpowiedzi-wydzialow", json={"wydzial": "WIM", "tresc": "x"}).status_code == 404
+
+
+def test_zatwierdzenie_zapisuje_wydzialy_z_odpowiedzi_i_opis_wniosku(api_bazy):
+    klient, _, plik_werdyktow = api_bazy
+    w = klient.post("/api/wnioski", json={
+        **PRZYKLAD, "temat": "Następujących informacji: 1",
+        "tresc": "Jan Kowalski, ul. Polna 3, 85-001 Bydgoszcz. Wnoszę o liczbę deklaracji odpadowych i liczbę "
+                 "zadeklarowanych mieszkańców w 2026 r.",
+    }).json()
+    for wydzial in ("Wydział Gospodarki Odpadami", "Wydział Podatków i Opłat Lokalnych"):
+        klient.post(f"/api/wnioski/{w['id']}/odpowiedzi-wydzialow", json={"wydzial": wydzial, "tresc": "Dane."})
+    odp = klient.post(f"/api/wnioski/{w['id']}/zatwierdz-odpowiedz", json={
+        "werdykt": "MOZNA_UDOSTEPNIC", "komorka_merytoryczna": "Wydział Gospodarki Odpadami", "tresc": "Treść pisma.",
+        "uzasadnienie": "Dane statystyczne posiadane przez Urząd.",
+    })
+    assert odp.status_code == 200, odp.text
+    wpis = next(s for s in json.loads(plik_werdyktow.read_text(encoding="utf-8"))["sprawy"] if s["sygnatura"] == w["numer"])
+    assert wpis["wydzialy"] == ["WGO", "WPL"]
+    assert "deklaracji odpadowych" in wpis["wniosek_o_co"]  # krótki temat uzupełniony treścią wniosku
+    assert "Kowalski" not in wpis["wniosek_o_co"] and "Polna" not in wpis["wniosek_o_co"]

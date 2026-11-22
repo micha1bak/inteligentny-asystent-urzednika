@@ -192,3 +192,34 @@ def test_wykrywanie_danych_osobowych():
     assert {"adres e-mail", "PESEL", "numer konta"} <= set(rodzaje)
     assert not wykryj("Dz.U. 2026 poz. 1234, 02.01.2020 r., kwota 123 456 789,50 zł, art. 6 ust. 1 pkt 5")
     assert "600 100 200" not in zanonimizuj(tekst)
+
+
+def test_wydzialy_symbole_i_nazwy(api):
+    klient, plik, _ = api
+    sprawa = {**NOWA_SPRAWA, "wydzialy": ["wgk", "Wydział Gospodarki Odpadami", "WGK"], "podmiot_poza_umb": ""}
+    odp = klient.post("/api/archiwum", json=_zapis(sprawa))
+    assert odp.status_code == 201, odp.text
+    assert odp.json()["wydzialy"] == ["WGK", "WGO"]  # nazwa -> symbol, bez powtórzeń
+    zapisana = next(s for s in json.loads(plik.read_text(encoding="utf-8"))["sprawy"] if s["sygnatura"] == sprawa["sygnatura"])
+    assert zapisana["wydzialy"] == ["WGK", "WGO"]
+
+
+def test_nieznany_wydzial_odrzucony(api):
+    klient, _, _ = api
+    odp = klient.post("/api/archiwum", json=_zapis({**NOWA_SPRAWA, "wydzialy": ["Wydział Marzeń"]}))
+    assert odp.status_code == 422 and "Wydział Marzeń" in odp.json()["detail"]
+
+
+def test_wpis_bez_pola_wydzialy_nie_daje_pustej_zmiany_w_historii(api):
+    klient, plik, _ = api
+    dane = json.loads(plik.read_text(encoding="utf-8"))
+    dane["sprawy"].append({k: v for k, v in NOWA_SPRAWA.items()})  # starszy format: bez wydzialy i podmiot_poza_umb
+    plik.write_text(json.dumps(dane, ensure_ascii=False), encoding="utf-8")
+    odp = klient.put(f"/api/archiwum/{NOWA_SPRAWA['sygnatura']}", json=_zapis(NOWA_SPRAWA))
+    assert odp.status_code == 200 and odp.json()["historia"] == []
+
+
+def test_archiwum_w_repozytorium_ma_wydzialy():
+    for s in modul_archiwum.lista(U.plik_werdyktow):
+        assert all(modul_archiwum.symbol_jednostki(w) for w in s.wydzialy)
+        assert s.wydzialy or s.podmiot_poza_umb or "brak" in s.komorka_merytoryczna.lower()

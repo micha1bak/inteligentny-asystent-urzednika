@@ -71,7 +71,7 @@ export default function NowaSprawaArchiwum() {
       // pola, których model nie ustalił, zostają takie, jak wpisał urzędnik
       setSprawa((s) => ({
         ...s,
-        ...Object.fromEntries(Object.entries(p.sprawa).filter(([, v]) => v)),
+        ...Object.fromEntries(Object.entries(p.sprawa).filter(([, v]) => (Array.isArray(v) ? v.length > 0 : v))),
       }));
       setOstrzezenia(p.ostrzezenia);
     } catch (e) {

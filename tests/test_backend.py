@@ -8,7 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from inteligentny_asystent_urzednika.app import app, pobierz_klienta
-from inteligentny_asystent_urzednika.config import wczytaj_ustawienia
+from inteligentny_asystent_urzednika.config import KATALOG_GLOWNY, wczytaj_ustawienia
 from inteligentny_asystent_urzednika.groq_klient import BladLLM, KlientGroq
 from inteligentny_asystent_urzednika.wzor.pismo import POLA_KODU, DanePisma, numer_sprawy, zloz_pismo
 from inteligentny_asystent_urzednika.propozycja import ZAPAS_TOKENOW, Wniosek, szacuj_tokeny, zbuduj_wiadomosci, zweryfikuj
@@ -139,7 +139,9 @@ def test_endpoint_waliduje_wejscie(klient_api):
 
 def test_zdrowie():
     dane = TestClient(app).get("/api/zdrowie").json()
-    assert dane["status"] == "ok" and dane["spraw_w_archiwum"] == 8 and dane["werdyktow"] == 7
+    w_pliku = json.loads((KATALOG_GLOWNY / "werdykty_wniosek_odpowiedz_dip.json").read_text(encoding="utf-8"))
+    aktualne = [s for s in w_pliku["sprawy"] if not s.get("nieaktualna")]
+    assert dane["status"] == "ok" and dane["spraw_w_archiwum"] == len(aktualne) >= 8 and dane["werdyktow"] == 7
 
 
 def _groq(handler) -> KlientGroq:
@@ -534,3 +536,16 @@ def test_backend_serwuje_zbudowany_frontend(tmp_path, monkeypatch):
     k = TestClient(utworz_aplikacje())
     assert "Asystent urzędnika" in k.get("/").text
     assert k.get("/api/zdrowie").json()["status"] == "ok"  # API ma pierwszeństwo
+
+
+def test_podobienstwo_tej_samej_sprawy_wysokie_mimo_danych_wnioskodawcy():
+    """Nazwiska, adresy i zwroty grzecznościowe we wniosku nie zaniżają wyniku dopasowania do archiwum."""
+    from inteligentny_asystent_urzednika.podobne import ZapytanieOPodobne, znajdz
+
+    sprawa = next(s for s in WIEDZA.sprawy if s["sygnatura"] == "BKS.IV.1431.590.2026")
+    tresc = ("Szanowni Państwo, nazywam się Bartłomiej Zawadzki-Kowalczyk, zamieszkały ul. Chabrowa 15, 85-001 Bydgoszcz. "
+             f"{sprawa['wniosek_o_co']} Z wyrazami szacunku, Bartłomiej Zawadzki-Kowalczyk, tel. 600 100 200")
+    wynik = znajdz(ZapytanieOPodobne(tresc=tresc), WIEDZA.sprawy, [])
+    assert wynik.sprawy[0].sygnatura == sprawa["sygnatura"] and wynik.sprawy[0].podobienstwo >= 0.6
+    assert wynik.sprawy[0].wydzialy == [{"symbol": "WIM", "nazwa": "Wydział Inwestycji Miasta"}]
+    assert all(s.podobienstwo < 0.3 for s in wynik.sprawy[1:])

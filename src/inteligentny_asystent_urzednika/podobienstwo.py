@@ -35,7 +35,14 @@ def najpodobniejsze(zapytanie: str, elementy: Sequence[T], teksty: Sequence[str]
 
 
 def z_wynikiem(zapytanie: str, elementy: Sequence[T], teksty: Sequence[str], limit: int) -> list[tuple[float, T]]:
-    """Jak `najpodobniejsze`, ale z miarą podobieństwa (cosinus TF-IDF, 0–1)."""
+    """Jak `najpodobniejsze`, ale z miarą podobieństwa 0–1.
+
+    Miara: średnia geometryczna dwóch pokryć liczonych na wagach TF-IDF:
+      * jaka część treści dokumentu (np. sprawy z archiwum) występuje we wniosku,
+      * jaka część wniosku pokrywa się z dokumentem – liczona tylko po słowach, które występują w przeszukiwanym
+        zbiorze. Nazwiska, adresy i zwroty grzecznościowe z wniosku nie trafiają do żadnej sprawy, więc nie
+        zaniżają wyniku (zwykły kosinus dawał przez nie nawet tej samej sprawie ok. 30%).
+    """
     dokumenty = [Counter(rdzenie(t)) for t in teksty]
     df = Counter(r for d in dokumenty for r in d)
     n = len(dokumenty) + 1
@@ -43,17 +50,20 @@ def z_wynikiem(zapytanie: str, elementy: Sequence[T], teksty: Sequence[str], lim
     def wektor(c: Counter) -> dict[str, float]:
         return {r: (1 + math.log(v)) * (math.log(n / (df.get(r, 0) + 1)) + 1) for r, v in c.items()}
 
-    q = wektor(Counter(rdzenie(zapytanie)))
-    q_norma = math.sqrt(sum(x * x for x in q.values()))
-    if not q_norma:
+    # wniosek ograniczony do słownika przeszukiwanego zbioru
+    q = {r: x for r, x in wektor(Counter(rdzenie(zapytanie))).items() if df.get(r)}
+    q_kwadrat = sum(x * x for x in q.values())
+    if not q_kwadrat:
         return []
     wyniki = []
     for el, d in zip(elementy, dokumenty):
         v = wektor(d)
-        norma = math.sqrt(sum(x * x for x in v.values()))
-        if norma:
-            wynik = sum(x * v.get(r, 0.0) for r, x in q.items()) / (q_norma * norma)
-            if wynik > 0:
-                wyniki.append((wynik, el))
+        d_kwadrat = sum(x * x for x in v.values())
+        wspolne = [r for r in v if r in q]
+        if not d_kwadrat or not wspolne:
+            continue
+        pokrycie_dokumentu = sum(v[r] ** 2 for r in wspolne) / d_kwadrat
+        pokrycie_wniosku = sum(q[r] ** 2 for r in wspolne) / q_kwadrat
+        wyniki.append((math.sqrt(pokrycie_dokumentu * pokrycie_wniosku), el))
     wyniki.sort(key=lambda w: w[0], reverse=True)
     return wyniki[:limit]

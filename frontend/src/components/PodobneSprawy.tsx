@@ -3,6 +3,22 @@ import { Link } from 'react-router-dom';
 import { pobierzPodobne, type WynikPodobnych } from '../lib/api';
 import { STATUSY } from '../types';
 
+/** Miara 0–1: pokrycie słów sprawy i wniosku (bez nazwisk, adresów i zwrotów grzecznościowych). */
+const POZIOMY = [
+  { od: 0.45, klasa: 'p-wysokie', opis: 'bardzo podobna' },
+  { od: 0.25, klasa: '', opis: 'podobna' },
+  { od: 0, klasa: 'p-niskie', opis: 'luźno powiązana' },
+];
+
+function Dopasowanie({ wartosc }: { wartosc: number }) {
+  const poziom = POZIOMY.find((p) => wartosc >= p.od) ?? POZIOMY[POZIOMY.length - 1];
+  return (
+    <span className={`podobienstwo ${poziom.klasa}`} title={`Dopasowanie treści: ${poziom.opis}`}>
+      {Math.round(wartosc * 100)}%
+    </span>
+  );
+}
+
 /**
  * Podobne sprawy z archiwum odpowiedzi i podobne wnioski z ostatniego roku (krok 3 instrukcji UMB).
  * Wyszukiwanie lokalne (TF-IDF), bez AI – dane nie opuszczają komputera.
@@ -28,7 +44,6 @@ export default function PodobneSprawy({ tresc, pominId, dataOdniesienia, tytul =
     return () => { clearTimeout(t); ac.abort(); };
   }, [tresc, pominId, dataOdniesienia]);
 
-  const procent = (p: number) => `${Math.round(p * 100)}%`;
   const etykieta = (s: string) => STATUSY.find((x) => x.id === s)?.etykieta ?? s;
   const pusto = wynik && !wynik.sprawy.length && !wynik.wnioski.length;
 
@@ -43,11 +58,17 @@ export default function PodobneSprawy({ tresc, pominId, dataOdniesienia, tytul =
           <ul className="lista-podobnych">
             {wynik.sprawy.map((s) => (
               <li key={s.sygnatura}>
-                <span className="podobienstwo" title="Podobieństwo treści">{procent(s.podobienstwo)}</span>{' '}
+                <Dopasowanie wartosc={s.podobienstwo} />{' '}
                 <strong>{s.sygnatura}</strong> – {s.wniosek_o_co}
+                <div className="maly">
+                  {s.wydzialy?.length
+                    ? <>przekazano do: {s.wydzialy.map((w) => <span key={w.symbol} className="znaczek wydzial" title={w.nazwa}>{w.symbol}</span>)}</>
+                    : 'nie przekazano do wydziału'}
+                  {s.podmiot_poza_umb && <> · dysponent: {s.podmiot_poza_umb}</>}
+                </div>
                 {!kompaktowo && (
                   <div className="maly">
-                    {s.werdykt.replaceAll('_', ' ').toLowerCase()} · {s.komorka_merytoryczna}
+                    {s.werdykt.replaceAll('_', ' ').toLowerCase()}
                     {s.jaka_odpowiedz && <> · odpowiedź: {s.jaka_odpowiedz.slice(0, 180)}{s.jaka_odpowiedz.length > 180 ? '…' : ''}</>}
                   </div>
                 )}
@@ -62,7 +83,7 @@ export default function PodobneSprawy({ tresc, pominId, dataOdniesienia, tytul =
           <ul className="lista-podobnych">
             {wynik.wnioski.map((w) => (
               <li key={w.id}>
-                <span className="podobienstwo">{procent(w.podobienstwo)}</span>{' '}
+                <Dopasowanie wartosc={w.podobienstwo} />{' '}
                 <Link to={`/wnioski/${w.id}`}>{w.numer}</Link> – {w.temat}
                 <span className="maly"> · {w.data_wplywu} · {etykieta(w.status)}</span>
               </li>

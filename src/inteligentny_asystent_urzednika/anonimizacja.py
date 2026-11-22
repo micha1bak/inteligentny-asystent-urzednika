@@ -145,6 +145,14 @@ def sugestie(tekst: str, dodatkowe: list[str] | None = None) -> list[Fragment]:
     return sorted(wynik, key=lambda f: f.start)
 
 
+def zanonimizuj_szeroko(tekst: str, dodatkowe: list[str] | None = None) -> str:
+    """Zastępuje znacznikiem wszystkie sugestie anonimizacji (także imiona i nazwiska, adresy) – np. przed zapisem
+    fragmentu wniosku w archiwum, gdzie nikt nie zatwierdza sugestii pojedynczo."""
+    for f in reversed(sugestie(tekst, dodatkowe)):
+        tekst = tekst[: f.start] + ZNACZNIK + tekst[f.koniec :]
+    return tekst
+
+
 def zastosuj(tekst: str, frazy: list[str], znak: str = "█") -> str:
     """Zastępuje każde wystąpienie zatwierdzonej frazy ciągiem `znak` tej samej długości (czarny prostokąt)."""
     for fraza in sorted({f for f in frazy if f.strip()}, key=len, reverse=True):

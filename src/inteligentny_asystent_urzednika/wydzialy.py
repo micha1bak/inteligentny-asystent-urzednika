@@ -24,6 +24,7 @@ from pydantic import BaseModel, Field
 from .anonimizacja import maskuj_dla_ai
 from .groq_klient import BladLLM, KlientLLM
 from .podobienstwo import najpodobniejsze
+from .podobne import tekst_sprawy
 from .wiedza import JEDNOSTKI_UMB, Wiedza, _skroc, _zwarty
 from .wzor.pismo import data_slownie
 
@@ -33,8 +34,8 @@ MAKS_ZNAKOW_WNIOSKU = 6000
 SYSTEM_WYDZIALY = """Jesteś asystentem Administratora Informacji Publicznej (Biuro Komunikacji Społecznej Urzędu Miasta \
 Bydgoszczy). Wniosek o udostępnienie informacji publicznej trzeba przekazać do komórki merytorycznej UMB, która \
 posiada żądane informacje i przygotuje projekt odpowiedzi (§ 9–11 Zarządzenia Nr 535/2024).
-Masz listę JEDNOSTKI UMB (nazwa i zakres spraw) oraz PODOBNE SPRAWY z archiwum (o co był wniosek i która komórka go \
-przygotowała). Zadanie:
+Masz listę JEDNOSTKI UMB (nazwa i zakres spraw) oraz PODOBNE SPRAWY z archiwum (o co był wniosek, do jakich jednostek \
+go przekazano i ewentualny dysponent spoza UMB). Zadanie:
 1. Wskaż do 3 jednostek z listy JEDNOSTKI UMB, od najbardziej właściwej, które najpewniej POSIADAJĄ żądane informacje. \
 Kieruj się tym, kto w urzędzie prowadzi sprawy, których dotyczy wniosek, a nie samymi słowami wniosku. Podawaj \
 dokładne nazwy z listy. Dla każdej jednej zdanie uzasadnienia.
@@ -95,17 +96,29 @@ def jednostka_po_nazwie(nazwa: str) -> dict | None:
     return None
 
 
+def _wydzialy_sprawy(s: dict) -> list[dict]:
+    """Jednostki, do których przekazano wniosek ze sprawy archiwalnej; starsze wpisy bez pola – z nazwy komórki."""
+    if "wydzialy" in s:
+        return [j for w in s["wydzialy"] if (j := jednostka_po_nazwie(w))]
+    jednostki = [jednostka_po_nazwie(c) for c in re.split(r" oraz |, ", s.get("komorka_merytoryczna", ""))]
+    return [j for j in jednostki if j and j["symbol"] != "BKS"]
+
+
 def kontekst_wydzialow(wiedza: Wiedza, tresc: str, sprawy: int = 3, z_zakresem: bool = True) -> str:
     jednostki = [{"nazwa": j["nazwa"], **({"zakres": j["zakres"]} if z_zakresem else {})} for j in JEDNOSTKI_UMB]
     wszystkie = wiedza.sprawy
-    podobne = najpodobniejsze(tresc, wszystkie, [f"{s['wniosek_o_co']} {s['jaka_odpowiedz']}" for s in wszystkie], sprawy)
+    podobne = najpodobniejsze(tresc, wszystkie, [tekst_sprawy(s) for s in wszystkie], sprawy)
     przyklady = [
-        {"wniosek_o_co": _skroc(s["wniosek_o_co"], 220), "komorka_merytoryczna": s["komorka_merytoryczna"]}
+        {
+            "wniosek_o_co": _skroc(s["wniosek_o_co"], 220),
+            "przekazano_do": [j["nazwa"] for j in _wydzialy_sprawy(s)] or "nie przekazano do wydziału",
+            **({"podmiot_poza_umb": s["podmiot_poza_umb"]} if s.get("podmiot_poza_umb") else {}),
+        }
         for s in podobne
     ]
     return (
         f"JEDNOSTKI UMB:\n{_zwarty(jednostki)}\n\n"
-        f"PODOBNE SPRAWY Z ARCHIWUM (kto przygotował odpowiedź):\n{_zwarty(przyklady)}\n\n"
+        f"PODOBNE SPRAWY Z ARCHIWUM (do kogo przekazano wniosek):\n{_zwarty(przyklady)}\n\n"
         f"<tresc_wniosku>\n{maskuj_dla_ai(tresc[:MAKS_ZNAKOW_WNIOSKU])}\n</tresc_wniosku>"
     )
 
@@ -208,12 +221,11 @@ def zloz_wiadomosc(
 def propozycja_bez_modelu(wiedza: Wiedza, tresc: str) -> PropozycjaWydzialu:
     """Wskazanie ścieżki bez AI (tryb offline): komórki z najbardziej podobnych spraw archiwum + dopasowanie zakresów."""
     wszystkie = wiedza.sprawy
-    podobne = najpodobniejsze(tresc, wszystkie, [f"{s['wniosek_o_co']} {s['jaka_odpowiedz']}" for s in wszystkie], 3)
+    podobne = najpodobniejsze(tresc, wszystkie, [tekst_sprawy(s) for s in wszystkie], 3)
     jednostki: list[KandydatWydzialu] = []
     for s in podobne:
-        for czesc in re.split(r" oraz |, ", s.get("komorka_merytoryczna", "")):
-            j = jednostka_po_nazwie(czesc)
-            if j and j["symbol"] not in {k.symbol for k in jednostki}:
+        for j in _wydzialy_sprawy(s):
+            if j["symbol"] not in {k.symbol for k in jednostki}:
                 jednostki.append(KandydatWydzialu(symbol=j["symbol"], nazwa=j["nazwa"], zakres=j["zakres"],
                                                   uzasadnienie=f"podobna sprawa {s['sygnatura']} w archiwum"))
     for j in ranking_slowny(tresc, 3):

@@ -162,12 +162,21 @@ export interface Sprawa {
   sygnatura: string;
   data_odpowiedzi: string;
   komorka_merytoryczna: string;
+  /** symbole jednostek UMB, do których przekazano wniosek (pusta lista – nie przekazano) */
+  wydzialy: string[];
+  /** właściwy dysponent spoza UMB wskazany wnioskodawcy */
+  podmiot_poza_umb: string;
   wniosek_o_co: string;
   jaka_odpowiedz: string;
   werdykt: string;
   forma_zalatwienia: string;
   etap_i_podstawa: string;
   nieaktualna?: boolean;
+}
+
+export interface JednostkaKrotko {
+  symbol: string;
+  nazwa: string;
 }
 
 export interface WpisHistorii {
@@ -185,7 +194,7 @@ export interface Archiwum {
   sprawy: SprawaZArchiwum[];
   /** słownik werdyktów: kod → opis */
   werdykty: Record<string, string>;
-  jednostki: string[];
+  jednostki: JednostkaKrotko[];
 }
 
 export interface PropozycjaWpisu {
@@ -198,6 +207,8 @@ export const PUSTA_SPRAWA: Sprawa = {
   sygnatura: '',
   data_odpowiedzi: '',
   komorka_merytoryczna: '',
+  wydzialy: [],
+  podmiot_poza_umb: '',
   wniosek_o_co: '',
   jaka_odpowiedz: '',
   werdykt: '',
@@ -609,7 +620,10 @@ export async function pobierzJednostki(sygnal?: AbortSignal): Promise<JednostkaU
 // ---------------------------------------------------------------- podobne sprawy i wnioski (bez AI)
 
 export interface WynikPodobnych {
-  sprawy: { sygnatura: string; wniosek_o_co: string; jaka_odpowiedz: string; werdykt: string; komorka_merytoryczna: string; podobienstwo: number }[];
+  sprawy: {
+    sygnatura: string; wniosek_o_co: string; jaka_odpowiedz: string; werdykt: string; komorka_merytoryczna: string;
+    wydzialy: JednostkaKrotko[]; podmiot_poza_umb: string; podobienstwo: number;
+  }[];
   wnioski: { id: string; numer: string; data_wplywu: string; temat: string; status: Status; podobienstwo: number }[];
 }
 

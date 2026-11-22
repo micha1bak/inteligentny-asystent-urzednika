@@ -1,17 +1,19 @@
-import type { Sprawa } from '../lib/api';
+import type { JednostkaKrotko, Sprawa } from '../lib/api';
 
 interface Props {
   sprawa: Sprawa;
   onZmiana: (s: Sprawa) => void;
   werdykty: Record<string, string>;
-  jednostki: string[];
+  jednostki: JednostkaKrotko[];
   /** przy edycji sygnatury nie można zmienić (to klucz wpisu) */
   sygnaturaStala?: boolean;
 }
 
 /** Pola wpisu archiwalnego – wspólne dla dodawania i edycji. */
 export default function FormularzSprawy({ sprawa, onZmiana, werdykty, jednostki, sygnaturaStala }: Props) {
-  const ustaw = (k: keyof Sprawa, v: string) => onZmiana({ ...sprawa, [k]: v });
+  const ustaw = (k: keyof Sprawa, v: string | string[]) => onZmiana({ ...sprawa, [k]: v });
+  const wydzialy = sprawa.wydzialy ?? [];
+  const nazwa = (symbol: string) => jednostki.find((j) => j.symbol === symbol)?.nazwa ?? symbol;
   const opisWerdyktu = werdykty[sprawa.werdykt];
 
   return (
@@ -38,8 +40,39 @@ export default function FormularzSprawy({ sprawa, onZmiana, werdykty, jednostki,
           placeholder="np. Wydział Inwestycji Miasta"
         />
         <datalist id="jednostki-umb">
-          {jednostki.map((j) => <option key={j} value={j} />)}
+          {jednostki.map((j) => <option key={j.symbol} value={j.nazwa} />)}
         </datalist>
+      </label>
+      <div className="pelny etykieta-pola">
+        Przekazano do wydziałów
+        <div className="wybor-wydzialow">
+          {wydzialy.map((s) => (
+            <span key={s} className="znaczek wydzial" title={nazwa(s)}>
+              {s}
+              <button type="button" aria-label={`Usuń ${nazwa(s)}`} onClick={() => ustaw('wydzialy', wydzialy.filter((w) => w !== s))}>×</button>
+            </span>
+          ))}
+          {!wydzialy.length && <span className="maly">nie przekazano (np. Urząd nie posiada informacji)</span>}
+          <select
+            aria-label="Dodaj wydział"
+            value=""
+            onChange={(e) => e.target.value && ustaw('wydzialy', [...wydzialy, e.target.value])}
+            style={{ width: 'auto', minWidth: 200 }}
+          >
+            <option value="">+ dodaj wydział…</option>
+            {jednostki.filter((j) => !wydzialy.includes(j.symbol)).map((j) => (
+              <option key={j.symbol} value={j.symbol}>{j.symbol} – {j.nazwa}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+      <label className="pelny">
+        Dysponent spoza Urzędu (jeśli wskazano)
+        <input
+          value={sprawa.podmiot_poza_umb ?? ''}
+          onChange={(e) => ustaw('podmiot_poza_umb', e.target.value)}
+          placeholder="np. Zarząd Dróg Miejskich i Komunikacji Publicznej w Bydgoszczy"
+        />
       </label>
       <label className="pelny">
         Czego dotyczył wniosek

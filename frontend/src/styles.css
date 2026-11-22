@@ -95,7 +95,7 @@ input, select, textarea {
   font: inherit; border: 1px solid var(--linia); border-radius: 6px; padding: 7px 10px; background: var(--karta); color: var(--tekst); width: 100%;
 }
 textarea { resize: vertical; line-height: 1.5; }
-label { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; color: var(--tekst-2); }
+label, .etykieta-pola { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; color: var(--tekst-2); }
 .formularz { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
 .formularz .pelny { grid-column: 1 / -1; }
 
@@ -386,6 +386,11 @@ pre.json, textarea.json { font-family: Consolas, monospace; font-size: 0.8rem; w
 .lista-podobnych { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; }
 .podobienstwo { display: inline-block; min-width: 38px; text-align: center; font-size: 0.75rem; font-weight: 600; color: var(--akcent);
   background: var(--akcent-tlo); border-radius: 10px; padding: 0 6px; }
+.podobienstwo.p-wysokie { color: var(--zielony); background: var(--zielony-tlo); }
+.podobienstwo.p-niskie { color: #4a5565; background: #eef0f3; }
+.znaczek.wydzial { background: var(--akcent-tlo); color: var(--akcent); font-weight: 600; cursor: help; }
+.wybor-wydzialow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.wybor-wydzialow .znaczek button { border: 0; background: none; padding: 0 0 0 4px; color: inherit; cursor: pointer; font-weight: 700; min-height: 0; }
 .podobne-kompakt { border-top: 1px dashed var(--linia); margin-top: 10px; padding-top: 8px; }
 
 /* zapytanie do wydziału */

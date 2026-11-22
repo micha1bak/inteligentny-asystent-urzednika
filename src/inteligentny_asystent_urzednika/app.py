@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import tempfile
 from datetime import date
 from pathlib import Path
@@ -57,10 +58,40 @@ from .wydzialy import (
 MAKS_ROZMIAR_PLIKU = 20 * 1024 * 1024  # 20 MB
 
 
+class JednostkaKrotko(BaseModel):
+    symbol: str
+    nazwa: str
+
+
 class Archiwum(BaseModel):
     sprawy: list[SprawaZArchiwum]
     werdykty: dict[str, str]
-    jednostki: list[str]
+    jednostki: list[JednostkaKrotko]
+
+
+def _opis_wniosku_do_archiwum(wniosek: WniosekZapisany) -> str:
+    """Temat wniosku; gdy jest krótki lub ogólnikowy – z początkiem treści (zanonimizowanym), żeby sprawę dało się
+    potem odnaleźć jako podobną."""
+    dodatkowe = [wniosek.wnioskodawca] + wniosek.wnioskodawca.split()
+    temat = " ".join(anonimizacja.zanonimizuj_szeroko(wniosek.temat, dodatkowe).split())
+    if len(temat) >= 60:
+        return temat[:3000]
+    tresc = " ".join(anonimizacja.zanonimizuj_szeroko(wniosek.tresc, dodatkowe).split())
+    if len(tresc) > 700:
+        tresc = tresc[:700].rsplit(" ", 1)[0] + "…"
+    return f"{temat}: {tresc}".strip(": ")[:3000]
+
+
+def _wydzialy_wniosku(wniosek: WniosekZapisany, komorka: str) -> list[str]:
+    """Symbole jednostek UMB, do których przekazano wniosek: z wgranych odpowiedzi wydziałów, a gdy ich brak –
+    z komórki merytorycznej wskazanej w zatwierdzonej odpowiedzi."""
+    symbole: list[str] = []
+    zrodla = [o.wydzial for o in wniosek.odpowiedzi_wydzialow] or re.split(r" oraz |, |; ", komorka)
+    for nazwa in zrodla:
+        j = jednostka_po_nazwie(nazwa) if nazwa.strip() else None
+        if j and j["symbol"] not in symbole and j["symbol"] != "BKS":
+            symbole.append(j["symbol"])
+    return symbole
 
 
 class AktWBazie(BaseModel):
@@ -346,10 +377,7 @@ def utworz_aplikacje() -> FastAPI:
         komunikat: str | None = None
 
         if dane.werdykt.strip() in wiedza.slownik_werdyktow:
-            opis_wniosku = anonimizacja.zanonimizuj(wniosek.temat).strip()
-            if len(opis_wniosku) < 10:
-                fragment = anonimizacja.zanonimizuj(wniosek.tresc).strip()
-                opis_wniosku = f"{opis_wniosku}: {fragment}".strip(": ")[:2800]
+            opis_wniosku = _opis_wniosku_do_archiwum(wniosek)
             if len(opis_wniosku) < 10:
                 opis_wniosku = f"Wniosek {wniosek.numer} o udostępnienie informacji publicznej"
 
@@ -364,6 +392,7 @@ def utworz_aplikacje() -> FastAPI:
                 sygnatura=wniosek.numer,
                 data_odpowiedzi=wniosek.data_odpowiedzi or date.today().isoformat(),
                 komorka_merytoryczna=anonimizacja.zanonimizuj(dane.komorka_merytoryczna)[:200],
+                wydzialy=_wydzialy_wniosku(wniosek, dane.komorka_merytoryczna),
                 wniosek_o_co=opis_wniosku[:3000],
                 jaka_odpowiedz=opis_odpowiedzi[:5000],
                 werdykt=dane.werdykt.strip(),
@@ -596,7 +625,7 @@ def utworz_aplikacje() -> FastAPI:
         return Archiwum(
             sprawy=archiwum.lista(u.plik_werdyktow),
             werdykty=wiedza.slownik_werdyktow,
-            jednostki=[j["nazwa"] for j in JEDNOSTKI_UMB],
+            jednostki=[{"symbol": j["symbol"], "nazwa": j["nazwa"]} for j in JEDNOSTKI_UMB],
         )
 
     @app.post("/api/archiwum", response_model=SprawaZArchiwum, status_code=201)

@@ -8,6 +8,7 @@ from datetime import date
 from pydantic import BaseModel, Field, ValidationError
 
 from .anonimizacja import wykryj, zanonimizuj
+from .archiwum import symbol_jednostki
 from .groq_klient import BladLLM, KlientLLM
 from .propozycja import _wytnij_json
 from .wiedza import JEDNOSTKI_UMB, Wiedza
@@ -28,6 +29,8 @@ class SzkicSprawy(BaseModel):
     sygnatura: str = ""
     data_odpowiedzi: str = ""
     komorka_merytoryczna: str = ""
+    wydzialy: list[str] = []
+    podmiot_poza_umb: str = ""
     wniosek_o_co: str = ""
     jaka_odpowiedz: str = ""
     werdykt: str = ""
@@ -52,14 +55,17 @@ fizycznych, ich adresów, e-maili, telefonów, numerów PESEL, kont, dokumentów
 których dotyczy sprawa, mogą zostać.
 - werdykt: dokładnie jeden kod ze SŁOWNIKA WERDYKTÓW, najlepiej opisujący, jak sprawa została załatwiona.
 - komorka_merytoryczna: nazwa z listy JEDNOSTEK UMB, która przygotowała dane (pusty tekst, jeśli nie wynika z dokumentów).
+- wydzialy: lista dokładnych nazw z listy JEDNOSTEK UMB, do których przekazano wniosek (pusta lista, jeśli Urząd nie \
+posiadał informacji albo odpowiedział bez udziału wydziału).
+- podmiot_poza_umb: właściwy dysponent informacji spoza Urzędu wskazany wnioskodawcy (pusty tekst, jeśli nie dotyczy).
 - wniosek_o_co: 1–2 zdania – czego dotyczył wniosek.
 - jaka_odpowiedz: 1–3 zdania – co udostępniono lub dlaczego odmówiono, z kluczowymi faktami (bez danych osobowych).
 - forma_zalatwienia: np. „Pismo udostępniające informację”, „Decyzja o odmowie”, „Pismo informacyjne – organ nie posiada informacji”.
 - etap_i_podstawa: przepisy, na które powołuje się odpowiedź (np. „Art. 1 ust. 1, art. 10 ust. 1 UDIP”).
 - data_odpowiedzi: data pisma z odpowiedzią w formacie RRRR-MM-DD albo pusty tekst.
 - sygnatura: znak sprawy z odpowiedzi (np. BKS.IV.1431.590.2026) albo pusty tekst.
-Zwróć WYŁĄCZNIE obiekt JSON z polami: sygnatura, data_odpowiedzi, komorka_merytoryczna, wniosek_o_co, \
-jaka_odpowiedz, werdykt, forma_zalatwienia, etap_i_podstawa."""
+Zwróć WYŁĄCZNIE obiekt JSON z polami: sygnatura, data_odpowiedzi, komorka_merytoryczna, wydzialy, \
+podmiot_poza_umb, wniosek_o_co, jaka_odpowiedz, werdykt, forma_zalatwienia, etap_i_podstawa."""
 
 
 def _przytnij(tekst: str, nazwa: str, ostrzezenia: list[str]) -> str:
@@ -90,7 +96,11 @@ def zbuduj_wiadomosci(z: ZapytanieOWpis, wiedza: Wiedza) -> tuple[list[dict[str,
 def zweryfikuj_wpis(surowa: str, wiedza: Wiedza, sygnatura: str = "") -> tuple[SzkicSprawy, list[str]]:
     try:
         dane = json.loads(_wytnij_json(surowa))
-        szkic = SzkicSprawy.model_validate({k: ("" if v is None else str(v)) for k, v in dane.items() if k in SzkicSprawy.model_fields})
+        szkic = SzkicSprawy.model_validate({
+            k: (([str(x) for x in v] if isinstance(v, list) else [str(v)] if v else []) if k == "wydzialy"
+                else "" if v is None else str(v))
+            for k, v in dane.items() if k in SzkicSprawy.model_fields
+        })
     except (json.JSONDecodeError, ValidationError, AttributeError) as e:
         raise BladLLM("Model zwrócił odpowiedź w niepoprawnym formacie. Spróbuj ponownie.", 502) from e
 
@@ -103,12 +113,22 @@ def zweryfikuj_wpis(surowa: str, wiedza: Wiedza, sygnatura: str = "") -> tuple[S
     jednostki = {j["nazwa"] for j in JEDNOSTKI_UMB}
     if szkic.komorka_merytoryczna and szkic.komorka_merytoryczna not in jednostki:
         ostrzezenia.append(f"Komórki „{szkic.komorka_merytoryczna}” nie ma na liście jednostek UMB – sprawdź nazwę.")
+    symbole: list[str] = []
+    for nazwa in szkic.wydzialy:
+        symbol = symbol_jednostki(nazwa)
+        if not symbol:
+            ostrzezenia.append(f"Pominięto jednostkę spoza listy UMB: „{nazwa}”.")
+        elif symbol not in symbole:
+            symbole.append(symbol)
+    szkic.wydzialy = symbole
     if szkic.data_odpowiedzi and not _czy_data(szkic.data_odpowiedzi):
         ostrzezenia.append(f"Pominięto niepoprawną datę odpowiedzi „{szkic.data_odpowiedzi}”.")
         szkic.data_odpowiedzi = ""
 
     # druga linia anonimizacji: dane o jednoznacznym formacie maskujemy niezależnie od modelu
-    for pole in ("wniosek_o_co", "jaka_odpowiedz", "forma_zalatwienia", "etap_i_podstawa", "komorka_merytoryczna"):
+    for pole in (
+        "wniosek_o_co", "jaka_odpowiedz", "forma_zalatwienia", "etap_i_podstawa", "komorka_merytoryczna", "podmiot_poza_umb",
+    ):
         wartosc = getattr(szkic, pole)
         if znalezione := wykryj(wartosc):
             setattr(szkic, pole, zanonimizuj(wartosc))

@@ -118,8 +118,15 @@ class Wiedza:
             model["katalog_anonimizacji"] = [
                 p["informacja"] for p in ocena["katalog_danych_podlegajacych_anonimizacji"]["pozycje"]
             ]
-        pola = ("sygnatura", "komorka_merytoryczna", "wniosek_o_co", "jaka_odpowiedz", "werdykt", "etap_i_podstawa")
-        archiwum = [{k: s[k] for k in pola if k in s} for s in podobne[: wybor.sprawy]]
+        pola = (
+            "sygnatura", "komorka_merytoryczna", "wydzialy", "podmiot_poza_umb", "wniosek_o_co", "jaka_odpowiedz",
+            "werdykt", "etap_i_podstawa",
+        )
+        nazwy = {j["symbol"]: j["nazwa"] for j in JEDNOSTKI_UMB}
+        archiwum = [
+            {k: ([nazwy.get(w, w) for w in s[k]] if k == "wydzialy" else s[k]) for k in pola if k in s}
+            for s in podobne[: wybor.sprawy]
+        ]
         wzory = self.wybierz_wzory(tresc_wniosku, podobne, wybor.wzory)
         return (
             f"MODEL OCENY PRAWNEJ (wybrane fragmenty):\n{_zwarty(model)}\n\n"
