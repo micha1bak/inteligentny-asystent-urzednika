@@ -64,7 +64,7 @@ h3 { font-size: 0.95rem; margin: 0 0 8px; }
 .logowanie-logo img { max-width: 160px; height: auto; display: block; }
 .os-moje {
   display: inline-block; padding: 1px 6px; border-radius: 4px;
-  background: var(--akcent-tlo); color: var(--akcent); font-weight: 700;
+  background: var(--akcent-tlo); color: var(--akcent); font-weight: 700; white-space: nowrap;
 }
 .tresc { padding: 24px 32px 48px; max-width: 1320px; width: 100%; }
 
@@ -306,6 +306,12 @@ tr.wybrany td:first-child { box-shadow: inset 4px 0 var(--akcent); }
 tr.nieaktualny td { color: var(--tekst-2); }
 tr.nieaktualny .temat-sprawy { text-decoration: line-through; }
 tr.klikalny td { overflow-wrap: anywhere; }
+.nowrap, tr.klikalny td.nowrap { white-space: nowrap; overflow-wrap: normal; word-break: normal; }
+.naglowek-sort {
+  border: 0; background: none; padding: 0; font: inherit; color: inherit;
+  text-transform: inherit; letter-spacing: inherit; cursor: pointer; white-space: nowrap;
+}
+.naglowek-sort:hover { background: none; color: var(--akcent); }
 tr.klikalny .znaczek { white-space: normal; }
 ul.historia { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 ul.historia li { border-left: 3px solid var(--linia); padding-left: 10px; font-size: 0.9rem; }
